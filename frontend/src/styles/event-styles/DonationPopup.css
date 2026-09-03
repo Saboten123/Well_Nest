@@ -1,0 +1,266 @@
+/* Additional styles for donation-related elements in EventsListPage */
+/* DonationPopup.css */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.popup-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.popup-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    background: #f5f5f5;
+}
+
+.popup-body {
+    padding: 20px;
+}
+
+.event-info {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.event-info h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.event-info p {
+    margin: 4px 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.form-field {
+    margin-bottom: 16px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.form-field input.error {
+    border-color: #dc3545;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+.reward-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #e7f3ff;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    color: #0066cc;
+    font-size: 0.9rem;
+}
+
+.donation-actions,
+.qr-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.qr-container {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.qr-code {
+    max-width: 200px;
+    height: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.qr-instructions {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.qr-instructions h4 {
+    margin: 0 0 12px 0;
+    text-align: center;
+    color: #333;
+}
+
+.qr-instructions p {
+    margin: 6px 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.donation-popup .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    border: none;
+    font-size: 0.9rem;
+}
+
+.donation-popup .btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.donation-popup .btn-primary:hover:not(:disabled) {
+    background: #0056b3;
+}
+
+.donation-popup .btn-outline {
+    background: white;
+    border: 2px solid #007bff;
+    color: #007bff;
+}
+
+.donation-popup .btn-outline:hover:not(:disabled) {
+    background: #007bff;
+    color: white;
+}
+
+.donation-popup .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.donation-popup .icon {
+    width: 18px;
+    height: 18px;
+}
+
+.donation-popup .icon.small {
+    width: 16px;
+    height: 16px;
+}
+.event-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.donation-badge {
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.donation-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #e8f5e8;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+    color: #28a745;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.donation-info .icon {
+    color: #28a745;
+}
+
+/* Update existing styles for better layout */
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.event-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rewards-badge {
+    background: #ffc107;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}

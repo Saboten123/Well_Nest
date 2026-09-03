@@ -1,0 +1,265 @@
+.form-page {
+    min-height: 100vh;
+    background: #f9fafb;
+    padding: 1.5rem;
+}
+
+.form-container {
+    max-width: 64rem;
+    margin: 0 auto;
+}
+
+.header .back-button {
+    display: flex;
+    align-items: center;
+    color: #2563eb;
+    margin-bottom: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.header .back-button:hover {
+    color: #1d4ed8;
+}
+
+.back-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-left: 0.75rem;
+}
+
+.icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.icon.blue {
+    color: #2563eb;
+}
+
+.icon.green {
+    color: #16a34a;
+}
+
+.icon.red {
+    color: #dc2626;
+}
+
+.icon.purple {
+    color: #7c3aed;
+}
+
+.icon.orange {
+    color: #ea580c;
+}
+
+.icon.gray {
+    color: #4b5563;
+}
+
+.blood-warning {
+    display: flex;
+    align-items: start;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #dc2626;
+    margin-right: 0.75rem;
+    margin-top: 0.125rem;
+}
+
+.form-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #111827;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.form-field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+}
+
+.label-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+input.error,
+textarea.error {
+    border-color: #dc2626;
+}
+
+.error-text {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.submit-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.submit-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: white;
+    background: #2563eb;
+    border-radius: 0.375rem;
+    transition: background 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.submit-button:hover {
+    background: #1d4ed8;
+}
+
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.spinner {
+    border: 2px solid transparent;
+    border-bottom: 2px solid white;
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.btn-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+}
+
+.guidelines {
+    margin-top: 2rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.guidelines h3 {
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 1rem;
+}
+
+.guideline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #1d4ed8;
+}
+
+.guideline-grid h4 {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.guideline-grid ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.guideline-grid li {
+    margin-bottom: 0.25rem;
+}
+
+.blood-guidelines {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.375rem;
+}
+
+.blood-guidelines h4 {
+    font-weight: 500;
+    color: #b91c1c;
+    margin-bottom: 0.5rem;
+}
+
+.blood-guidelines p {
+    color: #dc2626;
+    font-size: 0.875rem;
+}

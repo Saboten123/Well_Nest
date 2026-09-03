@@ -1,0 +1,39 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/PatientRecords.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n// Contract 1: Private Patient Records (Limited Access)\ncontract PatientRecords {\n    struct PatientRecord {\n        bytes32 dataHash;\n        address doctor; // Who treated the patient\n        uint256 timestamp;\n        bool isActive;\n        // NO patient identifying info on blockchain\n    }\n\n    // patientId => ordered list of data hashes (append-only)\n    mapping(string => bytes32[]) private _recordsOfPatient;\n    mapping(bytes32 => PatientRecord) private records;\n    mapping(address => bool) public authorizedDoctors;\n\n    event RecordStored(bytes32 indexed recordHash, address indexed doctor);\n\n    modifier onlyAuthorizedDoctor() {\n        require(authorizedDoctors[msg.sender], \"Not authorized doctor\");\n        _;\n    }\n\n    function storePatientRecord(\n        bytes32 _dataHash,\n        string memory name\n    ) external onlyAuthorizedDoctor {\n        _recordsOfPatient[name].push(_dataHash);\n        records[_dataHash] = PatientRecord({\n            dataHash: _dataHash,\n            doctor: msg.sender,\n            timestamp: block.timestamp,\n            isActive: true\n        });\n        emit RecordStored(_dataHash, msg.sender);\n    }\n\n    // function verifyPatientRecord(\n    //     bytes32 _dataHash\n    // ) external view returns (bool exists, address doctor, uint256 timestamp) {\n    //     PatientRecord memory record = records[_dataHash];\n    //     exists = record.timestamp != 0 && record.isActive;\n    //     if (exists) {\n    //         doctor = record.doctor;\n    //         timestamp = record.timestamp;\n    //     }\n    // }\n\n    function getAllPatientRecords(\n        string memory name\n    ) external view returns (PatientRecord[] memory) {\n        bytes32[] memory hashes = _recordsOfPatient[name];\n        PatientRecord[] memory allRecords = new PatientRecord[](hashes.length);\n\n        for (uint256 i = 0; i < hashes.length; i++) {\n            allRecords[i] = records[hashes[i]];\n        }\n\n        return allRecords;\n    }\n}\n"
+    },
+    "contracts/PublicHealthReports.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\n// Contract 2: Public Health Reports (Open for Verification)\r\ncontract PublicHealthReports {\r\n    struct HealthReport {\r\n        bytes32 dataHash;\r\n        string reportType; // \"outbreak\", \"vaccination_campaign\", \"health_survey\"\r\n        string location; // \"District A\", \"Rural Area B\"\r\n        address submittedBy; // Health worker, NGO, government official\r\n        uint256 timestamp;\r\n        string ipfsHash; // For detailed data\r\n        bool isActive;\r\n    }\r\n\r\n    mapping(bytes32 => HealthReport) public reports;\r\n    mapping(string => bytes32[]) public reportsByLocation;\r\n    mapping(string => bytes32[]) public reportsByType;\r\n    mapping(address => bool) public authorizedReporters;\r\n\r\n    event ReportSubmitted(\r\n        bytes32 indexed reportHash,\r\n        string indexed location,\r\n        string reportType,\r\n        address indexed submitter\r\n    );\r\n\r\n    modifier onlyAuthorizedReporter() {\r\n        require(\r\n            authorizedReporters[msg.sender],\r\n            \"Not authorized to submit reports\"\r\n        );\r\n        _;\r\n    }\r\n\r\n    function submitHealthReport(\r\n        bytes32 _dataHash,\r\n        string memory _reportType,\r\n        string memory _location,\r\n        string memory _ipfsHash\r\n    ) external onlyAuthorizedReporter {\r\n        reports[_dataHash] = HealthReport({\r\n            dataHash: _dataHash,\r\n            reportType: _reportType,\r\n            location: _location,\r\n            submittedBy: msg.sender,\r\n            timestamp: block.timestamp,\r\n            ipfsHash: _ipfsHash,\r\n            isActive: true\r\n        });\r\n\r\n        reportsByLocation[_location].push(_dataHash);\r\n        reportsByType[_reportType].push(_dataHash);\r\n\r\n        emit ReportSubmitted(_dataHash, _location, _reportType, msg.sender);\r\n    }\r\n\r\n    // Anyone can verify public health reports\r\n    function verifyHealthReport(\r\n        bytes32 _dataHash\r\n    ) external view returns (bool exists, HealthReport memory report) {\r\n        exists =\r\n            reports[_dataHash].timestamp != 0 &&\r\n            reports[_dataHash].isActive;\r\n        if (exists) {\r\n            report = reports[_dataHash];\r\n        }\r\n    }\r\n\r\n    // Get all outbreak reports for a location (for dashboards)\r\n    function getReportsByLocation(\r\n        string memory _location\r\n    ) external view returns (bytes32[] memory) {\r\n        return reportsByLocation[_location];\r\n    }\r\n\r\n    // Get all reports by type (for analytics)\r\n    function getReportsByType(\r\n        string memory _reportType\r\n    ) external view returns (bytes32[] memory) {\r\n        return reportsByType[_reportType];\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

@@ -1,0 +1,549 @@
+{
+  "address": "0x1143bDA068051A0F736AC0Ad62D2e8EFF065527c",
+  "sourceName": "contracts/PublicHealthReports.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "reportHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "state",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "district",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "pincode",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reportType",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "submitter",
+          "type": "address"
+        }
+      ],
+      "name": "ReportSubmitted",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_dataHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getReportDetails",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "dataHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "reportType",
+              "type": "string"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "country",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "state",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "district",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "pincode",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct PublicHealthReports.Location",
+              "name": "location",
+              "type": "tuple"
+            },
+            {
+              "internalType": "string",
+              "name": "submittedBy",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isverified",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "verifiedById",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct PublicHealthReports.HealthReport",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_country",
+          "type": "string"
+        }
+      ],
+      "name": "getReportsByCountry",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_district",
+          "type": "string"
+        }
+      ],
+      "name": "getReportsByDistrict",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "country",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "state",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "district",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "pincode",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct PublicHealthReports.Location",
+          "name": "_location",
+          "type": "tuple"
+        }
+      ],
+      "name": "getReportsByLocation",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pincode",
+          "type": "string"
+        }
+      ],
+      "name": "getReportsByPincode",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_state",
+          "type": "string"
+        }
+      ],
+      "name": "getReportsByState",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_reportType",
+          "type": "string"
+        }
+      ],
+      "name": "getReportsByType",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "reports",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "reportType",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "country",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "state",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "district",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "pincode",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct PublicHealthReports.Location",
+          "name": "location",
+          "type": "tuple"
+        },
+        {
+          "internalType": "string",
+          "name": "submittedBy",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isverified",
+          "type": "bool"
+        },
+        {
+          "internalType": "string",
+          "name": "verifiedById",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "reportsByCountry",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "reportsByDistrict",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "reportsByPincode",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "reportsByState",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "reportsByType",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_dataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "_submittedBy",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_email",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_reportType",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "country",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "state",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "district",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "pincode",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct PublicHealthReports.Location",
+          "name": "_location",
+          "type": "tuple"
+        }
+      ],
+      "name": "submitHealthReport",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_dataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "by",
+          "type": "string"
+        }
+      ],
+      "name": "verifyHealthReport",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "exists",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}

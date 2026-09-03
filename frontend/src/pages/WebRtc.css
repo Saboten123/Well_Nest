@@ -1,0 +1,666 @@
+/* WebRTC Video Call Styles */
+
+/* Landing Page Styles */
+.webrtc-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #4338ca 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.webrtc-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 28rem;
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.webrtc-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.webrtc-icon {
+    width: 4rem;
+    height: 4rem;
+    background: #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.webrtc-icon-video {
+    width: 2rem;
+    height: 2rem;
+    color: white;
+}
+
+.webrtc-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.5rem;
+}
+
+.webrtc-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+.webrtc-error {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.webrtc-error-text {
+    color: #fecaca;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.webrtc-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.webrtc-action-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.webrtc-action-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.webrtc-btn {
+    width: 100%;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.webrtc-btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.webrtc-btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.webrtc-btn-success {
+    background: #16a34a;
+    color: white;
+}
+
+.webrtc-btn-success:hover {
+    background: #15803d;
+}
+
+.webrtc-btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.webrtc-btn-disabled:hover {
+    background: inherit;
+}
+
+.webrtc-btn-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.webrtc-spinner {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.webrtc-join-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.webrtc-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.webrtc-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.webrtc-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.webrtc-status {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.webrtc-status-text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+    text-align: center;
+    margin: 0;
+}
+
+.webrtc-status-indicator {
+    margin-left: 0.5rem;
+    font-weight: 500;
+}
+
+.webrtc-status-connected {
+    color: #4ade80;
+}
+
+.webrtc-status-error {
+    color: #f87171;
+}
+
+.webrtc-status-disconnected {
+    color: #fbbf24;
+}
+
+/* Video Call Interface Styles */
+.webrtc-call-container {
+    min-height: 100vh;
+    background: #111827;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Header */
+.webrtc-call-header {
+    background: #1f2937;
+    border-bottom: 1px solid #374151;
+    padding: 1rem;
+}
+
+.webrtc-call-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.webrtc-call-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.webrtc-call-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.webrtc-room-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #374151;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.webrtc-room-label {
+    color: #d1d5db;
+    font-size: 0.875rem;
+}
+
+.webrtc-room-id {
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.webrtc-copy-btn {
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.webrtc-copy-btn:hover {
+    background: #4b5563;
+}
+
+.webrtc-copy-icon {
+    width: 1rem;
+    height: 1rem;
+    color: #d1d5db;
+}
+
+.webrtc-copy-success {
+    color: #4ade80;
+}
+
+.webrtc-call-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.webrtc-participants-count {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #d1d5db;
+}
+
+.webrtc-participants-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.webrtc-participants-number {
+    font-size: 0.875rem;
+}
+
+.webrtc-chat-toggle {
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.webrtc-chat-toggle:hover {
+    background: #374151;
+}
+
+.webrtc-chat-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #d1d5db;
+}
+
+/* Main Content Area */
+.webrtc-call-main {
+    flex: 1;
+    display: flex;
+}
+
+/* Video Area */
+.webrtc-video-area {
+    flex: 1;
+    position: relative;
+}
+
+.webrtc-remote-videos {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+.webrtc-remote-video-container {
+    background: #1f2937;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.webrtc-remote-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.webrtc-waiting-message {
+    grid-column: span 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+}
+
+.webrtc-waiting-content {
+    text-align: center;
+}
+
+.webrtc-waiting-icon {
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 0.5rem;
+    opacity: 0.5;
+}
+
+.webrtc-waiting-content p {
+    margin: 0;
+}
+
+/* Local Video (Picture-in-Picture) */
+.webrtc-local-video-container {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 12rem;
+    height: 9rem;
+    background: #1f2937;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 2px solid #4b5563;
+}
+
+.webrtc-local-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.webrtc-local-video-label {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.webrtc-local-video-label span {
+    color: white;
+    font-size: 0.75rem;
+}
+
+/* Chat Panel */
+.webrtc-chat-panel {
+    width: 20rem;
+    background: #1f2937;
+    border-left: 1px solid #374151;
+    display: flex;
+    flex-direction: column;
+}
+
+.webrtc-chat-header {
+    padding: 1rem;
+    border-bottom: 1px solid #374151;
+}
+
+.webrtc-chat-title {
+    color: white;
+    font-weight: 600;
+    margin: 0;
+}
+
+.webrtc-chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.webrtc-chat-message {
+    font-size: 0.875rem;
+}
+
+.webrtc-chat-sender {
+    color: #60a5fa;
+    font-weight: 500;
+}
+
+.webrtc-chat-text {
+    color: #d1d5db;
+}
+
+.webrtc-chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid #374151;
+}
+
+.webrtc-chat-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.webrtc-chat-input {
+    flex: 1;
+    background: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    color: white;
+    font-size: 0.875rem;
+}
+
+.webrtc-chat-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.webrtc-chat-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.webrtc-chat-send {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.webrtc-chat-send:hover {
+    background: #1d4ed8;
+}
+
+/* Controls */
+.webrtc-controls {
+    background: #1f2937;
+    border-top: 1px solid #374151;
+    padding: 1rem;
+}
+
+.webrtc-controls-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.webrtc-control-btn {
+    padding: 0.75rem;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.webrtc-control-btn-active {
+    background: #374151;
+    color: white;
+}
+
+.webrtc-control-btn-active:hover {
+    background: #4b5563;
+}
+
+.webrtc-control-btn-muted {
+    background: #dc2626;
+    color: white;
+}
+
+.webrtc-control-btn-muted:hover {
+    background: #b91c1c;
+}
+
+.webrtc-control-btn-sharing {
+    background: #2563eb;
+    color: white;
+}
+
+.webrtc-control-btn-sharing:hover {
+    background: #1d4ed8;
+}
+
+.webrtc-control-btn-end {
+    background: #dc2626;
+    color: white;
+}
+
+.webrtc-control-btn-end:hover {
+    background: #b91c1c;
+}
+
+.webrtc-control-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* Error Toast */
+.webrtc-error-toast {
+    position: absolute;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #dc2626;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .webrtc-call-main {
+        flex-direction: column;
+    }
+
+    .webrtc-chat-panel {
+        width: 100%;
+        height: 16rem;
+        border-left: none;
+        border-top: 1px solid #374151;
+    }
+
+    .webrtc-local-video-container {
+        width: 8rem;
+        height: 6rem;
+    }
+
+    .webrtc-remote-videos {
+        grid-template-columns: 1fr;
+    }
+
+    .webrtc-waiting-message {
+        grid-column: span 1;
+    }
+
+    .webrtc-call-header-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .webrtc-call-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .webrtc-controls-content {
+        gap: 0.75rem;
+    }
+
+    .webrtc-control-btn {
+        padding: 0.625rem;
+    }
+
+    .webrtc-control-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .webrtc-container {
+        padding: 0.5rem;
+    }
+
+    .webrtc-card {
+        padding: 1.5rem;
+    }
+
+    .webrtc-local-video-container {
+        width: 6rem;
+        height: 4.5rem;
+    }
+
+    .webrtc-controls-content {
+        gap: 0.5rem;
+    }
+
+    .webrtc-control-btn {
+        padding: 0.5rem;
+    }
+
+    .webrtc-control-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+}

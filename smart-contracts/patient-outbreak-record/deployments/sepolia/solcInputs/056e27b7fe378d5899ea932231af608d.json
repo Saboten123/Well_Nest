@@ -1,0 +1,39 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/PatientRecords.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n// Contract 1: Private Patient Records (Limited Access)\ncontract PatientRecords {\n    struct PatientRecord {\n        bytes32 dataHash;\n        string patientId;\n        string doctor; // Who treated the patient\n        uint256 timestamp;\n    }\n\n    // patientId => ordered list of data hashes (append-only)\n    mapping(bytes32 => PatientRecord) private records;\n    mapping(string => bytes32[]) private _recordsOfPatient;\n\n    event RecordStored(bytes32 indexed recordHash, address indexed doctor);\n\n    function storePatientRecord(\n        bytes32 _dataHash,\n        string memory _patient,\n        string memory _doctor\n    ) external {\n        require(records[_dataHash].timestamp == 0, \"Record already exists\");//prevents duplication\n        _recordsOfPatient[_patient].push(_dataHash);\n        records[_dataHash] = PatientRecord({\n            dataHash: _dataHash,\n            patientId: _patient,\n            doctor: _doctor,\n            timestamp: block.timestamp\n        });\n        emit RecordStored(_dataHash, msg.sender);\n    }\n\n    function getAllPatientRecords(\n        string memory _patient\n    ) external view returns (PatientRecord[] memory) {\n        bytes32[] memory hashes = _recordsOfPatient[_patient];\n        PatientRecord[] memory allRecords = new PatientRecord[](hashes.length);\n\n        for (uint256 i = 0; i < hashes.length; i++) {\n            allRecords[i] = records[hashes[i]];\n        }\n\n        return allRecords;\n    }\n}\n"
+    },
+    "contracts/PublicHealthReports.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\n// Contract 2: Public Health Reports (Open for Verification)\r\ncontract PublicHealthReports {\r\n    struct HealthReport {\r\n        bytes32 dataHash;\r\n        string reportType; // \"outbreak\",\"health_survey\"\r\n        string location; // \"District A\", \"Rural Area B\"\r\n        string submittedBy; // Health worker, NGO, government official\r\n        string email;\r\n        uint256 timestamp;\r\n        bool isverified;\r\n        string verifiedById;\r\n    }\r\n\r\n    mapping(bytes32 => HealthReport) public reports;\r\n    mapping(string => bytes32[]) public reportsByLocation;\r\n    mapping(string => bytes32[]) public reportsByType;\r\n\r\n    event ReportSubmitted(\r\n        bytes32 indexed reportHash,\r\n        string indexed location,\r\n        string reportType,\r\n        address indexed submitter\r\n    );\r\n\r\n    function submitHealthReport(\r\n        bytes32 _dataHash,\r\n        string memory _submittedBy,\r\n        string memory _email,\r\n        string memory _reportType,\r\n        string memory _location\r\n    ) external {\r\n        require(reports[_dataHash].timestamp == 0, \"Report already exists\"); //prevents duplication\r\n\r\n        reports[_dataHash] = HealthReport({\r\n            dataHash: _dataHash,\r\n            reportType: _reportType,\r\n            location: _location,\r\n            submittedBy: _submittedBy,\r\n            email: _email,\r\n            timestamp: block.timestamp,\r\n            isverified: false,\r\n            verifiedById: \"\"\r\n        });\r\n\r\n        reportsByLocation[_location].push(_dataHash);\r\n        reportsByType[_reportType].push(_dataHash);\r\n\r\n        emit ReportSubmitted(_dataHash, _location, _reportType, msg.sender);\r\n    }\r\n\r\n    // Anyone can verify public health reports\r\n    function verifyHealthReport(\r\n        bytes32 _dataHash,\r\n        string memory by\r\n    ) external returns (bool exists) {\r\n        exists = reports[_dataHash].timestamp != 0;\r\n        if (exists) {\r\n            reports[_dataHash].isverified = true;\r\n            reports[_dataHash].verifiedById = by;\r\n        }\r\n    }\r\n\r\n    // Get all outbreak reports for a location (for dashboards)\r\n    function getReportsByLocation(\r\n        string memory _location\r\n    ) external view returns (bytes32[] memory) {\r\n        return reportsByLocation[_location];\r\n    }\r\n\r\n    // Get all reports by type (for analytics)\r\n    function getReportsByType(\r\n        string memory _reportType\r\n    ) external view returns (bytes32[] memory) {\r\n        return reportsByType[_reportType];\r\n    }\r\n\r\n    // Consider adding:\r\n    function getReportDetails(\r\n        bytes32 _dataHash\r\n    ) external view returns (HealthReport memory) {\r\n        require(reports[_dataHash].timestamp != 0, \"Report does not exist\");\r\n        return reports[_dataHash];\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

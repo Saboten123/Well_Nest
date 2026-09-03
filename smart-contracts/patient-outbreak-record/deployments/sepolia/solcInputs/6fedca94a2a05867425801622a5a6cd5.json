@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/PublicHealthReports.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\n// Contract 2: Public Health Reports (Open for Verification)\r\ncontract PublicHealthReports {\r\n    struct HealthReport {\r\n        bytes32 dataHash;\r\n        string reportType; // \"outbreak\", \"vaccination_campaign\", \"health_survey\"\r\n        string location; // \"District A\", \"Rural Area B\"\r\n        address submittedBy; // Health worker, NGO, government official\r\n        uint256 timestamp;\r\n        string ipfsHash; // For detailed data\r\n        bool isActive;\r\n    }\r\n\r\n    mapping(bytes32 => HealthReport) public reports;\r\n    mapping(string => bytes32[]) public reportsByLocation;\r\n    mapping(string => bytes32[]) public reportsByType;\r\n\r\n    event ReportSubmitted(\r\n        bytes32 indexed reportHash,\r\n        string indexed location,\r\n        string reportType,\r\n        address indexed submitter\r\n    );\r\n\r\n    function submitHealthReport(\r\n        bytes32 _dataHash,\r\n        string memory _reportType,\r\n        string memory _location,\r\n        string memory _ipfsHash\r\n    ) external  {\r\n        reports[_dataHash] = HealthReport({\r\n            dataHash: _dataHash,\r\n            reportType: _reportType,\r\n            location: _location,\r\n            submittedBy: msg.sender,\r\n            timestamp: block.timestamp,\r\n            ipfsHash: _ipfsHash,\r\n            isActive: true\r\n        });\r\n\r\n        reportsByLocation[_location].push(_dataHash);\r\n        reportsByType[_reportType].push(_dataHash);\r\n\r\n        emit ReportSubmitted(_dataHash, _location, _reportType, msg.sender);\r\n    }\r\n\r\n    // Anyone can verify public health reports\r\n    function verifyHealthReport(\r\n        bytes32 _dataHash\r\n    ) external view returns (bool exists, HealthReport memory report) {\r\n        exists =\r\n            reports[_dataHash].timestamp != 0 &&\r\n            reports[_dataHash].isActive;\r\n        if (exists) {\r\n            report = reports[_dataHash];\r\n        }\r\n    }\r\n\r\n    // Get all outbreak reports for a location (for dashboards)\r\n    function getReportsByLocation(\r\n        string memory _location\r\n    ) external view returns (bytes32[] memory) {\r\n        return reportsByLocation[_location];\r\n    }\r\n\r\n    // Get all reports by type (for analytics)\r\n    function getReportsByType(\r\n        string memory _reportType\r\n    ) external view returns (bytes32[] memory) {\r\n        return reportsByType[_reportType];\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

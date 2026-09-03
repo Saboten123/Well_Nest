@@ -1,0 +1,55 @@
+First time only — install dependencies
+
+MongoDB: make sure the service is running.
+
+Start-Service MongoDB
+
+AI backend:
+
+cd D:\Well-Nest\ai_backend
+python -m pip install -r requirements.txt
+
+Main backend:
+
+cd D:\Well-Nest\backend
+npm install
+
+Frontend:
+
+cd D:\Well-Nest\frontend
+npm install
+npm install react-markdown react-syntax-highlighter remark-gfm
+Every time you want to start the project
+
+Terminal 1 — AI backend
+
+cd D:\Well-Nest\ai_backend
+python -m uvicorn app.main:app --reload
+
+Terminal 2 — Main backend
+
+cd D:\Well-Nest\backend
+npm run dev
+
+Terminal 3 — Frontend
+
+cd D:\Well-Nest\frontend
+npm run dev
+
+Then open:
+
+http://localhost:5173/
+Required .env files
+
+D:\Well-Nest\ai_backend\.env
+
+MONGO_URI=mongodb://localhost:27017
+GEMINI_API_KEY=YOUR_GEMINI_KEY
+TAVILY_API_KEY=YOUR_TAVILY_KEY
+
+D:\Well-Nest\backend\.env
+
+MONGODB_URI=mongodb://localhost:27017/wellnest
+PORT=5000
+JWT_ACCESS_SECRET=YOUR_ACCESS_SECRET
+JWT_REFRESH_SECRET=YOUR_REFRESH_SECRET

@@ -1,0 +1,38 @@
+{
+  "Expected Data": {
+    "reportType": "outbreak",
+    "location": {
+      "country": "india",
+      "state": "west bengal",
+      "district": "kolkata",
+      "pincode": "700001"
+    },
+    "outbreakData": {
+      "diseaseCategory": "dengue",
+      "suspectedCases": 25,
+      "severity": "high",
+      "basicInfo": "high fever and rashes observed in local community",
+      "symptoms": "fever, headache, body ache, joint pain",
+      "additionalNotes": "most cases reported near river-side areas"
+    },
+    "submittedAt": "2025-08-20T15:10:02.703Z"
+  },
+  "Actural Data": {
+    "reportType": "outbreak",
+    "location": {
+      "country": "india",
+      "state": "west bengal",
+      "district": "kolkata",
+      "pincode": "700001"
+    },
+    "outbreakData": {
+      "diseaseCategory": "dengue",
+      "suspectedCases": 25,
+      "severity": "high",
+      "basicInfo": "high fever and rashes observed in local community",
+      "symptoms": "fever, headache, body ache, joint pain",
+      "additionalNotes": "most cases reported near river-side areas"
+    },
+    "submittedAt": "2025-08-20T15:08:38.683Z"
+  }
+}
