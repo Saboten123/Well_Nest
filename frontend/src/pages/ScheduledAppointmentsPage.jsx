@@ -4,6 +4,7 @@ import api from "../utils/api.js";
 import Navbar from "../components/Navbar.jsx";
 import "../styles/AppointmentsPage.css";
 
+
 export default function ScheduledAppointmentsPage() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,13 +104,13 @@ export default function ScheduledAppointmentsPage() {
       "Enter new date and time (YYYY-MM-DD HH:MM format):",
       appointment.scheduledTime
         ? new Date(appointment.scheduledTime)
-            .toISOString()
-            .slice(0, 16)
-            .replace("T", " ")
+          .toISOString()
+          .slice(0, 16)
+          .replace("T", " ")
         : new Date(appointment.requestedTime)
-            .toISOString()
-            .slice(0, 16)
-            .replace("T", " ")
+          .toISOString()
+          .slice(0, 16)
+          .replace("T", " ")
     );
 
     if (newTime) {
@@ -134,23 +135,26 @@ export default function ScheduledAppointmentsPage() {
   };
 
   const handleStartVideoCall = (appointment) => {
-    // Set appointment context for video call
+    const appointmentData = {
+      appointmentId: appointment._id,
+      doctorId: appointment.doctorId?._id || currentUser._id,
+      patientId: appointment.patientId?._id || appointment.patientId,
+      doctorName: currentUser.name || "Doctor",
+      patientName: appointment.patientId?.name || "Patient",
+      userRole: "doctor",
+    };
+
+    // Keep localStorage as a fallback
     localStorage.setItem(
       "currentAppointment",
-      JSON.stringify({
-        appointmentId: appointment._id,
-        doctorId: appointment.doctorId?._id || currentUser._id,
-        patientId: appointment.patientId?._id || appointment.patientId,
-        doctorName: currentUser.name || "Doctor",
-        patientName: appointment.patientId?.name || "Patient",
-        userRole: "doctor",
-      })
+      JSON.stringify(appointmentData)
     );
 
-    // Navigate to video call page
-    navigate("/video-call");
+    // Pass appointment directly to the video-call page
+    navigate("/video-call", {
+      state: appointmentData,
+    });
   };
-
   const filterAppointments = (appointments) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -252,33 +256,29 @@ export default function ScheduledAppointmentsPage() {
           {/* Filter Buttons */}
           <div className="appointment-filters">
             <button
-              className={`btn btn-small ${
-                filter === "all" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "all" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("all")}
             >
               All ({appointments.length})
             </button>
             <button
-              className={`btn btn-small ${
-                filter === "today" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "today" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("today")}
             >
               Today ({filterAppointments(appointments).length})
             </button>
             <button
-              className={`btn btn-small ${
-                filter === "upcoming" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "upcoming" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("upcoming")}
             >
               Upcoming ({filterAppointments(appointments).length})
             </button>
             <button
-              className={`btn btn-small ${
-                filter === "past" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "past" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("past")}
             >
               Past ({filterAppointments(appointments).length})

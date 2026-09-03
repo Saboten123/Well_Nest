@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Video,
   VideoOff,
@@ -20,6 +21,7 @@ import "./WebRtc.css";
 
 const WebRTCVideoCall = () => {
   // State management
+  const location = useLocation();
   const [roomId, setRoomId] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
   const [isInCall, setIsInCall] = useState(false);
@@ -121,15 +123,28 @@ const WebRTCVideoCall = () => {
   const createCall = async () => {
     try {
       setIsConnecting(true);
+
       const newRoomId = generateRoomId();
 
-      // Create session in backend using axios
-      // Option 1: Don't send appointmentId if it's temporary
+      const appointmentData =
+        location.state ||
+        JSON.parse(localStorage.getItem("currentAppointment") || "{}");
+
+      console.log("Current appointment:", appointmentData);
+      console.log("Appointment ID:", appointmentData.appointmentId);
+
+      if (!appointmentData.appointmentId) {
+        throw new Error("No appointment selected for this call");
+      }
+
       const response = await api.post("/video-call/create", {
-        // appointmentId: null, // or omit this field entirely
-        participantIds: [localStorage.getItem("userId") || "current-user"],
+        appointmentId: appointmentData.appointmentId,
+        participantIds: [
+          appointmentData.doctorId,
+          appointmentData.patientId,
+        ].filter(Boolean),
         callType: "video",
-        roomId: newRoomId, // Send the room ID instead
+        roomId: newRoomId,
       });
 
       if (response.data.success) {
@@ -143,6 +158,7 @@ const WebRTCVideoCall = () => {
         error.response?.data?.message ||
         error.message ||
         "Failed to create call";
+
       setCallError(`Failed to create call: ${errorMessage}`);
       setIsConnecting(false);
     }
@@ -176,6 +192,7 @@ const WebRTCVideoCall = () => {
       // Get appointment context if available
       const appointmentData = JSON.parse(
         localStorage.getItem("currentAppointment") || "{}"
+
       );
 
       // Join room via socket
@@ -341,10 +358,10 @@ const WebRTCVideoCall = () => {
       prev.map((p) =>
         p.userId === data.userId
           ? {
-              ...p,
-              audioEnabled: data.audioEnabled,
-              videoEnabled: data.videoEnabled,
-            }
+            ...p,
+            audioEnabled: data.audioEnabled,
+            videoEnabled: data.videoEnabled,
+          }
           : p
       )
     );
@@ -520,11 +537,10 @@ const WebRTCVideoCall = () => {
             <h1 className="webrtc-title">Video Call</h1>
             <p className="webrtc-subtitle">
               {isFromAppointment
-                ? `Video consultation with ${
-                    appointmentData.userRole === "doctor"
-                      ? appointmentData.patientName
-                      : appointmentData.doctorName
-                  }`
+                ? `Video consultation with ${appointmentData.userRole === "doctor"
+                  ? appointmentData.patientName
+                  : appointmentData.doctorName
+                }`
                 : "Start a new call or join an existing one"}
             </p>
           </div>
@@ -546,9 +562,8 @@ const WebRTCVideoCall = () => {
               <button
                 onClick={createCall}
                 disabled={isConnecting}
-                className={`webrtc-btn webrtc-btn-primary ${
-                  isConnecting ? "webrtc-btn-disabled" : ""
-                }`}
+                className={`webrtc-btn webrtc-btn-primary ${isConnecting ? "webrtc-btn-disabled" : ""
+                  }`}
               >
                 {isConnecting ? (
                   <>
@@ -579,11 +594,10 @@ const WebRTCVideoCall = () => {
                   <button
                     onClick={joinCall}
                     disabled={isConnecting || !joinRoomId.trim()}
-                    className={`webrtc-btn webrtc-btn-success ${
-                      isConnecting || !joinRoomId.trim()
-                        ? "webrtc-btn-disabled"
-                        : ""
-                    }`}
+                    className={`webrtc-btn webrtc-btn-success ${isConnecting || !joinRoomId.trim()
+                      ? "webrtc-btn-disabled"
+                      : ""
+                      }`}
                   >
                     {isConnecting ? (
                       <>
@@ -752,11 +766,10 @@ const WebRTCVideoCall = () => {
         <div className="webrtc-controls-content">
           <button
             onClick={toggleAudio}
-            className={`webrtc-control-btn ${
-              isAudioEnabled
-                ? "webrtc-control-btn-active"
-                : "webrtc-control-btn-muted"
-            }`}
+            className={`webrtc-control-btn ${isAudioEnabled
+              ? "webrtc-control-btn-active"
+              : "webrtc-control-btn-muted"
+              }`}
           >
             {isAudioEnabled ? (
               <Mic className="webrtc-control-icon" />
@@ -767,11 +780,10 @@ const WebRTCVideoCall = () => {
 
           <button
             onClick={toggleVideo}
-            className={`webrtc-control-btn ${
-              isVideoEnabled
-                ? "webrtc-control-btn-active"
-                : "webrtc-control-btn-muted"
-            }`}
+            className={`webrtc-control-btn ${isVideoEnabled
+              ? "webrtc-control-btn-active"
+              : "webrtc-control-btn-muted"
+              }`}
           >
             {isVideoEnabled ? (
               <Video className="webrtc-control-icon" />
@@ -782,11 +794,10 @@ const WebRTCVideoCall = () => {
 
           <button
             onClick={toggleScreenShare}
-            className={`webrtc-control-btn ${
-              isScreenSharing
-                ? "webrtc-control-btn-sharing"
-                : "webrtc-control-btn-active"
-            }`}
+            className={`webrtc-control-btn ${isScreenSharing
+              ? "webrtc-control-btn-sharing"
+              : "webrtc-control-btn-active"
+              }`}
           >
             <Monitor className="webrtc-control-icon" />
           </button>
