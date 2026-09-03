@@ -58,7 +58,7 @@ SYSTEM_PROMPT = (
 
 
 gemini_llm = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash",
+    model="gemini-3.5-flash",
     temperature=0,
     convert_system_message_to_human=True,
     google_api_key=GEMINI_API_KEY,

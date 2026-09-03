@@ -19,7 +19,6 @@ const AppointmentSchema = new mongoose.Schema(
     }, // when patient requests
     scheduledTime: {
       type: Date,
-      unique: true,
     }, // doctor sets this when accepted
     status: {
       type: String,

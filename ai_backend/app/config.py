@@ -22,8 +22,8 @@ CHUNK_SIZE = 800
 CHUNK_OVERLAP = 120
 
 # Models
-GEMINI_MODEL = "gemini-3.6-flash"
-EMBEDDING_MODEL = "models/embedding-001"
+GEMINI_MODEL = "gemini-3.5-flash"
+EMBEDDING_MODEL = "models/gemini-embedding-001"
 
 # Paths
 DATA_DIR = os.getenv("DATA_DIR", os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"))
