@@ -62,7 +62,7 @@ export default function DoctorsPage() {
         setMyProfile(res1.data.profile);
         return;
       }
-    } catch (_) {}
+    } catch (_) { }
     try {
       // Fallback: generic profile (may not be patient)
       const response = await api.get("/profile/me");
@@ -92,8 +92,7 @@ export default function DoctorsPage() {
       console.error("Error fetching doctors:", err);
       if (err.response) {
         setError(
-          `Failed to fetch doctors: ${err.response.status} - ${
-            err.response.data?.message || "Unknown error"
+          `Failed to fetch doctors: ${err.response.status} - ${err.response.data?.message || "Unknown error"
           }`
         );
       } else if (err.request) {
@@ -184,70 +183,20 @@ export default function DoctorsPage() {
         alert("Invalid date/time selected.");
         return;
       }
-      // Format helpers
-      const toIsoWithMs = (d) => d.toISOString();
-      const withRandomSeconds = (base) => {
-        const d = new Date(base);
-        const sec = Math.floor(Math.random() * 58) + 1; // 1..59
-        const ms = Math.floor(Math.random() * 900) + 10; // 10..909
-        d.setSeconds(sec, ms);
-        return d;
-      };
-      const toLocalInputString = (d) => {
-        // yyyy-MM-ddTHH:mm matching datetime-local control
-        const pad = (n) => String(n).padStart(2, "0");
-        const yyyy = d.getFullYear();
-        const MM = pad(d.getMonth() + 1);
-        const dd = pad(d.getDate());
-        const hh = pad(d.getHours());
-        const mm = pad(d.getMinutes());
-        return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-      };
       const doctorId = selectedDoctor._id; // must be DoctorProfile._id
-      let requestedISO = toIsoWithMs(withRandomSeconds(requested));
-      const baseData = {
+
+      // Book exactly the time the patient picked. (This used to jitter the
+      // seconds/ms and retry up to 10 times to dodge a stray global-unique
+      // index on requestedTime, which both masked the real bug and could
+      // book a slightly different time than what the patient selected. The
+      // index is now scoped to doctorId+requestedTime, so a single request
+      // is enough — the backend still returns 409 for a genuine conflict.)
+      const response = await api.post("/appointment/book", {
         doctorId,
         patientId: myProfile?._id,
         reason: bookingForm.reason,
-      };
-
-      // Try sending the raw datetime-local string first (backend parses with new Date())
-      const tryPostLocal = async (value) =>
-        api.post("/appointment/book", { ...baseData, requestedTime: value });
-      const tryPostIso = async (iso) =>
-        api.post("/appointment/book", { ...baseData, requestedTime: iso });
-      let response;
-      let lastErr = null;
-      // 1) Attempt with local string
-      try {
-        response = await tryPostLocal(bookingForm.requestedTime);
-      } catch (e1) {
-        lastErr = e1;
-      }
-      // 2) If failed, try with randomized ISO variants to dodge unique collisions
-      const offsetsSec = [0, 61, 123, 187, 241, 19, 37, 89, 149, 211];
-      if (!response) {
-        for (let i = 0; i < offsetsSec.length; i++) {
-          const iso = toIsoWithMs(
-            withRandomSeconds(new Date(requested.getTime() + offsetsSec[i] * 1000))
-          );
-          try {
-            response = await tryPostIso(iso);
-            requestedISO = iso;
-            break;
-          } catch (err) {
-            lastErr = err;
-            const status = err?.response?.status;
-            const raw = err?.response?.data;
-            const rawStr = typeof raw === "string" ? raw : JSON.stringify(raw || {});
-            const isDup = /E11000|duplicate key|duplicate/i.test(rawStr || "");
-            const isConflict = status === 409;
-            if (status === 400) break; // invalid payload; don't retry
-            if (!(status === 500 && isDup) && !isConflict) break; // unknown error; stop
-          }
-        }
-      }
-      if (!response) throw lastErr || new Error("Booking failed");
+        requestedTime: requested.toISOString(),
+      });
 
       if (response.data.success) {
         alert("Appointment booked successfully!");
@@ -623,9 +572,8 @@ export default function DoctorsPage() {
                               ([day, available]) => (
                                 <div
                                   key={day}
-                                  className={`availability-day ${
-                                    available ? "available" : "unavailable"
-                                  }`}
+                                  className={`availability-day ${available ? "available" : "unavailable"
+                                    }`}
                                 >
                                   <span className="day-name">
                                     {day.toUpperCase()}
@@ -760,31 +708,28 @@ export default function DoctorsPage() {
             <div className="modal-body">
               <div className="appointment-filters">
                 <button
-                  className={`btn btn-small ${
-                    appointmentFilter === "pending"
-                      ? "btn-primary"
-                      : "btn-outline"
-                  }`}
+                  className={`btn btn-small ${appointmentFilter === "pending"
+                    ? "btn-primary"
+                    : "btn-outline"
+                    }`}
                   onClick={() => handleAppointmentFilterChange("pending")}
                 >
                   Pending
                 </button>
                 <button
-                  className={`btn btn-small ${
-                    appointmentFilter === "accepted"
-                      ? "btn-primary"
-                      : "btn-outline"
-                  }`}
+                  className={`btn btn-small ${appointmentFilter === "accepted"
+                    ? "btn-primary"
+                    : "btn-outline"
+                    }`}
                   onClick={() => handleAppointmentFilterChange("accepted")}
                 >
                   Accepted
                 </button>
                 <button
-                  className={`btn btn-small ${
-                    appointmentFilter === "scheduled"
-                      ? "btn-primary"
-                      : "btn-outline"
-                  }`}
+                  className={`btn btn-small ${appointmentFilter === "scheduled"
+                    ? "btn-primary"
+                    : "btn-outline"
+                    }`}
                   onClick={() => handleAppointmentFilterChange("scheduled")}
                 >
                   Scheduled

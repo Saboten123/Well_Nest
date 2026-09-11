@@ -15,7 +15,6 @@ const AppointmentSchema = new mongoose.Schema(
     requestedTime: {
       type: Date,
       required: true,
-      unique: true,
     }, // when patient requests
     scheduledTime: {
       type: Date,
@@ -38,5 +37,11 @@ const AppointmentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// A doctor can't have two appointments requested for the exact same
+// timestamp, but the same timestamp is fine across different doctors.
+// (Previously `requestedTime` alone had a global unique index, so any two
+// patients booking any doctor at the same instant would collide.)
+AppointmentSchema.index({ doctorId: 1, requestedTime: 1 }, { unique: true });
 
 export default mongoose.model("Appointment", AppointmentSchema);

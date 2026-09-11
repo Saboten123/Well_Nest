@@ -16,12 +16,16 @@ const authenticateSocket = async (socket, next) => {
       return next(new Error("No token provided"));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    socket.userId = decoded.userId;
+    // NOTE: tokens are signed with JWT_ACCESS_SECRET and carry an "id" field
+    // (see backend/src/utils/jwt.js + auth.controller.js). This previously used
+    // JWT_SECRET / decoded.userId, which don't exist, so every socket failed
+    // authentication (or connected with userId === undefined).
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    socket.userId = decoded.id;
     socket.userRole = decoded.role;
 
     // Store user-socket mapping
-    userSockets.set(decoded.userId, socket.id);
+    userSockets.set(decoded.id, socket.id);
 
     next();
   } catch (error) {

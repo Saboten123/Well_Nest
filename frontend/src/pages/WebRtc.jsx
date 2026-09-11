@@ -42,6 +42,16 @@ const WebRTCVideoCall = () => {
   const socketRef = useRef(null);
   const peerConnections = useRef(new Map());
   const remoteVideoRefs = useRef(new Map());
+  // Mirrors of state used inside socket event handlers. The handlers below are
+  // registered once (in the mount-only useEffect) via socket.on(...), so any
+  // state they read through a plain closure would always see the value from
+  // the very first render (localStream === null, roomId === ""). That was
+  // silently breaking the call: local audio/video tracks were never attached
+  // to new RTCPeerConnections, so remote participants connected but saw/heard
+  // nothing. Refs stay current across renders, so reading from them instead
+  // fixes it.
+  const localStreamRef = useRef(null);
+  const roomIdRef = useRef("");
 
   // WebRTC configuration
   const pcConfig = {
@@ -50,6 +60,16 @@ const WebRTCVideoCall = () => {
       { urls: "stun:stun1.l.google.com:19302" },
     ],
   };
+
+  // Keep refs in sync with state so socket handlers (registered once, below)
+  // always see the latest values instead of stale ones from mount.
+  useEffect(() => {
+    localStreamRef.current = localStream;
+  }, [localStream]);
+
+  useEffect(() => {
+    roomIdRef.current = roomId;
+  }, [roomId]);
 
   // Initialize socket connection
   useEffect(() => {
@@ -208,9 +228,10 @@ const WebRTCVideoCall = () => {
     peerConnections.current.set(socketId, pc);
 
     // Add local stream to peer connection
-    if (localStream) {
-      localStream.getTracks().forEach((track) => {
-        pc.addTrack(track, localStream);
+    const currentLocalStream = localStreamRef.current;
+    if (currentLocalStream) {
+      currentLocalStream.getTracks().forEach((track) => {
+        pc.addTrack(track, currentLocalStream);
       });
     }
 
@@ -224,7 +245,7 @@ const WebRTCVideoCall = () => {
     pc.onicecandidate = (event) => {
       if (event.candidate) {
         socketRef.current.emit("ice-candidate", {
-          roomId,
+          roomId: roomIdRef.current,
           candidate: event.candidate,
           targetUserId: userId,
         });
@@ -236,7 +257,7 @@ const WebRTCVideoCall = () => {
     await pc.setLocalDescription(offer);
 
     socketRef.current.emit("offer", {
-      roomId,
+      roomId: roomIdRef.current,
       offer,
       targetUserId: userId,
     });
@@ -256,9 +277,10 @@ const WebRTCVideoCall = () => {
     peerConnections.current.set(fromSocketId, pc);
 
     // Add local stream
-    if (localStream) {
-      localStream.getTracks().forEach((track) => {
-        pc.addTrack(track, localStream);
+    const currentLocalStream = localStreamRef.current;
+    if (currentLocalStream) {
+      currentLocalStream.getTracks().forEach((track) => {
+        pc.addTrack(track, currentLocalStream);
       });
     }
 
@@ -272,7 +294,7 @@ const WebRTCVideoCall = () => {
     pc.onicecandidate = (event) => {
       if (event.candidate) {
         socketRef.current.emit("ice-candidate", {
-          roomId,
+          roomId: roomIdRef.current,
           candidate: event.candidate,
           targetUserId: fromUserId,
         });
@@ -284,7 +306,7 @@ const WebRTCVideoCall = () => {
     await pc.setLocalDescription(answer);
 
     socketRef.current.emit("answer", {
-      roomId,
+      roomId: roomIdRef.current,
       answer,
       targetUserId: fromUserId,
     });
@@ -341,10 +363,10 @@ const WebRTCVideoCall = () => {
       prev.map((p) =>
         p.userId === data.userId
           ? {
-              ...p,
-              audioEnabled: data.audioEnabled,
-              videoEnabled: data.videoEnabled,
-            }
+            ...p,
+            audioEnabled: data.audioEnabled,
+            videoEnabled: data.videoEnabled,
+          }
           : p
       )
     );
@@ -520,11 +542,10 @@ const WebRTCVideoCall = () => {
             <h1 className="webrtc-title">Video Call</h1>
             <p className="webrtc-subtitle">
               {isFromAppointment
-                ? `Video consultation with ${
-                    appointmentData.userRole === "doctor"
-                      ? appointmentData.patientName
-                      : appointmentData.doctorName
-                  }`
+                ? `Video consultation with ${appointmentData.userRole === "doctor"
+                  ? appointmentData.patientName
+                  : appointmentData.doctorName
+                }`
                 : "Start a new call or join an existing one"}
             </p>
           </div>
@@ -546,9 +567,8 @@ const WebRTCVideoCall = () => {
               <button
                 onClick={createCall}
                 disabled={isConnecting}
-                className={`webrtc-btn webrtc-btn-primary ${
-                  isConnecting ? "webrtc-btn-disabled" : ""
-                }`}
+                className={`webrtc-btn webrtc-btn-primary ${isConnecting ? "webrtc-btn-disabled" : ""
+                  }`}
               >
                 {isConnecting ? (
                   <>
@@ -579,11 +599,10 @@ const WebRTCVideoCall = () => {
                   <button
                     onClick={joinCall}
                     disabled={isConnecting || !joinRoomId.trim()}
-                    className={`webrtc-btn webrtc-btn-success ${
-                      isConnecting || !joinRoomId.trim()
+                    className={`webrtc-btn webrtc-btn-success ${isConnecting || !joinRoomId.trim()
                         ? "webrtc-btn-disabled"
                         : ""
-                    }`}
+                      }`}
                   >
                     {isConnecting ? (
                       <>
@@ -752,11 +771,10 @@ const WebRTCVideoCall = () => {
         <div className="webrtc-controls-content">
           <button
             onClick={toggleAudio}
-            className={`webrtc-control-btn ${
-              isAudioEnabled
+            className={`webrtc-control-btn ${isAudioEnabled
                 ? "webrtc-control-btn-active"
                 : "webrtc-control-btn-muted"
-            }`}
+              }`}
           >
             {isAudioEnabled ? (
               <Mic className="webrtc-control-icon" />
@@ -767,11 +785,10 @@ const WebRTCVideoCall = () => {
 
           <button
             onClick={toggleVideo}
-            className={`webrtc-control-btn ${
-              isVideoEnabled
+            className={`webrtc-control-btn ${isVideoEnabled
                 ? "webrtc-control-btn-active"
                 : "webrtc-control-btn-muted"
-            }`}
+              }`}
           >
             {isVideoEnabled ? (
               <Video className="webrtc-control-icon" />
@@ -782,11 +799,10 @@ const WebRTCVideoCall = () => {
 
           <button
             onClick={toggleScreenShare}
-            className={`webrtc-control-btn ${
-              isScreenSharing
+            className={`webrtc-control-btn ${isScreenSharing
                 ? "webrtc-control-btn-sharing"
                 : "webrtc-control-btn-active"
-            }`}
+              }`}
           >
             <Monitor className="webrtc-control-icon" />
           </button>
