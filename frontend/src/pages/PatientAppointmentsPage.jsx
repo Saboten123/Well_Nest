@@ -81,8 +81,7 @@ export default function PatientAppointmentsPage() {
         patientId: appointment.patientId?._id || patientProfile._id,
         doctorName:
           appointment.doctorId?.name ||
-          `${appointment.doctorId?.user?.firstName || "Doctor"} ${
-            appointment.doctorId?.user?.lastName || ""
+          `${appointment.doctorId?.user?.firstName || "Doctor"} ${appointment.doctorId?.user?.lastName || ""
           }`,
         patientName: patientProfile.name || "Patient",
         userRole: "patient",
@@ -183,9 +182,8 @@ export default function PatientAppointmentsPage() {
           {statuses.map((s) => (
             <button
               key={s.key}
-              className={`btn btn-small ${
-                filter === s.key ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === s.key ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter(s.key)}
             >
               {s.label}
@@ -210,17 +208,18 @@ export default function PatientAppointmentsPage() {
                   a.scheduledTime || a.requestedTime
                 );
                 const isPast = appointmentTime < new Date();
+                // Video call eligibility is based on appointment status only,
+                // not on whether the scheduled time has technically passed
+                // (see matching change in ScheduledAppointmentsPage.jsx).
                 const canVideoCall =
-                  (a.status === "scheduled" || a.status === "accepted") &&
-                  !isPast;
+                  a.status === "scheduled" || a.status === "accepted";
 
                 return (
                   <div key={a._id} className="appointment-card-large">
                     <div className="appointment-header">
                       <h3>
                         {a.doctorId?.name ||
-                          `${a.doctorId?.user?.firstName || "Doctor"} ${
-                            a.doctorId?.user?.lastName || ""
+                          `${a.doctorId?.user?.firstName || "Doctor"} ${a.doctorId?.user?.lastName || ""
                           }`}
                       </h3>
                       <span className={`status-badge status-${a.status}`}>

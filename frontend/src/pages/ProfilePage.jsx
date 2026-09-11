@@ -306,11 +306,21 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
+      setError("");
       const response = await api.get("/profile/me");
       setProfile(response.data.data.profile);
       setFormData(response.data.data.profile || {});
     } catch (err) {
-      setError("Failed to fetch profile");
+      if (err?.response?.status === 404) {
+        // Expected for a user who hasn't filled in their role-specific
+        // profile yet — not a failure, just an empty state. The UI already
+        // shows "No profile information available. Click 'Edit Profile'..."
+        // for this case, so no error banner is needed.
+        setProfile(null);
+        setFormData({});
+      } else {
+        setError("Failed to fetch profile");
+      }
       console.error("Error fetching profile:", err);
     } finally {
       setLoading(false);
@@ -900,8 +910,8 @@ export default function ProfilePage() {
                       {walletDisconnected
                         ? "Wallet was disconnected for security"
                         : userWalletAddress && !preventAutoConnect
-                        ? `Previous wallet: ${formatAddress(userWalletAddress)}`
-                        : "Connect your wallet to view balance and claim tokens"}
+                          ? `Previous wallet: ${formatAddress(userWalletAddress)}`
+                          : "Connect your wallet to view balance and claim tokens"}
                     </p>
 
                     <button
@@ -973,8 +983,8 @@ export default function ProfilePage() {
                           : !claimableRewards ||
                             claimableRewards === undefined ||
                             claimableRewards === 0n
-                          ? "No Tokens to Claim"
-                          : `Claim ${formatClaimableRewards(
+                            ? "No Tokens to Claim"
+                            : `Claim ${formatClaimableRewards(
                               claimableRewards
                             )} WNT`}
                       </button>

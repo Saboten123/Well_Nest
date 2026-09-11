@@ -103,13 +103,13 @@ export default function ScheduledAppointmentsPage() {
       "Enter new date and time (YYYY-MM-DD HH:MM format):",
       appointment.scheduledTime
         ? new Date(appointment.scheduledTime)
-            .toISOString()
-            .slice(0, 16)
-            .replace("T", " ")
+          .toISOString()
+          .slice(0, 16)
+          .replace("T", " ")
         : new Date(appointment.requestedTime)
-            .toISOString()
-            .slice(0, 16)
-            .replace("T", " ")
+          .toISOString()
+          .slice(0, 16)
+          .replace("T", " ")
     );
 
     if (newTime) {
@@ -252,33 +252,29 @@ export default function ScheduledAppointmentsPage() {
           {/* Filter Buttons */}
           <div className="appointment-filters">
             <button
-              className={`btn btn-small ${
-                filter === "all" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "all" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("all")}
             >
               All ({appointments.length})
             </button>
             <button
-              className={`btn btn-small ${
-                filter === "today" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "today" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("today")}
             >
               Today ({filterAppointments(appointments).length})
             </button>
             <button
-              className={`btn btn-small ${
-                filter === "upcoming" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "upcoming" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("upcoming")}
             >
               Upcoming ({filterAppointments(appointments).length})
             </button>
             <button
-              className={`btn btn-small ${
-                filter === "past" ? "btn-primary" : "btn-outline"
-              }`}
+              className={`btn btn-small ${filter === "past" ? "btn-primary" : "btn-outline"
+                }`}
               onClick={() => setFilter("past")}
             >
               Past ({filterAppointments(appointments).length})
@@ -308,10 +304,14 @@ export default function ScheduledAppointmentsPage() {
                   appointment.scheduledTime || appointment.requestedTime
                 );
                 const isPast = appointmentTime < new Date();
+                // Video call eligibility is based on appointment status only,
+                // not on whether the scheduled time has technically passed.
+                // The scheduled time is just when it was supposed to start;
+                // doctor/patient should still be able to join late rather
+                // than have the button silently disappear.
                 const canVideoCall =
-                  (appointment.status === "scheduled" ||
-                    appointment.status === "accepted") &&
-                  !isPast;
+                  appointment.status === "scheduled" ||
+                  appointment.status === "accepted";
 
                 return (
                   <div key={appointment._id} className="appointment-card-large">

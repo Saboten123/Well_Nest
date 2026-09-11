@@ -301,8 +301,19 @@ export const initializeWebRTCSocket = (io) => {
     socket.on("disconnect", (reason) => {
       console.log(`❌ WebRTC: User ${socket.userId} disconnected: ${reason}`);
 
-      // Remove from user mapping
-      userSockets.delete(socket.userId);
+      // React StrictMode (dev only) double-invokes effects, so the client
+      // briefly opens a first "phantom" socket, then a second real one, for
+      // the same user. If that phantom socket's disconnect event fires
+      // AFTER the real socket has already connected and overwritten this
+      // user's entry in userSockets, blindly deleting by userId here would
+      // wipe out the mapping for the still-connected, real socket. Every
+      // offer/answer/ice-candidate routed via userSockets.get(targetUserId)
+      // would then silently go nowhere — the two users stay in the same
+      // room but never actually see/hear each other. Only remove the
+      // mapping if it still points at the socket that's disconnecting.
+      if (userSockets.get(socket.userId) === socket.id) {
+        userSockets.delete(socket.userId);
+      }
 
       // Remove from all rooms
       activeRooms.forEach((room, roomId) => {

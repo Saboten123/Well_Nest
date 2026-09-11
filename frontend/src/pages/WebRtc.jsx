@@ -71,6 +71,20 @@ const WebRTCVideoCall = () => {
     roomIdRef.current = roomId;
   }, [roomId]);
 
+  // Attach the local stream to the <video> element whenever it's actually
+  // mounted. The previous inline assignment inside joinRoom() ran BEFORE
+  // isInCall flipped to true, i.e. before the in-call JSX (which is the
+  // only branch containing the <video ref={localVideoRef}> element) had
+  // even rendered — so localVideoRef.current was still null and the
+  // assignment silently did nothing. This effect re-runs whenever the
+  // stream or the in-call view changes, so it correctly attaches the
+  // stream once the element actually exists in the DOM.
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+    }
+  }, [localStream, isInCall]);
+
   // Initialize socket connection
   useEffect(() => {
     const token = getToken();
@@ -83,7 +97,10 @@ const WebRTCVideoCall = () => {
 
     // Note: Socket.IO connection still uses port 5000 for WebSocket server
     // This is separate from the REST API which uses axios
-    socketRef.current = io("http://localhost:5000", {
+    // Derive the host from wherever this page was loaded from (see the
+    // same fix/reasoning in utils/api.js) so this also works when testing
+    // from a second device on the LAN instead of just localhost.
+    socketRef.current = io(`http://${window.location.hostname}:5000`, {
       auth: { token },
       transports: ["websocket", "polling"], // Add fallback transport
     });
@@ -93,6 +110,17 @@ const WebRTCVideoCall = () => {
     socket.on("connect", () => {
       setConnectionStatus("connected");
       setCallError("");
+      // Re-join on (re)connect — a nodemon restart or dropped connection
+      // wipes the server's in-memory room state, so the client must
+      // re-announce itself or the other side never learns it's there.
+      if (roomIdRef.current) {
+        socket.emit("join-room", {
+          roomId: roomIdRef.current,
+          appointmentId: JSON.parse(
+            localStorage.getItem("currentAppointment") || "{}"
+          ).appointmentId,
+        });
+      }
     });
 
     socket.on("connect_error", (error) => {
@@ -129,7 +157,8 @@ const WebRTCVideoCall = () => {
     };
   }, []);
 
-  // Generate unique room ID
+  // Generate unique room ID (only used when there's no appointment context to
+  // derive a shared room from, e.g. an ad-hoc "Create Room" call).
   const generateRoomId = () => {
     return (
       Math.random().toString(36).substring(2, 15) +
@@ -141,20 +170,48 @@ const WebRTCVideoCall = () => {
   const createCall = async () => {
     try {
       setIsConnecting(true);
-      const newRoomId = generateRoomId();
 
-      // Create session in backend using axios
-      // Option 1: Don't send appointmentId if it's temporary
+      // If this call was launched from an appointment, both the doctor and
+      // the patient land here independently (two separate browser tabs).
+      // Previously each side called generateRoomId() and got a DIFFERENT
+      // random id, so they joined two different, empty Socket.IO rooms and
+      // never actually connected. Deriving the room id from the shared
+      // appointmentId instead means both sides compute the exact same
+      // roomId and therefore join the same room.
+      const appointmentData = JSON.parse(
+        localStorage.getItem("currentAppointment") || "{}"
+      );
+      const newRoomId = appointmentData.appointmentId
+        ? `appointment_${appointmentData.appointmentId}`
+        : generateRoomId();
+
+      // Create session in backend using axios.
+      // appointmentId was previously never sent, so the backend's
+      // Appointment.findById(appointmentId) always received undefined and
+      // returned 404 "Appointment not found" — the call could never even
+      // be created when launched from an appointment.
+      const otherPartyId =
+        appointmentData.userRole === "doctor"
+          ? appointmentData.patientId
+          : appointmentData.doctorId;
+
       const response = await api.post("/video-call/create", {
-        // appointmentId: null, // or omit this field entirely
-        participantIds: [localStorage.getItem("userId") || "current-user"],
+        appointmentId: appointmentData.appointmentId,
+        participantIds: [
+          localStorage.getItem("userId") || "current-user",
+          ...(otherPartyId ? [otherPartyId] : []),
+        ],
         callType: "video",
-        roomId: newRoomId, // Send the room ID instead
+        roomId: newRoomId,
       });
 
       if (response.data.success) {
-        setRoomId(newRoomId);
-        await joinRoom(newRoomId);
+        // Trust the roomId the server echoes back (it's the authoritative
+        // one stored on the VideoCallSession) rather than assuming our
+        // locally-computed newRoomId was actually the one persisted.
+        const confirmedRoomId = response.data.data?.roomId || newRoomId;
+        setRoomId(confirmedRoomId);
+        await joinRoom(confirmedRoomId);
       } else {
         throw new Error(response.data.message || "Failed to create call");
       }
@@ -189,9 +246,8 @@ const WebRTCVideoCall = () => {
       });
 
       setLocalStream(stream);
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
+      // Actual srcObject attachment now happens in the useEffect above,
+      // once the in-call <video> element genuinely exists in the DOM.
 
       // Get appointment context if available
       const appointmentData = JSON.parse(
@@ -600,8 +656,8 @@ const WebRTCVideoCall = () => {
                     onClick={joinCall}
                     disabled={isConnecting || !joinRoomId.trim()}
                     className={`webrtc-btn webrtc-btn-success ${isConnecting || !joinRoomId.trim()
-                        ? "webrtc-btn-disabled"
-                        : ""
+                      ? "webrtc-btn-disabled"
+                      : ""
                       }`}
                   >
                     {isConnecting ? (
@@ -772,8 +828,8 @@ const WebRTCVideoCall = () => {
           <button
             onClick={toggleAudio}
             className={`webrtc-control-btn ${isAudioEnabled
-                ? "webrtc-control-btn-active"
-                : "webrtc-control-btn-muted"
+              ? "webrtc-control-btn-active"
+              : "webrtc-control-btn-muted"
               }`}
           >
             {isAudioEnabled ? (
@@ -786,8 +842,8 @@ const WebRTCVideoCall = () => {
           <button
             onClick={toggleVideo}
             className={`webrtc-control-btn ${isVideoEnabled
-                ? "webrtc-control-btn-active"
-                : "webrtc-control-btn-muted"
+              ? "webrtc-control-btn-active"
+              : "webrtc-control-btn-muted"
               }`}
           >
             {isVideoEnabled ? (
@@ -800,8 +856,8 @@ const WebRTCVideoCall = () => {
           <button
             onClick={toggleScreenShare}
             className={`webrtc-control-btn ${isScreenSharing
-                ? "webrtc-control-btn-sharing"
-                : "webrtc-control-btn-active"
+              ? "webrtc-control-btn-sharing"
+              : "webrtc-control-btn-active"
               }`}
           >
             <Monitor className="webrtc-control-icon" />

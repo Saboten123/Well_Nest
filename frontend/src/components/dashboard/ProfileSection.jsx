@@ -22,11 +22,19 @@ export default function ProfileSection({ user }) {
   const fetchProfile = async () => {
     try {
       setLoading(true);
+      setError("");
       const response = await api.get("/profile/me");
       setProfile(response.data.data.profile);
       setFormData(response.data.data.profile || {});
     } catch (err) {
-      setError("Failed to fetch profile");
+      if (err?.response?.status === 404) {
+        // Expected for a user who hasn't filled in their role-specific
+        // profile yet — not a failure, just an empty state.
+        setProfile(null);
+        setFormData({});
+      } else {
+        setError("Failed to fetch profile");
+      }
       console.error("Error fetching profile:", err);
     } finally {
       setLoading(false);
@@ -181,7 +189,7 @@ export default function ProfileSection({ user }) {
               <div className="card-icon">📝</div>
               <h3 className="card-title">Role-Specific Information</h3>
               {!editing && (
-                <button 
+                <button
                   className="btn btn-outline btn-small"
                   onClick={() => setEditing(true)}
                 >
@@ -237,15 +245,15 @@ export default function ProfileSection({ user }) {
                     ))}
                   </div>
                   <div className="form-actions">
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="btn btn-primary"
                       disabled={loading}
                     >
                       {loading ? "Saving..." : "Save Changes"}
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-secondary"
                       onClick={() => {
                         setEditing(false);
@@ -281,7 +289,7 @@ export default function ProfileSection({ user }) {
               <div className="card-icon">📰</div>
               <h3 className="card-title">Blog Management</h3>
               {!showBlogForm && (
-                <button 
+                <button
                   className="btn btn-outline btn-small"
                   onClick={() => setShowBlogForm(true)}
                 >
@@ -323,14 +331,14 @@ export default function ProfileSection({ user }) {
                     </div>
                   </div>
                   <div className="form-actions">
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="btn btn-primary"
                     >
                       Publish Blog
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-secondary"
                       onClick={() => {
                         setShowBlogForm(false);

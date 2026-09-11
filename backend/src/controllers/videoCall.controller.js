@@ -8,11 +8,24 @@ import Appointment from "../models/Appointments.js"; // Updated to match your sc
  */
 export const createCallSession = async (req, res) => {
   try {
-    const { appointmentId, participantIds, callType = "video" } = req.body;
+    const {
+      appointmentId,
+      callType = "video",
+      roomId: requestedRoomId,
+    } = req.body;
     const initiatorId = req.user.id;
 
-    // Verify appointment exists and user has permission
-    const appointment = await Appointment.findById(appointmentId);
+    // Populate doctorId/patientId (DoctorProfile/PatientProfile documents)
+    // so we can get at the underlying User id via `.user`. Appointment
+    // stores DoctorProfile/PatientProfile ids, NOT User ids, but
+    // req.user.id (from the JWT) IS a User id — comparing them directly
+    // (as this used to do) meant the check could never pass for a real
+    // doctor or patient, so every call creation was rejected as "Not
+    // authorized" regardless of who was asking.
+    const appointment = await Appointment.findById(appointmentId)
+      .populate("doctorId", "user")
+      .populate("patientId", "user");
+
     if (!appointment) {
       return res.status(404).json({
         success: false,
@@ -20,11 +33,11 @@ export const createCallSession = async (req, res) => {
       });
     }
 
-    // Check if user is part of the appointment
+    const doctorUserId = appointment.doctorId?.user?.toString();
+    const patientUserId = appointment.patientId?.user?.toString();
+
     const isAuthorized =
-      appointment.doctorId?.toString() === initiatorId ||
-      appointment.patientId?.toString() === initiatorId ||
-      appointment.healthWorkerId?.toString() === initiatorId;
+      initiatorId === doctorUserId || initiatorId === patientUserId;
 
     if (!isAuthorized) {
       return res.status(403).json({
@@ -33,29 +46,47 @@ export const createCallSession = async (req, res) => {
       });
     }
 
-    // Generate unique room ID
-    const roomId = `room_${uuidv4().replace(/-/g, "")}`;
+    // Build the participant list from the appointment's own linked Users
+    // rather than trusting whatever the client sent — the frontend has
+    // been sending a mix of User ids and DoctorProfile/PatientProfile ids,
+    // which would silently break the "is this user allowed to join/end/
+    // view this call" checks later on. Deriving it here guarantees both
+    // participants are real, consistent User ids.
+    const participantIds = [doctorUserId, patientUserId].filter(Boolean);
 
-    // Create call session
-    const callSession = new VideoCallSession({
-      roomId,
-      appointmentId,
-      initiatorId,
-      participantIds: [...new Set([initiatorId, ...participantIds])], // Remove duplicates
-      callType,
-      status: "waiting",
-      createdAt: new Date(),
-      metadata: {
-        appointmentType: appointment.type,
-        scheduledTime: appointment.scheduledTime,
-      },
-    });
+    // Reuse the existing session for this appointment if one already
+    // exists (created by whichever side clicked first) instead of creating
+    // a duplicate / colliding on the unique roomId index.
+    let callSession = await VideoCallSession.findOne({ appointmentId });
 
-    await callSession.save();
+    if (callSession) {
+      callSession.addParticipant(initiatorId);
+      await callSession.save();
+    } else {
+      const roomId = requestedRoomId || `room_${uuidv4().replace(/-/g, "")}`;
 
-    // Update appointment with call session
-    appointment.videoCallSessionId = callSession._id;
-    await appointment.save();
+      callSession = new VideoCallSession({
+        roomId,
+        appointmentId,
+        initiatorId,
+        initiatorModel: "User",
+        participantIds,
+        participantModel: "User",
+        callType,
+        status: "waiting",
+        createdAt: new Date(),
+        metadata: {
+          appointmentType: appointment.type,
+          scheduledTime: appointment.scheduledTime,
+        },
+      });
+
+      await callSession.save();
+
+      // Update appointment with call session
+      appointment.videoCallSessionId = callSession._id;
+      await appointment.save();
+    }
 
     res.status(201).json({
       success: true,
@@ -385,4 +416,4 @@ export const getCallHistory = async (req, res) => {
     });
   }
 };
-// 
+//

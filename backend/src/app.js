@@ -19,20 +19,26 @@ const app = express();
 const server = createServer(app); // ✅ WebRTC: Create HTTP server
 
 // ✅ WebRTC: Initialize Socket.IO with proper CORS
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
-    methods: ["GET", "POST"],
-    credentials: true,
+const allowedOrigins = [
+  process.env.CLIENT_ORIGIN,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error("Not allowed by CORS"));
   },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true,
+};
+
+const io = new Server(server, {
+  cors: corsOptions,
 });
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
-    credentials: true, // Changed to true for WebRTC
-  })
-);
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(morgan("dev"));
