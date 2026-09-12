@@ -9,9 +9,10 @@
 }
 
 .auth-card {
-  background: white;
+  background: #161b22;
+  border: 1px solid #262c36;
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   padding: 3rem;
   width: 100%;
   max-width: 450px;
@@ -23,6 +24,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -35,14 +37,14 @@
 }
 
 .auth-header h1 {
-  color: #333;
+  color: #f5f7fa;
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
 .auth-header p {
-  color: #666;
+  color: #9aa4b2;
   font-size: 1rem;
 }
 
@@ -60,7 +62,7 @@
 
 .form-group label {
   font-weight: 600;
-  color: #333;
+  color: #e6edf3;
   font-size: 0.9rem;
 }
 
@@ -71,18 +73,29 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
-  background: white;
+  background: #eef1f5;
+  color: #111827 !important;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
 }
 
 .form-group input::placeholder {
-  color: #999;
+  color: #4b5563;
+}
+
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #111827;
+  -webkit-box-shadow: 0 0 0 1000px #eef1f5 inset;
+  box-shadow: 0 0 0 1000px #eef1f5 inset;
+  caret-color: #111827;
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 .btn {
@@ -119,16 +132,16 @@
   text-align: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e1e5e9;
+  border-top: 1px solid #262c36;
 }
 
 .auth-footer p {
-  color: #666;
+  color: #9aa4b2;
   margin: 0;
 }
 
 .link {
-  color: #667eea;
+  color: #7dd3fc;
   text-decoration: none;
   font-weight: 600;
 }
@@ -138,21 +151,21 @@
 }
 
 .error-message {
-  background: #fee;
-  color: #c33;
+  background: #3a1518;
+  color: #fca5a5;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  border: 1px solid #fcc;
+  border: 1px solid #7f1d1d;
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
 
 .success-message {
-  background: #efe;
-  color: #363;
+  background: #16332a;
+  color: #6ee7b7;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  border: 1px solid #cfc;
+  border: 1px solid #14532d;
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
@@ -162,11 +175,11 @@
   .auth-container {
     padding: 1rem;
   }
-  
+
   .auth-card {
     padding: 2rem;
   }
-  
+
   .auth-header h1 {
     font-size: 1.75rem;
   }

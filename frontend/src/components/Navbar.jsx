@@ -26,6 +26,9 @@ export default function Navbar({ onLogout }) {
     { path: "/outbreak", label: "Outbreak" },
     { path: "/assistant", label: "AI Assistant" },
     { path: "/video-call", label: "call" },
+    ...(localStorage.getItem("userRole") === "admin"
+      ? [{ path: "/admin", label: "Admin" }]
+      : []),
   ];
 
   // Dropdown menu items
@@ -82,12 +85,12 @@ export default function Navbar({ onLogout }) {
       style={{
         background: "linear-gradient(135deg, rgba(219, 234, 254, 0.95), rgba(191, 219, 254, 0.95))",
         backdropFilter: "blur(20px)",
-        borderBottom:"1px solid rgba(147, 197, 253, 0.2)",
+        borderBottom: "1px solid rgba(147, 197, 253, 0.2)",
         padding: "1rem 3rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        boxShadow:  "0 2px 20px rgba(147, 197, 253, 0.2)",
+        boxShadow: "0 2px 20px rgba(147, 197, 253, 0.2)",
         position: "sticky",
         top: 0,
         zIndex: 1000,

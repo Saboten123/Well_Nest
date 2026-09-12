@@ -41,6 +41,8 @@ import ParticipantRegistration from "./pages/events/ParticipantRegistration";
 
 import AIChatPage from "./pages/AiChatPage";
 
+import AdminDashboard from "./pages/AdminDashboard";
+
 import "./styles/main.css";
 
 function App() {
@@ -79,6 +81,8 @@ function App() {
               <Route path="/blogs" element={<BlogsPage />} />
 
               <Route path="/assistant" element={<AIChatPage />} />
+
+              <Route path="/admin" element={<AdminDashboard />} />
 
               {/* Events Routes */}
               <Route path="/events" element={<EventsMainPage />} />

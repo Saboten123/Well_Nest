@@ -87,6 +87,9 @@ app.use("/appointment", appointmentRouter);
 import videoCallRoutes from "./routes/videoCall.routes.js";
 app.use("/video-call", videoCallRoutes);
 
+import adminRoutes from "./routes/admin.routes.js";
+app.use("/admin", adminRoutes);
+
 // ✅ WebRTC: Initialize Socket.IO handlers for WebRTC signaling
 initializeWebRTCSocket(io);
 

@@ -490,6 +490,7 @@
         width: 100%;
     }
 }
+
 /* Add this to your AppointmentsPage.css file */
 
 .video-call-btn {
@@ -549,4 +550,159 @@
         width: 100%;
         justify-content: center;
     }
+}
+
+/* ============================================================
+   Dark theme override
+   Appended (rather than editing every rule above) so the cascade
+   naturally wins on same-specificity selectors — keeps the diff
+   readable and avoids touching layout/spacing rules that were fine.
+   Palette matches the Admin Panel for a consistent app-wide look.
+   ============================================================ */
+
+.page {
+    background: #0d1117;
+}
+
+.section-title {
+    color: #f5f7fa;
+}
+
+.section-subtitle {
+    color: #9aa4b2;
+}
+
+.appointment-card-large {
+    background: #161b22;
+    border: 1px solid #262c36;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+}
+
+.appointment-header {
+    border-bottom: 2px solid #262c36;
+}
+
+.appointment-header h3 {
+    color: #f5f7fa;
+}
+
+.status-pending {
+    background: #3a2e14;
+    color: #fcd34d;
+}
+
+.status-accepted {
+    background: #16332a;
+    color: #6ee7b7;
+}
+
+.status-scheduled {
+    background: #14324a;
+    color: #7dd3fc;
+}
+
+.status-cancelled {
+    background: #3a1518;
+    color: #fca5a5;
+}
+
+.status-completed {
+    background: #2e1f3a;
+    color: #d8b4fe;
+}
+
+.detail-row {
+    border-bottom: 1px solid #1c222b;
+}
+
+.detail-row strong {
+    color: #e6edf3;
+}
+
+.detail-row span {
+    color: #9aa4b2;
+}
+
+.past-time {
+    color: #f87171 !important;
+}
+
+.future-time {
+    color: #34d399 !important;
+}
+
+.appointment-actions-large {
+    border-top: 2px solid #262c36;
+}
+
+.appointment-filters {
+    background: #161b22;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+.btn-outline {
+    background: #1c222b;
+    color: #e6edf3;
+    border: 1px solid #2d333d;
+}
+
+.btn-outline:hover:not(:disabled) {
+    background: #262c36;
+    border-color: #3d4552;
+}
+
+.empty-state {
+    background: #161b22;
+    border: 2px dashed #2d333d;
+}
+
+.empty-state h3 {
+    color: #e6edf3;
+}
+
+.empty-state p {
+    color: #9aa4b2;
+}
+
+.error-message {
+    background: #3a1518;
+    border: 1px solid #7f1d1d;
+    color: #fca5a5;
+}
+
+.modal-content {
+    background: #161b22;
+    color: #e6edf3;
+}
+
+.modal-header {
+    border-bottom: 1px solid #262c36;
+}
+
+.modal-header h3 {
+    color: #f5f7fa;
+}
+
+.modal-close {
+    color: #9aa4b2;
+}
+
+.modal-close:hover {
+    color: #e6edf3;
+}
+
+.form-group label {
+    color: #e6edf3;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    background: #0d1117;
+    color: #e6edf3;
+    border: 1px solid #2d333d;
+}
+
+.form-group small {
+    color: #9aa4b2;
 }

@@ -1521,10 +1521,25 @@ body {
   border-radius: 15px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(248, 250, 252, 0.8) 100%);
-  backdrop-filter: blur(10px);
+  background: #eef1f5;
+  color: #111827 !important;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #4b5563;
+}
+
+/* Force black text even when Chrome/Edge autofills the field with its own
+   internal styling, which otherwise overrides any color set above. */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #111827;
+  -webkit-box-shadow: 0 0 0 1000px #eef1f5 inset;
+  box-shadow: 0 0 0 1000px #eef1f5 inset;
+  caret-color: #111827;
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 .form-group input:focus,
@@ -2040,9 +2055,7 @@ body {
 .form-group select.error {
   border-color: #ef4444;
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
-  background: linear-gradient(135deg,
-      rgba(254, 242, 242, 0.9) 0%,
-      rgba(252, 231, 243, 0.8) 100%);
+  background: #ceb2b8;
 }
 
 .field-error {
@@ -2068,32 +2081,29 @@ body {
 .password-requirements {
   margin-top: 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg,
-      rgba(249, 250, 251, 0.9) 0%,
-      rgba(243, 244, 246, 0.8) 100%);
+  background: #10151c;
   border-radius: 15px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid #2d333d;
 }
 
 .password-requirements small {
-  color: #6c757d;
+  color: #9aa4b2;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.password-requirements li {
+  margin: 0.4rem 0;
+  position: relative;
+  color: #9aa4b2;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
 }
 
 .password-requirements ul {
   margin: 0.5rem 0;
   padding-left: 1.5rem;
   list-style: none;
-}
-
-.password-requirements li {
-  margin: 0.4rem 0;
-  position: relative;
-  color: #6c757d;
-  transition: all 0.3s ease;
-  font-size: 0.85rem;
 }
 
 .password-requirements li::before {
