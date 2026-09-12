@@ -27,9 +27,7 @@ export default function ProfileSection({ user }) {
       setProfile(response.data.data.profile);
       setFormData(response.data.data.profile || {});
     } catch (err) {
-      if (err?.response?.status === 404) {
-        // Expected for a user who hasn't filled in their role-specific
-        // profile yet — not a failure, just an empty state.
+      if (err.response?.status === 404) {
         setProfile(null);
         setFormData({});
       } else {

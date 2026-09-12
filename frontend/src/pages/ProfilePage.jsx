@@ -311,11 +311,8 @@ export default function ProfilePage() {
       setProfile(response.data.data.profile);
       setFormData(response.data.data.profile || {});
     } catch (err) {
-      if (err?.response?.status === 404) {
-        // Expected for a user who hasn't filled in their role-specific
-        // profile yet — not a failure, just an empty state. The UI already
-        // shows "No profile information available. Click 'Edit Profile'..."
-        // for this case, so no error banner is needed.
+      if (err.response?.status === 404) {
+        // No profile created yet - not an error, just show the empty state.
         setProfile(null);
         setFormData({});
       } else {

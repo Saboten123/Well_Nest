@@ -356,6 +356,19 @@ body {
   border-color: transparent;
 }
 
+/* .btn-outline defaults to white text/border for use on dark hero
+   backgrounds. Inside cards (light background) that made the text
+   invisible, e.g. "Edit Profile". Force visible colors there. */
+.card .btn-outline {
+  background: transparent;
+  color: #667eea;
+  border-color: #667eea;
+}
+
+.card .btn-outline:hover {
+  color: white;
+}
+
 .btn-large {
   padding: 1.25rem 3rem;
   font-size: 1.2rem;
@@ -504,6 +517,16 @@ body {
   position: relative;
   z-index: 1;
   text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+/* Used across every page (page subtitles, and headings like "My Profile")
+   but had no rule at all, so it rendered as thin, low-contrast default text. */
+.section-subtitle {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #000000;
 }
 
 .features-grid {
@@ -1312,6 +1335,39 @@ body {
   margin-bottom: 1rem;
 }
 
+/* Label/value rows (Name, Email, Role, etc.) had no styling at all here,
+   so they inherited the page's white text color and never wrapped. */
+.info-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.375rem 1rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.info-item strong {
+  color: #1a202c;
+  font-weight: 600;
+  font-size: 1.05rem;
+  min-width: 120px;
+}
+
+.info-item span {
+  color: #1a202c;
+  font-size: 1.05rem;
+  text-align: right;
+  flex: 1 1 200px;
+  word-break: break-word;
+}
+
 /* Buttons */
 .btn-secondary {
   background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
@@ -1521,25 +1577,10 @@ body {
   border-radius: 15px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  background: #eef1f5;
-  color: #111827 !important;
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: #4b5563;
-}
-
-/* Force black text even when Chrome/Edge autofills the field with its own
-   internal styling, which otherwise overrides any color set above. */
-.form-group input:-webkit-autofill,
-.form-group input:-webkit-autofill:hover,
-.form-group input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #111827;
-  -webkit-box-shadow: 0 0 0 1000px #eef1f5 inset;
-  box-shadow: 0 0 0 1000px #eef1f5 inset;
-  caret-color: #111827;
-  transition: background-color 9999s ease-in-out 0s;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(248, 250, 252, 0.8) 100%);
+  backdrop-filter: blur(10px);
 }
 
 .form-group input:focus,
@@ -2055,7 +2096,9 @@ body {
 .form-group select.error {
   border-color: #ef4444;
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
-  background: #ceb2b8;
+  background: linear-gradient(135deg,
+      rgba(254, 242, 242, 0.9) 0%,
+      rgba(252, 231, 243, 0.8) 100%);
 }
 
 .field-error {
@@ -2081,29 +2124,32 @@ body {
 .password-requirements {
   margin-top: 1rem;
   padding: 1rem;
-  background: #10151c;
+  background: linear-gradient(135deg,
+      rgba(249, 250, 251, 0.9) 0%,
+      rgba(243, 244, 246, 0.8) 100%);
   border-radius: 15px;
-  border: 1px solid #2d333d;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .password-requirements small {
-  color: #9aa4b2;
+  color: #6c757d;
   font-size: 0.8rem;
   font-weight: 600;
-}
-
-.password-requirements li {
-  margin: 0.4rem 0;
-  position: relative;
-  color: #9aa4b2;
-  transition: all 0.3s ease;
-  font-size: 0.85rem;
 }
 
 .password-requirements ul {
   margin: 0.5rem 0;
   padding-left: 1.5rem;
   list-style: none;
+}
+
+.password-requirements li {
+  margin: 0.4rem 0;
+  position: relative;
+  color: #6c757d;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
 }
 
 .password-requirements li::before {
