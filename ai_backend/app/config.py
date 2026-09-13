@@ -4,13 +4,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API Keys
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# Database
-DB_NAME = "healthcare_chatbot"
-COLLECTION_NAME = "conversations"
+# Database — Render injects this automatically when you attach a
+# Postgres instance to this service; DATABASE_URL is its standard name.
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/wellnest"
+)
 
 # Memory settings
 SUMMARY_INTERVAL = 12   # summarize every 12 user turns

@@ -1,6 +1,6 @@
 import time
 from typing import Dict, List
-from .db import conversations
+from .db import find_conversation, insert_conversation, upsert_conversation
 from .config import SUMMARY_INTERVAL, KEEP_LAST_N
 from .tools.gemini_tool import summarize_conversation
 
@@ -27,11 +27,11 @@ def load_memory(user_key: str, signed_in: bool) -> Dict:
     For guests → use in-memory store.
     """
     if signed_in:
-        found = conversations.find_one({"user_id": user_key})
+        found = find_conversation(user_key)
         if not found:
-            # Insert new doc for this signed-in user
+            # Insert new row for this signed-in user
             doc = _empty_doc()
-            conversations.insert_one({"user_id": user_key, **doc})
+            insert_conversation(user_key, doc["summary"], doc["messages"], doc["turns"], doc["updated_at"])
             return doc
 
         return {
@@ -50,17 +50,12 @@ def load_memory(user_key: str, signed_in: bool) -> Dict:
 def save_memory(user_key: str, signed_in: bool, doc: Dict) -> None:
     doc["updated_at"] = _now()
     if signed_in:
-        conversations.update_one(
-            {"user_id": user_key},
-            {
-                "$set": {
-                    "summary": doc.get("summary", ""),
-                    "messages": doc.get("messages", []),
-                    "turns": doc.get("turns", 0),
-                    "updated_at": doc["updated_at"],
-                }
-            },
-            upsert=True,
+        upsert_conversation(
+            user_key,
+            doc.get("summary", ""),
+            doc.get("messages", []),
+            doc.get("turns", 0),
+            doc["updated_at"],
         )
     else:
         _GUEST_MEM[user_key] = doc
