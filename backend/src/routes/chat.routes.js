@@ -1,9 +1,17 @@
 import express from "express";
-import mongoose from "mongoose"; // Missing import
+import { Op } from "sequelize";
 import Chat from "../models/Chats.js";
+import Appointment from "../models/Appointments.js";
+import DoctorProfile from "../models/DoctorProfile.js";
+import PatientProfile from "../models/PatientProfile.js";
 import { authRequired } from "../middlewares/auth.js";
 
 const router = express.Router();
+
+// Postgres uses UUID primary keys — this replaces
+// mongoose.Types.ObjectId.isValid() for request param validation.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isValidId = (id) => typeof id === "string" && UUID_RE.test(id);
 
 // Get all chats for a user
 router.get("/my-chats", authRequired, async (req, res) => {
@@ -11,21 +19,25 @@ router.get("/my-chats", authRequired, async (req, res) => {
     const userId = req.user.id;
     const userType = req.user.role;
 
-    const query =
+    const where =
       userType === "doctor" ? { doctorId: userId } : { patientId: userId };
 
-    const chats = await Chat.find(query)
-      .populate("appointmentId", "date time status")
-      .populate("doctorId", "name specialization")
-      .populate("patientId", "name email")
-      .sort({ lastUpdated: -1 })
-      .select("appointmentId doctorId patientId lastUpdated messages");
+    const chats = await Chat.findAll({
+      where,
+      attributes: ["id", "appointmentId", "doctorId", "patientId", "lastUpdated", "messages"],
+      include: [
+        { model: Appointment },
+        { model: DoctorProfile, attributes: ["name", "specialization"] },
+        { model: PatientProfile, attributes: ["name", "email"] },
+      ],
+      order: [["lastUpdated", "DESC"]],
+    });
 
     const formattedChats = chats.map((chat) => ({
-      _id: chat._id,
-      appointmentId: chat.appointmentId,
-      doctor: chat.doctorId,
-      patient: chat.patientId,
+      _id: chat.id,
+      appointmentId: chat.Appointment,
+      doctor: chat.DoctorProfile,
+      patient: chat.PatientProfile,
       lastMessage:
         chat.messages.length > 0
           ? chat.messages[chat.messages.length - 1]
@@ -56,7 +68,7 @@ router.get("/appointment/:appointmentId", authRequired, async (req, res) => {
     const { page = 1, limit = 50 } = req.query;
 
     // Validate appointmentId format
-    if (!mongoose.Types.ObjectId.isValid(appointmentId)) {
+    if (!isValidId(appointmentId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid appointment ID format",
@@ -64,12 +76,16 @@ router.get("/appointment/:appointmentId", authRequired, async (req, res) => {
     }
 
     const chat = await Chat.findOne({
-      appointmentId,
-      $or: [{ doctorId: userId }, { patientId: userId }],
-    })
-      .populate("doctorId", "name email")
-      .populate("patientId", "name email")
-      .populate("appointmentId", "date time status");
+      where: {
+        appointmentId,
+        [Op.or]: [{ doctorId: userId }, { patientId: userId }],
+      },
+      include: [
+        { model: DoctorProfile, attributes: ["name", "email"] },
+        { model: PatientProfile, attributes: ["name", "email"] },
+        { model: Appointment },
+      ],
+    });
 
     if (!chat) {
       return res.status(404).json({
@@ -93,10 +109,10 @@ router.get("/appointment/:appointmentId", authRequired, async (req, res) => {
       success: true,
       data: {
         chat: {
-          _id: chat._id,
-          appointmentId: chat.appointmentId,
-          doctor: chat.doctorId,
-          patient: chat.patientId,
+          _id: chat.id,
+          appointmentId: chat.Appointment,
+          doctor: chat.DoctorProfile,
+          patient: chat.PatientProfile,
           lastUpdated: chat.lastUpdated,
         },
         messages,
@@ -130,15 +146,15 @@ router.post("/create", authRequired, async (req, res) => {
       });
     }
 
-    // Validate ObjectId format
+    // Validate ID format
     if (
-      !mongoose.Types.ObjectId.isValid(appointmentId) ||
-      !mongoose.Types.ObjectId.isValid(doctorId) ||
-      !mongoose.Types.ObjectId.isValid(patientId)
+      !isValidId(appointmentId) ||
+      !isValidId(doctorId) ||
+      !isValidId(patientId)
     ) {
       return res.status(400).json({
         success: false,
-        message: "Invalid ObjectId format",
+        message: "Invalid ID format",
       });
     }
 
@@ -151,7 +167,7 @@ router.post("/create", authRequired, async (req, res) => {
     }
 
     // Check if chat already exists
-    let chat = await Chat.findOne({ appointmentId });
+    let chat = await Chat.findOne({ where: { appointmentId } });
 
     if (chat) {
       return res.status(200).json({
@@ -200,7 +216,7 @@ router.post("/send-message", authRequired, async (req, res) => {
     }
 
     // Validate appointmentId format
-    if (!mongoose.Types.ObjectId.isValid(appointmentId)) {
+    if (!isValidId(appointmentId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid appointment ID format",
@@ -209,8 +225,10 @@ router.post("/send-message", authRequired, async (req, res) => {
 
     // Find the chat
     const chat = await Chat.findOne({
-      appointmentId,
-      $or: [{ doctorId: userId }, { patientId: userId }],
+      where: {
+        appointmentId,
+        [Op.or]: [{ doctorId: userId }, { patientId: userId }],
+      },
     });
 
     if (!chat) {
@@ -227,7 +245,9 @@ router.post("/send-message", authRequired, async (req, res) => {
       timestamp: new Date(),
     };
 
-    chat.messages.push(newMessage);
+    // Reassign (not .push) so Sequelize's dirty-checking on the JSONB
+    // column actually picks up the change.
+    chat.messages = [...chat.messages, newMessage];
     chat.lastUpdated = new Date();
 
     // Save the updated chat
@@ -258,18 +278,21 @@ router.get("/:chatId/messages", authRequired, async (req, res) => {
     const userId = req.user.id;
 
     // Validate chatId format
-    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+    if (!isValidId(chatId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid chat ID format",
       });
     }
 
-    // Find chat with populated references
-    const chat = await Chat.findById(chatId)
-      .populate("doctorId", "name email")
-      .populate("patientId", "name email")
-      .populate("appointmentId", "date time status");
+    // Find chat with related records
+    const chat = await Chat.findByPk(chatId, {
+      include: [
+        { model: DoctorProfile, attributes: ["name", "email"] },
+        { model: PatientProfile, attributes: ["name", "email"] },
+        { model: Appointment },
+      ],
+    });
 
     if (!chat) {
       return res.status(404).json({
@@ -279,10 +302,7 @@ router.get("/:chatId/messages", authRequired, async (req, res) => {
     }
 
     // Verify user has permission to view this chat
-    if (
-      userId !== chat.doctorId._id.toString() &&
-      userId !== chat.patientId._id.toString()
-    ) {
+    if (userId !== chat.doctorId && userId !== chat.patientId) {
       return res.status(403).json({
         success: false,
         message: "Unauthorized to view this chat",
@@ -322,7 +342,7 @@ router.get(
       }
 
       // Validate appointmentId format
-      if (!mongoose.Types.ObjectId.isValid(appointmentId)) {
+      if (!isValidId(appointmentId)) {
         return res.status(400).json({
           success: false,
           message: "Invalid appointment ID format",
@@ -330,11 +350,15 @@ router.get(
       }
 
       const chat = await Chat.findOne({
-        appointmentId,
-        $or: [{ doctorId: userId }, { patientId: userId }],
-      })
-        .populate("doctorId", "name")
-        .populate("patientId", "name");
+        where: {
+          appointmentId,
+          [Op.or]: [{ doctorId: userId }, { patientId: userId }],
+        },
+        include: [
+          { model: DoctorProfile, attributes: ["name"] },
+          { model: PatientProfile, attributes: ["name"] },
+        ],
+      });
 
       if (!chat) {
         return res.status(404).json({
@@ -356,10 +380,10 @@ router.get(
           searchTerm,
           totalMatches: matchingMessages.length,
           chat: {
-            _id: chat._id,
+            _id: chat.id,
             appointmentId: chat.appointmentId,
-            doctor: chat.doctorId,
-            patient: chat.patientId,
+            doctor: chat.DoctorProfile,
+            patient: chat.PatientProfile,
           },
         },
       });
@@ -382,7 +406,7 @@ router.patch("/:chatId/mark-read", authRequired, async (req, res) => {
     const userId = req.user.id;
 
     // Validate chatId format
-    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+    if (!isValidId(chatId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid chat ID format",
@@ -390,8 +414,10 @@ router.patch("/:chatId/mark-read", authRequired, async (req, res) => {
     }
 
     const chat = await Chat.findOne({
-      _id: chatId,
-      $or: [{ doctorId: userId }, { patientId: userId }],
+      where: {
+        id: chatId,
+        [Op.or]: [{ doctorId: userId }, { patientId: userId }],
+      },
     });
 
     if (!chat) {

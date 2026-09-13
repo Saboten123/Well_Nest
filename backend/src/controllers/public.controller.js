@@ -1,5 +1,7 @@
+import { Op } from "sequelize";
 import NGOProfile from "../models/NGOProfile.js";
 import DoctorProfile from "../models/DoctorProfile.js";
+import User from "../models/User.js";
 
 function ok(res, message, data = {}) {
   return res.json({ success: true, message, data });
@@ -7,7 +9,10 @@ function ok(res, message, data = {}) {
 
 export async function listNGOs(req, res, next) {
   try {
-    const ngos = await NGOProfile.find({}, { blogs: 0 }).populate("user", "firstName lastName");
+    const ngos = await NGOProfile.findAll({
+      attributes: { exclude: ["blogs"] },
+      include: [{ model: User, attributes: ["firstName", "lastName"] }],
+    });
     return ok(res, "OK", { items: ngos });
   } catch (err) {
     next(err);
@@ -18,12 +23,20 @@ export async function listDoctors(req, res, next) {
   try {
     // Optional simple filters
     const { specialization, gender, q } = req.query;
-    const filter = {};
-    if (specialization) filter.specialization = specialization;
-    if (gender) filter.gender = gender;
-    if (q) filter.$or = [{ name: new RegExp(q, "i") }, { affiliation: new RegExp(q, "i") }];
+    const where = {};
+    if (specialization) where.specialization = specialization;
+    if (gender) where.gender = gender;
+    if (q) {
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${q}%` } },
+        { affiliation: { [Op.iLike]: `%${q}%` } },
+      ];
+    }
 
-    const doctors = await DoctorProfile.find(filter).populate("user", "firstName lastName");
+    const doctors = await DoctorProfile.findAll({
+      where,
+      include: [{ model: User, attributes: ["firstName", "lastName"] }],
+    });
     return ok(res, "OK", { items: doctors });
   } catch (err) {
     next(err);

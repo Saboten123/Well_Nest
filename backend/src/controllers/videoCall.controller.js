@@ -1,10 +1,22 @@
 // controllers/videoCall.controller.js
 import { v4 as uuidv4 } from "uuid";
-import VideoCallSession from "../models/VideoCallSession.model.js";
-import Appointment from "../models/Appointments.js"; // Updated to match your schema file
+import { Op } from "sequelize";
+// NOTE: filename is lowercase-first (videoCallSession.model.js) — the old
+// import here ("VideoCallSession.model.js") only worked on case-insensitive
+// filesystems (Mac/Windows) and would 404 on Render's Linux containers.
+import VideoCallSession from "../models/videoCallSession.model.js";
+import Appointment from "../models/Appointments.js";
 import DoctorProfile from "../models/DoctorProfile.js";
 import PatientProfile from "../models/PatientProfile.js";
+import User from "../models/User.js";
 import { sendVideoCallInviteEmail, sendAppointmentCompletedEmail } from "../utils/mailer.js";
+
+// initiatorModel/participantModel are always "User" in this app, so we
+// resolve participant info directly against the User table.
+async function resolveUserSummary(userId) {
+  if (!userId) return null;
+  return User.findByPk(userId, { attributes: ["id", "firstName", "lastName", "role"] });
+}
 
 /**
  * Create a new video call session
@@ -15,7 +27,7 @@ export const createCallSession = async (req, res) => {
     const initiatorId = req.user.id;
 
     // Verify appointment exists and user has permission
-    const appointment = await Appointment.findById(appointmentId);
+    const appointment = await Appointment.findByPk(appointmentId);
     if (!appointment) {
       return res.status(404).json({
         success: false,
@@ -24,16 +36,16 @@ export const createCallSession = async (req, res) => {
     }
 
     // Check if user is part of the appointment. doctorId/patientId on the
-    // appointment point to DoctorProfile/PatientProfile documents, not User
-    // documents directly, so resolve their `user` field before comparing.
+    // appointment point to DoctorProfile/PatientProfile rows, not Users
+    // directly, so resolve their userId before comparing.
     const [doctorProfile, patientProfile] = await Promise.all([
-      DoctorProfile.findById(appointment.doctorId),
-      PatientProfile.findById(appointment.patientId),
+      DoctorProfile.findByPk(appointment.doctorId),
+      PatientProfile.findByPk(appointment.patientId),
     ]);
 
     const isAuthorized =
-      doctorProfile?.user?.toString() === initiatorId ||
-      patientProfile?.user?.toString() === initiatorId;
+      doctorProfile?.userId === initiatorId ||
+      patientProfile?.userId === initiatorId;
 
     if (!isAuthorized) {
       return res.status(403).json({
@@ -46,7 +58,7 @@ export const createCallSession = async (req, res) => {
     const roomId = `room_${uuidv4().replace(/-/g, "")}`;
 
     // Create call session
-    const callSession = new VideoCallSession({
+    const callSession = await VideoCallSession.create({
       roomId,
       appointmentId,
       initiatorId,
@@ -55,32 +67,24 @@ export const createCallSession = async (req, res) => {
       participantModel: "User",
       callType,
       status: "waiting",
-      createdAt: new Date(),
       metadata: {
         appointmentType: appointment.type,
         scheduledTime: appointment.scheduledTime,
       },
     });
 
-    await callSession.save();
-
-    // Update appointment with call session
-    appointment.videoCallSessionId = callSession._id;
-    await appointment.save();
-
     // If the doctor started the call, email the patient the meeting ID.
     // Failure to email should never fail call creation.
     try {
-      const doctorStartedCall = doctorProfile?.user?.toString() === initiatorId;
+      const doctorStartedCall = doctorProfile?.userId === initiatorId;
 
       if (doctorStartedCall) {
-        const patientUser = await PatientProfile.findById(appointment.patientId).populate(
-          "user",
-          "email"
-        );
-        if (patientUser?.user?.email) {
+        const patientProfileWithUser = await PatientProfile.findByPk(appointment.patientId, {
+          include: [{ model: User, attributes: ["email"] }],
+        });
+        if (patientProfileWithUser?.User?.email) {
           const joinLink = `${process.env.CLIENT_ORIGIN || "http://localhost:5173"}/video-call`;
-          await sendVideoCallInviteEmail(patientUser.user.email, {
+          await sendVideoCallInviteEmail(patientProfileWithUser.User.email, {
             doctorName: doctorProfile?.name,
             roomId,
             joinLink,
@@ -96,7 +100,7 @@ export const createCallSession = async (req, res) => {
       message: "Video call session created successfully",
       data: {
         roomId: callSession.roomId,
-        sessionId: callSession._id,
+        sessionId: callSession.id,
         participantIds: callSession.participantIds,
         callType: callSession.callType,
         status: callSession.status,
@@ -121,7 +125,7 @@ export const joinCallSession = async (req, res) => {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    const callSession = await VideoCallSession.findOne({ roomId });
+    const callSession = await VideoCallSession.findOne({ where: { roomId } });
     if (!callSession) {
       return res.status(404).json({
         success: false,
@@ -146,15 +150,12 @@ export const joinCallSession = async (req, res) => {
     }
 
     // Add to joined participants if not already there
-    if (
-      !callSession.joinedParticipants.some(
-        (p) => p.userId.toString() === userId
-      )
-    ) {
-      callSession.joinedParticipants.push({
-        userId,
-        joinedAt: new Date(),
-      });
+    const joined = callSession.joinedParticipants || [];
+    if (!joined.some((p) => p.userId === userId)) {
+      callSession.joinedParticipants = [
+        ...joined,
+        { userId, joinedAt: new Date() },
+      ];
     }
 
     // Update status to active if this is the first join
@@ -170,7 +171,7 @@ export const joinCallSession = async (req, res) => {
       message: "Joined call session successfully",
       data: {
         roomId: callSession.roomId,
-        sessionId: callSession._id,
+        sessionId: callSession.id,
         participantIds: callSession.participantIds,
         joinedParticipants: callSession.joinedParticipants,
         callType: callSession.callType,
@@ -196,10 +197,7 @@ export const getCallSession = async (req, res) => {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    const callSession = await VideoCallSession.findOne({ roomId })
-      .populate("initiatorId", "name role")
-      .populate("participantIds", "name role")
-      .populate("joinedParticipants.userId", "name role");
+    const callSession = await VideoCallSession.findOne({ where: { roomId } });
 
     if (!callSession) {
       return res.status(404).json({
@@ -209,16 +207,27 @@ export const getCallSession = async (req, res) => {
     }
 
     // Check authorization
-    if (!callSession.participantIds.some((p) => p._id.toString() === userId)) {
+    if (!callSession.participantIds.includes(userId)) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to access this call session",
       });
     }
 
+    const [initiator, participants] = await Promise.all([
+      resolveUserSummary(callSession.initiatorId),
+      Promise.all(callSession.participantIds.map(resolveUserSummary)),
+    ]);
+    const joinedParticipants = await Promise.all(
+      (callSession.joinedParticipants || []).map(async (p) => ({
+        ...p,
+        user: await resolveUserSummary(p.userId),
+      }))
+    );
+
     res.json({
       success: true,
-      data: callSession,
+      data: { ...callSession.toJSON(), initiator, participants, joinedParticipants },
     });
   } catch (error) {
     console.error("Get call session error:", error);
@@ -238,7 +247,7 @@ export const endCallSession = async (req, res) => {
     const { roomId } = req.params;
     const userId = req.user.id;
 
-    const callSession = await VideoCallSession.findOne({ roomId });
+    const callSession = await VideoCallSession.findOne({ where: { roomId } });
     if (!callSession) {
       return res.status(404).json({
         success: false,
@@ -271,25 +280,25 @@ export const endCallSession = async (req, res) => {
     // Mark the linked appointment as ended and email both sides.
     // Failure to email should never fail ending the call.
     try {
-      const appointment = await Appointment.findById(callSession.appointmentId);
+      const appointment = await Appointment.findByPk(callSession.appointmentId);
       if (appointment) {
         appointment.status = "ended";
         await appointment.save();
 
         const [doctorProfile, patientProfile] = await Promise.all([
-          DoctorProfile.findById(appointment.doctorId).populate("user", "email"),
-          PatientProfile.findById(appointment.patientId).populate("user", "email"),
+          DoctorProfile.findByPk(appointment.doctorId, { include: [{ model: User, attributes: ["email"] }] }),
+          PatientProfile.findByPk(appointment.patientId, { include: [{ model: User, attributes: ["email"] }] }),
         ]);
 
-        if (doctorProfile?.user?.email) {
-          await sendAppointmentCompletedEmail(doctorProfile.user.email, {
+        if (doctorProfile?.User?.email) {
+          await sendAppointmentCompletedEmail(doctorProfile.User.email, {
             recipientRole: "doctor",
             otherPartyName: patientProfile?.name,
             scheduledTime: appointment.scheduledTime,
           });
         }
-        if (patientProfile?.user?.email) {
-          await sendAppointmentCompletedEmail(patientProfile.user.email, {
+        if (patientProfile?.User?.email) {
+          await sendAppointmentCompletedEmail(patientProfile.User.email, {
             recipientRole: "patient",
             otherPartyName: doctorProfile?.name,
             scheduledTime: appointment.scheduledTime,
@@ -329,7 +338,7 @@ export const updateCallStatus = async (req, res) => {
     const { status } = req.body;
     const userId = req.user.id;
 
-    const callSession = await VideoCallSession.findOne({ roomId });
+    const callSession = await VideoCallSession.findOne({ where: { roomId } });
     if (!callSession) {
       return res.status(404).json({
         success: false,
@@ -369,13 +378,11 @@ export const updateCallStatus = async (req, res) => {
         break;
     }
 
-    // Log status change
-    callSession.statusHistory.push({
-      status,
-      changedBy: userId,
-      changedAt: new Date(),
-      previousStatus: oldStatus,
-    });
+    // Log status change (reassign so the JSONB column is picked up as dirty)
+    callSession.statusHistory = [
+      ...(callSession.statusHistory || []),
+      { status, changedBy: userId, changedAt: new Date(), previousStatus: oldStatus },
+    ];
 
     await callSession.save();
 
@@ -407,21 +414,31 @@ export const getCallHistory = async (req, res) => {
     const userId = req.user.id;
     const { page = 1, limit = 10, status } = req.query;
 
-    // Build query
-    const query = { participantIds: userId };
-    if (status) {
-      query.status = status;
-    }
+    const where = { participantIds: { [Op.contains]: [userId] } };
+    if (status) where.status = status;
 
     // Get calls with pagination
-    const calls = await VideoCallSession.find(query)
-      .populate("initiatorId", "name role")
-      .populate("appointmentId", "type scheduledTime")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+    const calls = await VideoCallSession.findAll({
+      where,
+      include: [{ model: Appointment }],
+      order: [["createdAt", "DESC"]],
+      limit: Number(limit),
+      offset: (Number(page) - 1) * Number(limit),
+    });
 
-    const totalCalls = await VideoCallSession.countDocuments(query);
+    // Bulk-resolve initiator names instead of one lookup per call
+    const initiatorIds = [...new Set(calls.map((c) => c.initiatorId).filter(Boolean))];
+    const initiators = await User.findAll({
+      where: { id: initiatorIds },
+      attributes: ["id", "firstName", "lastName", "role"],
+    });
+    const initiatorMap = new Map(initiators.map((u) => [u.id, u]));
+    const callsWithInitiator = calls.map((c) => ({
+      ...c.toJSON(),
+      initiator: initiatorMap.get(c.initiatorId) || null,
+    }));
+
+    const totalCalls = await VideoCallSession.count({ where });
 
     // Calculate pagination info
     const totalPages = Math.ceil(totalCalls / limit);
@@ -431,7 +448,7 @@ export const getCallHistory = async (req, res) => {
     res.json({
       success: true,
       data: {
-        calls,
+        calls: callsWithInitiator,
         pagination: {
           currentPage: parseInt(page),
           totalPages,
@@ -451,4 +468,3 @@ export const getCallHistory = async (req, res) => {
     });
   }
 };
-//

@@ -1,24 +1,26 @@
+import { Op } from "sequelize";
 import HealthWorkerProfile from "../models/HealthWorkerProfile.js";
+import User from "../models/User.js";
 
 /**
  * Create or update health worker profile for logged-in user
  */
 export const upsertHealthWorkerProfile = async (req, res) => {
   try {
-    const { name, employer, certId, region, blogs } = req.body;
+    const { name, employer, certId, region } = req.body;
 
-    const profile = await HealthWorkerProfile.findOneAndUpdate(
-      { user: req.user.id },
-      {
-        name: name ?? null,
-        employer: employer ?? null,
-        certId: certId ?? null,
-        region: region ?? null,
-        // do NOT accept `blogs` here on profile upsert to avoid mixing concerns.
-        isProfileComplete: true
-      },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+    const [profile] = await HealthWorkerProfile.findOrCreate({
+      where: { userId: req.user.id },
+      defaults: { userId: req.user.id },
+    });
+    // do NOT accept `blogs` here on profile upsert to avoid mixing concerns.
+    await profile.update({
+      name: name ?? null,
+      employer: employer ?? null,
+      certId: certId ?? null,
+      region: region ?? null,
+      isProfileComplete: true
+    });
 
     return res.json({ success: true, data: profile });
   } catch (err) {
@@ -32,9 +34,10 @@ export const upsertHealthWorkerProfile = async (req, res) => {
  */
 export const getMyHealthWorkerProfile = async (req, res) => {
   try {
-    const profile = await HealthWorkerProfile
-      .findOne({ user: req.user.id })
-      .populate("user", "email firstName lastName");
+    const profile = await HealthWorkerProfile.findOne({
+      where: { userId: req.user.id },
+      include: [{ model: User, attributes: ["email", "firstName", "lastName"] }],
+    });
 
     if (!profile) {
       return res.status(404).json({ success: false, message: "Profile not found" });
@@ -56,10 +59,12 @@ export const addBlog = async (req, res) => {
       return res.status(400).json({ success: false, message: "title and body are required" });
     }
 
-    const profile = await HealthWorkerProfile.findOne({ user: req.user.id });
+    const profile = await HealthWorkerProfile.findOne({ where: { userId: req.user.id } });
     if (!profile) return res.status(404).json({ success: false, message: "Profile not found" });
 
-    profile.blogs.push({ title, body });
+    // Reassign (not .push) so Sequelize's dirty-checking on the JSONB
+    // column actually picks up the change.
+    profile.blogs = [...profile.blogs, { title, body, createdAt: new Date() }];
     await profile.save();
 
     return res.json({ success: true, data: profile.blogs });
@@ -74,7 +79,10 @@ export const addBlog = async (req, res) => {
  */
 export const getMyBlogs = async (req, res) => {
   try {
-    const profile = await HealthWorkerProfile.findOne({ user: req.user.id }, { blogs: 1, _id: 0 });
+    const profile = await HealthWorkerProfile.findOne({
+      where: { userId: req.user.id },
+      attributes: ["blogs"],
+    });
     if (!profile) return res.status(404).json({ success: false, message: "Profile not found" });
 
     return res.json({ success: true, data: profile.blogs });
@@ -91,21 +99,20 @@ export const getMyBlogs = async (req, res) => {
 export const listHealthWorkersPublic = async (req, res) => {
   try {
     const { region, q } = req.query;
-    const filter = {};
-    if (region) filter.region = region;
+    const where = {};
+    if (region) where.region = region;
     if (q) {
-      filter.$or = [
-        { name: new RegExp(q, "i") },
-        { employer: new RegExp(q, "i") }
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${q}%` } },
+        { employer: { [Op.iLike]: `%${q}%` } },
       ];
     }
 
-    const workers = await HealthWorkerProfile.find(filter, {
-      name: 1,
-      employer: 1,
-      region: 1,
-      isProfileComplete: 1
-    }).populate("user", "firstName lastName");
+    const workers = await HealthWorkerProfile.findAll({
+      where,
+      attributes: ["name", "employer", "region", "isProfileComplete"],
+      include: [{ model: User, attributes: ["firstName", "lastName"] }],
+    });
 
     return res.json({ success: true, data: workers });
   } catch (err) {
@@ -119,21 +126,23 @@ export const listHealthWorkersPublic = async (req, res) => {
  */
 export const getAllHealthWorkerBlogs = async (req, res) => {
   try {
-    const healthWorkers = await HealthWorkerProfile.find({}, { blogs: 1, user: 1, name: 1 })
-      .populate("user", "firstName lastName");
-    
+    const healthWorkers = await HealthWorkerProfile.findAll({
+      attributes: ["id", "blogs", "name", "userId"],
+      include: [{ model: User, attributes: ["firstName", "lastName"] }],
+    });
+
     const allBlogs = healthWorkers
       .filter(worker => worker.blogs && worker.blogs.length > 0)
       .map(worker => ({
-        workerId: worker._id,
-        workerName: worker.user ? `${worker.user.firstName} ${worker.user.lastName}` : worker.name || "Health Worker",
+        workerId: worker.id,
+        workerName: worker.User ? `${worker.User.firstName} ${worker.User.lastName}` : worker.name || "Health Worker",
         blogs: worker.blogs.map(blog => ({
-          ...blog.toObject(),
-          workerName: worker.user ? `${worker.user.firstName} ${worker.user.lastName}` : worker.name || "Health Worker"
+          ...blog,
+          workerName: worker.User ? `${worker.User.firstName} ${worker.User.lastName}` : worker.name || "Health Worker"
         }))
       }))
       .flatMap(worker => worker.blogs);
-    
+
     return res.json({ success: true, data: allBlogs });
   } catch (err) {
     console.error("getAllHealthWorkerBlogs:", err);

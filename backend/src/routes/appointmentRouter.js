@@ -1,7 +1,9 @@
 import { Router } from "express";
-import Appointment from "../models/Appointments.js"; // Adjust path as needed
+import { Op } from "sequelize";
+import Appointment from "../models/Appointments.js";
 import DoctorProfile from "../models/DoctorProfile.js";
 import PatientProfile from "../models/PatientProfile.js";
+import User from "../models/User.js";
 import { authRequired } from "../middlewares/auth.js";
 import { restrictRole } from "../middlewares/restrict.js";
 import { sendAppointmentRequestEmail, sendAppointmentScheduledEmail, sendAppointmentTimeChangedEmail, sendAppointmentCancelledEmail } from "../utils/mailer.js";
@@ -26,8 +28,7 @@ router.post("/book", async (req, res, next) => {
 
     // Check if the requested time slot is already taken
     const existingAppointment = await Appointment.findOne({
-      doctorId,
-      requestedTime: new Date(requestedTime),
+      where: { doctorId, requestedTime: new Date(requestedTime) },
     });
 
     if (existingAppointment) {
@@ -48,11 +49,11 @@ router.post("/book", async (req, res, next) => {
     // Notify the doctor by email. Failure to email should never fail the booking.
     try {
       const [doctorProfile, patientProfile] = await Promise.all([
-        DoctorProfile.findById(doctorId).populate("user", "email"),
-        PatientProfile.findById(patientId),
+        DoctorProfile.findByPk(doctorId, { include: [{ model: User, attributes: ["email"] }] }),
+        PatientProfile.findByPk(patientId),
       ]);
-      if (doctorProfile?.user?.email) {
-        await sendAppointmentRequestEmail(doctorProfile.user.email, {
+      if (doctorProfile?.User?.email) {
+        await sendAppointmentRequestEmail(doctorProfile.User.email, {
           patientName: patientProfile?.name,
           requestedTime: newAppointment.requestedTime,
           reason,
@@ -84,7 +85,7 @@ router.patch("/accept", restrictRole(["doctor"]), async (req, res, next) => {
       });
     }
 
-    const appointment = await Appointment.findById(appointmentId);
+    const appointment = await Appointment.findByPk(appointmentId);
 
     if (!appointment) {
       return res.status(404).json({
@@ -103,10 +104,12 @@ router.patch("/accept", restrictRole(["doctor"]), async (req, res, next) => {
     // Check if scheduled time conflicts with existing appointments
     if (scheduledTime) {
       const conflictingAppointment = await Appointment.findOne({
-        doctorId: appointment.doctorId,
-        scheduledTime: new Date(scheduledTime),
-        status: { $in: ["accepted", "scheduled"] },
-        _id: { $ne: appointmentId },
+        where: {
+          doctorId: appointment.doctorId,
+          scheduledTime: new Date(scheduledTime),
+          status: { [Op.in]: ["accepted", "scheduled"] },
+          id: { [Op.ne]: appointmentId },
+        },
       });
 
       if (conflictingAppointment) {
@@ -128,11 +131,11 @@ router.patch("/accept", restrictRole(["doctor"]), async (req, res, next) => {
     // Notify the patient by email. Failure to email should never fail the update.
     try {
       const [patientProfile, doctorProfile] = await Promise.all([
-        PatientProfile.findById(appointment.patientId).populate("user", "email"),
-        DoctorProfile.findById(appointment.doctorId),
+        PatientProfile.findByPk(appointment.patientId, { include: [{ model: User, attributes: ["email"] }] }),
+        DoctorProfile.findByPk(appointment.doctorId),
       ]);
-      if (patientProfile?.user?.email) {
-        await sendAppointmentScheduledEmail(patientProfile.user.email, {
+      if (patientProfile?.User?.email) {
+        await sendAppointmentScheduledEmail(patientProfile.User.email, {
           doctorName: doctorProfile?.name,
           scheduledTime: appointment.scheduledTime,
         });
@@ -166,7 +169,7 @@ router.patch(
         });
       }
 
-      const appointment = await Appointment.findById(appointmentId);
+      const appointment = await Appointment.findByPk(appointmentId);
 
       if (!appointment) {
         return res.status(404).json({
@@ -184,13 +187,15 @@ router.patch(
 
       // Check for time conflicts
       const conflictingAppointment = await Appointment.findOne({
-        doctorId: appointment.doctorId,
-        $or: [
-          { requestedTime: new Date(newTime) },
-          { scheduledTime: new Date(newTime) },
-        ],
-        status: { $in: ["pending", "accepted", "scheduled"] },
-        _id: { $ne: appointmentId },
+        where: {
+          doctorId: appointment.doctorId,
+          [Op.or]: [
+            { requestedTime: new Date(newTime) },
+            { scheduledTime: new Date(newTime) },
+          ],
+          status: { [Op.in]: ["pending", "accepted", "scheduled"] },
+          id: { [Op.ne]: appointmentId },
+        },
       });
 
       if (conflictingAppointment) {
@@ -214,11 +219,11 @@ router.patch(
       // Notify the patient of the new time. Failure to email should never fail the update.
       try {
         const [patientProfile, doctorProfile] = await Promise.all([
-          PatientProfile.findById(appointment.patientId).populate("user", "email"),
-          DoctorProfile.findById(appointment.doctorId),
+          PatientProfile.findByPk(appointment.patientId, { include: [{ model: User, attributes: ["email"] }] }),
+          DoctorProfile.findByPk(appointment.doctorId),
         ]);
-        if (patientProfile?.user?.email) {
-          await sendAppointmentTimeChangedEmail(patientProfile.user.email, {
+        if (patientProfile?.User?.email) {
+          await sendAppointmentTimeChangedEmail(patientProfile.User.email, {
             doctorName: doctorProfile?.name,
             newTime: appointment.status === "pending" ? appointment.requestedTime : appointment.scheduledTime,
           });
@@ -253,20 +258,18 @@ router.get(
         });
       }
 
-      const query = { doctorId };
-      if (status) {
-        query.status = status;
-      }
+      const where = { doctorId };
+      if (status) where.status = status;
 
-      const skip = (page - 1) * limit;
+      const offset = (page - 1) * limit;
 
-      const appointments = await Appointment.find(query)
-        .populate("patientId", "name email phone") // Adjust fields based on your PatientProfile schema
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit));
-
-      const total = await Appointment.countDocuments(query);
+      const { rows: appointments, count: total } = await Appointment.findAndCountAll({
+        where,
+        include: [{ model: PatientProfile, attributes: ["name"], include: [{ model: User, attributes: ["email", "phone"] }] }],
+        order: [["createdAt", "DESC"]],
+        offset,
+        limit: parseInt(limit),
+      });
 
       res.json({
         success: true,
@@ -295,20 +298,18 @@ router.get("/get-patient-appointment", async (req, res, next) => {
       });
     }
 
-    const query = { patientId };
-    if (status) {
-      query.status = status;
-    }
+    const where = { patientId };
+    if (status) where.status = status;
 
-    const skip = (page - 1) * limit;
+    const offset = (page - 1) * limit;
 
-    const appointments = await Appointment.find(query)
-      .populate("doctorId", "name specialization email") // Adjust fields based on your DoctorProfile schema
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    const total = await Appointment.countDocuments(query);
+    const { rows: appointments, count: total } = await Appointment.findAndCountAll({
+      where,
+      include: [{ model: DoctorProfile, attributes: ["name", "specialization"], include: [{ model: User, attributes: ["email"] }] }],
+      order: [["createdAt", "DESC"]],
+      offset,
+      limit: parseInt(limit),
+    });
 
     res.json({
       success: true,
@@ -324,8 +325,6 @@ router.get("/get-patient-appointment", async (req, res, next) => {
   }
 });
 
-// Add this route to your appointmentRouter.js file
-
 // Cancel an appointment
 router.patch("/cancel", async (req, res, next) => {
   try {
@@ -338,7 +337,7 @@ router.patch("/cancel", async (req, res, next) => {
       });
     }
 
-    const appointment = await Appointment.findById(appointmentId);
+    const appointment = await Appointment.findByPk(appointmentId);
 
     if (!appointment) {
       return res.status(404).json({
@@ -365,29 +364,28 @@ router.patch("/cancel", async (req, res, next) => {
     // Update appointment status
     appointment.status = "cancelled";
     if (reason) {
-      appointment.cancellationReason = reason;
+      appointment.notes = reason;
     }
-    appointment.cancelledAt = new Date();
 
     await appointment.save();
 
     // Notify the other party. Failure to email should never fail the cancellation.
     try {
       const [patientProfile, doctorProfile] = await Promise.all([
-        PatientProfile.findById(appointment.patientId).populate("user", "email"),
-        DoctorProfile.findById(appointment.doctorId).populate("user", "email"),
+        PatientProfile.findByPk(appointment.patientId, { include: [{ model: User, attributes: ["email"] }] }),
+        DoctorProfile.findByPk(appointment.doctorId, { include: [{ model: User, attributes: ["email"] }] }),
       ]);
 
       if (req.user.role === "doctor") {
-        if (patientProfile?.user?.email) {
-          await sendAppointmentCancelledEmail(patientProfile.user.email, {
+        if (patientProfile?.User?.email) {
+          await sendAppointmentCancelledEmail(patientProfile.User.email, {
             recipientRole: "patient",
             otherPartyName: doctorProfile?.name,
             reason,
           });
         }
-      } else if (doctorProfile?.user?.email) {
-        await sendAppointmentCancelledEmail(doctorProfile.user.email, {
+      } else if (doctorProfile?.User?.email) {
+        await sendAppointmentCancelledEmail(doctorProfile.User.email, {
           recipientRole: "doctor",
           otherPartyName: patientProfile?.name,
           reason,

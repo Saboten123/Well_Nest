@@ -25,11 +25,10 @@ export async function getMyProfile(req, res, next) {
     // Auto-create an empty profile if one doesn't exist yet, instead of
     // failing with 404 (e.g. older accounts created before signup started
     // creating a profile automatically).
-    const profile = await Model.findOneAndUpdate(
-      { user: req.user.id },
-      { $setOnInsert: { user: req.user.id } },
-      { new: true, upsert: true }
-    );
+    const [profile] = await Model.findOrCreate({
+      where: { userId: req.user.id },
+      defaults: { userId: req.user.id },
+    });
     return ok(res, "OK", { profile });
   } catch (err) {
     next(err);
@@ -44,11 +43,11 @@ export async function updateMyProfile(req, res, next) {
     const Model = table[role];
     if (!Model) return fail(res, 400, "Unknown role");
 
-    const profile = await Model.findOneAndUpdate(
-      { user: req.user.id },
-      { $set: { ...req.body } },
-      { new: true, upsert: true }
-    );
+    const [profile] = await Model.findOrCreate({
+      where: { userId: req.user.id },
+      defaults: { userId: req.user.id },
+    });
+    await profile.update({ ...req.body });
 
     return ok(res, "Profile updated", { profile });
   } catch (err) {

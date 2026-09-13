@@ -11,18 +11,18 @@ import Appointment from "../models/Appointments.js";
 // so the admin sees one flat, readable record per person.
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().select("-password").lean();
+        const users = await User.findAll({ attributes: { exclude: ["password"] }, raw: true });
 
         const [doctors, patients, healthWorkers, ngos] = await Promise.all([
-            DoctorProfile.find().lean(),
-            PatientProfile.find().lean(),
-            HealthWorkerProfile.find().lean(),
-            NGOProfile.find().lean(),
+            DoctorProfile.findAll({ raw: true }),
+            PatientProfile.findAll({ raw: true }),
+            HealthWorkerProfile.findAll({ raw: true }),
+            NGOProfile.findAll({ raw: true }),
         ]);
 
         const byUserId = (list) => {
             const map = new Map();
-            for (const doc of list) map.set(doc.user?.toString(), doc);
+            for (const doc of list) map.set(doc.userId, doc);
             return map;
         };
 
@@ -32,7 +32,7 @@ export const getAllUsers = async (req, res) => {
         const ngoMap = byUserId(ngos);
 
         const merged = users.map((user) => {
-            const id = user._id.toString();
+            const id = user.id;
             let profile = null;
 
             if (user.role === "doctor") profile = doctorMap.get(id) || null;
@@ -73,12 +73,12 @@ export const getStats = async (req, res) => {
             ngos,
             appointments,
         ] = await Promise.all([
-            User.countDocuments(),
-            User.countDocuments({ role: "doctor" }),
-            User.countDocuments({ role: "patient" }),
-            User.countDocuments({ role: "health_worker" }),
-            User.countDocuments({ role: "ngo" }),
-            Appointment.countDocuments(),
+            User.count(),
+            User.count({ where: { role: "doctor" } }),
+            User.count({ where: { role: "patient" } }),
+            User.count({ where: { role: "health_worker" } }),
+            User.count({ where: { role: "ngo" } }),
+            Appointment.count(),
         ]);
 
         res.status(200).json({
@@ -94,16 +94,17 @@ export const getStats = async (req, res) => {
 export const deleteUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        const user = await User.findByIdAndDelete(userId);
+        const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-        // Clean up the matching profile document, if any.
+        await user.destroy();
+        // Clean up the matching profile row, if any.
         await Promise.all([
-            DoctorProfile.deleteOne({ user: userId }),
-            PatientProfile.deleteOne({ user: userId }),
-            HealthWorkerProfile.deleteOne({ user: userId }),
-            NGOProfile.deleteOne({ user: userId }),
+            DoctorProfile.destroy({ where: { userId } }),
+            PatientProfile.destroy({ where: { userId } }),
+            HealthWorkerProfile.destroy({ where: { userId } }),
+            NGOProfile.destroy({ where: { userId } }),
         ]);
         res.status(200).json({ success: true, message: "User deleted" });
     } catch (error) {

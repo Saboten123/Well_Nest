@@ -33,7 +33,7 @@ export async function sendSignupOtp(req, res, next) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    const existing = await User.findOne({ email: normalizedEmail });
+    const existing = await User.findOne({ where: { email: normalizedEmail } });
     if (existing) return fail(res, 409, "Email already registered");
 
     const code = generateOtpCode();
@@ -41,7 +41,7 @@ export async function sendSignupOtp(req, res, next) {
     const expiresAt = new Date(Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000);
 
     // Replace any previous pending OTP for this email/purpose.
-    await Otp.findOneAndDelete({ email: normalizedEmail, purpose: "signup" });
+    await Otp.destroy({ where: { email: normalizedEmail, purpose: "signup" } });
     await Otp.create({ email: normalizedEmail, codeHash, purpose: "signup", expiresAt });
 
     await sendOtpEmail(normalizedEmail, code);
@@ -60,16 +60,16 @@ export async function verifySignupOtp(req, res, next) {
     if (!email || !otp) return fail(res, 400, "Email and OTP are required");
 
     const normalizedEmail = email.trim().toLowerCase();
-    const record = await Otp.findOne({ email: normalizedEmail, purpose: "signup" });
+    const record = await Otp.findOne({ where: { email: normalizedEmail, purpose: "signup" } });
     if (!record) return fail(res, 400, "No OTP requested for this email, or it already expired");
 
     if (record.expiresAt < new Date()) {
-      await record.deleteOne();
+      await record.destroy();
       return fail(res, 400, "OTP expired, please request a new one");
     }
 
     if (record.attempts >= MAX_OTP_ATTEMPTS) {
-      await record.deleteOne();
+      await record.destroy();
       return fail(res, 429, "Too many incorrect attempts, please request a new OTP");
     }
 
@@ -80,7 +80,7 @@ export async function verifySignupOtp(req, res, next) {
       return fail(res, 400, "Incorrect OTP");
     }
 
-    await record.deleteOne();
+    await record.destroy();
 
     const signupToken = jwt.sign(
       { email: normalizedEmail, purpose: "signup" },
@@ -117,7 +117,7 @@ export async function signup(req, res, next) {
       return fail(res, 400, "Email verification does not match this email");
     }
 
-    const exists = await User.findOne({ email: normalizedEmail });
+    const exists = await User.findOne({ where: { email: normalizedEmail } });
     if (exists) return fail(res, 409, "Email already registered");
 
     const user = await User.create({
@@ -131,18 +131,18 @@ export async function signup(req, res, next) {
     });
 
     // Create empty role profile NOW (fields remain null)
-    const link = { user: user._id };
+    const link = { userId: user.id };
     if (role === "ngo") await NGOProfile.create(link);
     if (role === "doctor") await DoctorProfile.create(link);
     if (role === "health_worker") await HealthWorkerProfile.create(link);
     if (role === "patient") await PatientProfile.create(link);
 
-    const accessToken = signAccessToken({ id: user._id, role: user.role });
-    const refreshToken = signRefreshToken({ id: user._id, role: user.role });
+    const accessToken = signAccessToken({ id: user.id, role: user.role });
+    const refreshToken = signRefreshToken({ id: user.id, role: user.role });
 
     return ok(res, "Signup successful", {
       user: {
-        id: user._id,
+        id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -158,18 +158,18 @@ export async function signup(req, res, next) {
 export async function login(req, res, next) {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
     if (!user) return fail(res, 401, "Invalid credentials");
 
     const okPw = await user.comparePassword(password);
     if (!okPw) return fail(res, 401, "Invalid credentials");
 
-    const accessToken = signAccessToken({ id: user._id, role: user.role });
-    const refreshToken = signRefreshToken({ id: user._id, role: user.role });
+    const accessToken = signAccessToken({ id: user.id, role: user.role });
+    const refreshToken = signRefreshToken({ id: user.id, role: user.role });
 
     return ok(res, "Login successful", {
       user: {
-        id: user._id,
+        id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -184,7 +184,7 @@ export async function login(req, res, next) {
 
 export async function me(req, res, next) {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findByPk(req.user.id, { attributes: { exclude: ["password"] } });
     if (!user) return fail(res, 404, "User not found");
     return ok(res, "OK", { user });
   } catch (err) {
@@ -200,7 +200,7 @@ export async function forgotPassword(req, res, next) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({ email: normalizedEmail });
+    const user = await User.findOne({ where: { email: normalizedEmail } });
     // Don't reveal whether the email is registered.
     if (!user) return ok(res, "If that email is registered, a reset code has been sent");
 
@@ -208,7 +208,7 @@ export async function forgotPassword(req, res, next) {
     const codeHash = await bcrypt.hash(code, 10);
     const expiresAt = new Date(Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000);
 
-    await Otp.findOneAndDelete({ email: normalizedEmail, purpose: "reset-password" });
+    await Otp.destroy({ where: { email: normalizedEmail, purpose: "reset-password" } });
     await Otp.create({ email: normalizedEmail, codeHash, purpose: "reset-password", expiresAt });
 
     await sendPasswordResetOtpEmail(normalizedEmail, code);
@@ -226,16 +226,16 @@ export async function verifyPasswordResetOtp(req, res, next) {
     if (!email || !otp) return fail(res, 400, "Email and OTP are required");
 
     const normalizedEmail = email.trim().toLowerCase();
-    const record = await Otp.findOne({ email: normalizedEmail, purpose: "reset-password" });
+    const record = await Otp.findOne({ where: { email: normalizedEmail, purpose: "reset-password" } });
     if (!record) return fail(res, 400, "No reset code requested for this email, or it already expired");
 
     if (record.expiresAt < new Date()) {
-      await record.deleteOne();
+      await record.destroy();
       return fail(res, 400, "Reset code expired, please request a new one");
     }
 
     if (record.attempts >= MAX_OTP_ATTEMPTS) {
-      await record.deleteOne();
+      await record.destroy();
       return fail(res, 429, "Too many incorrect attempts, please request a new reset code");
     }
 
@@ -246,7 +246,7 @@ export async function verifyPasswordResetOtp(req, res, next) {
       return fail(res, 400, "Incorrect reset code");
     }
 
-    await record.deleteOne();
+    await record.destroy();
 
     const resetToken = jwt.sign(
       { email: normalizedEmail, purpose: "reset-password" },
@@ -283,7 +283,7 @@ export async function resetPassword(req, res, next) {
       return fail(res, 400, "Reset session does not match this email");
     }
 
-    const user = await User.findOne({ email: normalizedEmail });
+    const user = await User.findOne({ where: { email: normalizedEmail } });
     if (!user) return fail(res, 404, "User not found");
 
     user.password = newPassword; // pre-save hook rehashes it
