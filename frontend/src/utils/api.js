@@ -2,31 +2,9 @@
 import axios from "axios";
 
 // Main API for authentication, user data, profiles, etc.
-const api = axios.create({
-  baseURL: "http://localhost:5000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Blockchain API for payments, donations, token rewards, etc.
-const blockchainApi = axios.create({
-  baseURL: "http://localhost:7000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// AI Assistant API (FastAPI)
-// Uses withCredentials to allow guest cookie-based sessions when not signed in
-// Route through Vite proxy to avoid CORS in dev: "/ai" → target backend
-const aiApi = axios.create({
-  baseURL: "/ai",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
-});
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
+const blockchainApi = axios.create({ baseURL: import.meta.env.VITE_BLOCKCHAIN_API_URL });
+const aiApi = axios.create({ baseURL: import.meta.env.VITE_AI_API_URL, withCredentials: true });
 
 // Add auth token to main API requests
 api.interceptors.request.use((config) => {

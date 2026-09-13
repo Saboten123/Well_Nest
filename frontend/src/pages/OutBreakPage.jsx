@@ -403,9 +403,8 @@ const ReportCard = ({
             )}
             <button
               onClick={() => onToggleStatus(report.id)}
-              className={`toggle-btn ${
-                report.isActive ? "deactivate" : "activate"
-              }`}
+              className={`toggle-btn ${report.isActive ? "deactivate" : "activate"
+                }`}
             >
               {report.isActive ? (
                 <XCircle className="btn-icon" />
@@ -470,7 +469,7 @@ const ReportCard = ({
             {report.images.map((image, idx) => (
               <img
                 key={idx}
-                src={`http://localhost:8000${image}`}
+                src={`${import.meta.env.VITE_AI_API_URL}${image}`}
                 alt={`Evidence ${idx + 1}`}
                 className="evidence-image"
               />
@@ -1081,8 +1080,7 @@ const OutbreakDashboard = () => {
     setFormData({
       submittedBy: {
         name: currentUser
-          ? `${currentUser.firstName || ""} ${
-              currentUser.lastName || ""
+          ? `${currentUser.firstName || ""} ${currentUser.lastName || ""
             }`.trim() || ""
           : "",
         email: currentUser?.email || "",
@@ -1210,9 +1208,8 @@ const OutbreakDashboard = () => {
             <div className="nav-tabs">
               <button
                 onClick={() => setActiveTab("reports")}
-                className={`tab-button ${
-                  activeTab === "reports" ? "active" : ""
-                }`}
+                className={`tab-button ${activeTab === "reports" ? "active" : ""
+                  }`}
               >
                 <Eye className="tab-icon" />
                 View Reports
@@ -1222,9 +1219,8 @@ const OutbreakDashboard = () => {
                   setActiveTab("submit");
                   setShowForm(true);
                 }}
-                className={`tab-button ${
-                  activeTab === "submit" ? "active" : ""
-                }`}
+                className={`tab-button ${activeTab === "submit" ? "active" : ""
+                  }`}
               >
                 <Plus className="tab-icon" />
                 Submit Report
