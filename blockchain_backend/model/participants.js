@@ -15,7 +15,7 @@ const participantSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    match: [/^\+?[0-9]{10,15}$/, "Please enter a valid phone number"],
+    match: [/^\+?[0-9]{10,15}$/, "Please enter a valid Phone Number"],
   },
   medicalConditions: {
     type: String,
