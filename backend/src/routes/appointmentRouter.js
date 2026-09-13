@@ -4,7 +4,7 @@ import DoctorProfile from "../models/DoctorProfile.js";
 import PatientProfile from "../models/PatientProfile.js";
 import { authRequired } from "../middlewares/auth.js";
 import { restrictRole } from "../middlewares/restrict.js";
-import { sendAppointmentRequestEmail, sendAppointmentScheduledEmail } from "../utils/mailer.js";
+import { sendAppointmentRequestEmail, sendAppointmentScheduledEmail, sendAppointmentTimeChangedEmail, sendAppointmentCancelledEmail } from "../utils/mailer.js";
 
 const router = Router();
 
@@ -211,6 +211,22 @@ router.patch(
 
       await appointment.save();
 
+      // Notify the patient of the new time. Failure to email should never fail the update.
+      try {
+        const [patientProfile, doctorProfile] = await Promise.all([
+          PatientProfile.findById(appointment.patientId).populate("user", "email"),
+          DoctorProfile.findById(appointment.doctorId),
+        ]);
+        if (patientProfile?.user?.email) {
+          await sendAppointmentTimeChangedEmail(patientProfile.user.email, {
+            doctorName: doctorProfile?.name,
+            newTime: appointment.status === "pending" ? appointment.requestedTime : appointment.scheduledTime,
+          });
+        }
+      } catch (emailErr) {
+        console.error("Failed to send appointment time changed email:", emailErr);
+      }
+
       res.json({
         success: true,
         message: "Appointment time changed successfully",
@@ -354,6 +370,32 @@ router.patch("/cancel", async (req, res, next) => {
     appointment.cancelledAt = new Date();
 
     await appointment.save();
+
+    // Notify the other party. Failure to email should never fail the cancellation.
+    try {
+      const [patientProfile, doctorProfile] = await Promise.all([
+        PatientProfile.findById(appointment.patientId).populate("user", "email"),
+        DoctorProfile.findById(appointment.doctorId).populate("user", "email"),
+      ]);
+
+      if (req.user.role === "doctor") {
+        if (patientProfile?.user?.email) {
+          await sendAppointmentCancelledEmail(patientProfile.user.email, {
+            recipientRole: "patient",
+            otherPartyName: doctorProfile?.name,
+            reason,
+          });
+        }
+      } else if (doctorProfile?.user?.email) {
+        await sendAppointmentCancelledEmail(doctorProfile.user.email, {
+          recipientRole: "doctor",
+          otherPartyName: patientProfile?.name,
+          reason,
+        });
+      }
+    } catch (emailErr) {
+      console.error("Failed to send appointment cancelled email:", emailErr);
+    }
 
     res.json({
       success: true,

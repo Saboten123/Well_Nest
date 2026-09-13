@@ -1,20 +1,25 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-let resendClient = null;
+let transporter = null;
 
-function getClient() {
-    if (!resendClient) {
-        resendClient = new Resend(process.env.RESEND_API_KEY);
+function getTransporter() {
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT || 587),
+            secure: process.env.SMTP_SECURE === "true", // true for port 465
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
+        });
     }
-    return resendClient;
+    return transporter;
 }
 
 async function send({ to, subject, text, html }) {
-    const from = process.env.MAIL_FROM || "WellNest <onboarding@resend.dev>";
-    const { error } = await getClient().emails.send({ from, to, subject, text, html });
-    if (error) {
-        throw new Error(error.message || "Failed to send email via Resend");
-    }
+    const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+    await getTransporter().sendMail({ from, to, subject, text, html });
 }
 
 export async function sendOtpEmail(toEmail, code) {
@@ -86,6 +91,63 @@ export async function sendVideoCallInviteEmail(patientEmail, { doctorName, roomI
         <p>Dr. <b>${doctorName || ""}</b> has started your video call.</p>
         <p>Meeting ID: <span style="font-size: 20px; font-weight: 700; letter-spacing: 2px;">${roomId}</span></p>
         <p><a href="${joinLink}" style="color: #667eea;">Click here to join</a>, then enter the Meeting ID above.</p>
+      </div>
+    `,
+    });
+}
+
+// Sent to both patient and doctor once the appointment/video call has finished.
+export async function sendAppointmentCompletedEmail(toEmail, { recipientRole, otherPartyName, scheduledTime }) {
+    const when = formatDateTime(scheduledTime);
+    const withWho =
+        recipientRole === "doctor"
+            ? `your patient${otherPartyName ? ` ${otherPartyName}` : ""}`
+            : `Dr. ${otherPartyName || ""}`;
+
+    await send({
+        to: toEmail,
+        subject: "Your appointment has been completed - WellNest",
+        text: `Your appointment with ${withWho} (${when}) has been completed. Thank you for using WellNest.`,
+        html: `
+      <div style="font-family: sans-serif; font-size: 15px; color: #1a202c;">
+        <p>Your appointment with <b>${withWho}</b> scheduled for <b>${when}</b> has been completed.</p>
+        <p>Thank you for using WellNest.</p>
+      </div>
+    `,
+    });
+}
+
+// Sent to the patient when the doctor reschedules the appointment time.
+export async function sendAppointmentTimeChangedEmail(patientEmail, { doctorName, newTime }) {
+    const when = formatDateTime(newTime);
+
+    await send({
+        to: patientEmail,
+        subject: "Your appointment time has changed - WellNest",
+        text: `Dr. ${doctorName || ""} has rescheduled your appointment to ${when}.`,
+        html: `
+      <div style="font-family: sans-serif; font-size: 15px; color: #1a202c;">
+        <p>Dr. <b>${doctorName || ""}</b> has rescheduled your appointment to <b>${when}</b>.</p>
+      </div>
+    `,
+    });
+}
+
+// Sent to the other party when either side cancels the appointment.
+export async function sendAppointmentCancelledEmail(toEmail, { recipientRole, otherPartyName, reason }) {
+    const withWho =
+        recipientRole === "doctor"
+            ? `your patient${otherPartyName ? ` ${otherPartyName}` : ""}`
+            : `Dr. ${otherPartyName || ""}`;
+
+    await send({
+        to: toEmail,
+        subject: "Appointment cancelled - WellNest",
+        text: `Your appointment with ${withWho} has been cancelled.${reason ? ` Reason: ${reason}` : ""}`,
+        html: `
+      <div style="font-family: sans-serif; font-size: 15px; color: #1a202c;">
+        <p>Your appointment with <b>${withWho}</b> has been cancelled.</p>
+        ${reason ? `<p>Reason: ${reason}</p>` : ""}
       </div>
     `,
     });

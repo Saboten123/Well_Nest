@@ -4,7 +4,7 @@ import VideoCallSession from "../models/VideoCallSession.model.js";
 import Appointment from "../models/Appointments.js"; // Updated to match your schema file
 import DoctorProfile from "../models/DoctorProfile.js";
 import PatientProfile from "../models/PatientProfile.js";
-import { sendVideoCallInviteEmail } from "../utils/mailer.js";
+import { sendVideoCallInviteEmail, sendAppointmentCompletedEmail } from "../utils/mailer.js";
 
 /**
  * Create a new video call session
@@ -23,11 +23,17 @@ export const createCallSession = async (req, res) => {
       });
     }
 
-    // Check if user is part of the appointment
+    // Check if user is part of the appointment. doctorId/patientId on the
+    // appointment point to DoctorProfile/PatientProfile documents, not User
+    // documents directly, so resolve their `user` field before comparing.
+    const [doctorProfile, patientProfile] = await Promise.all([
+      DoctorProfile.findById(appointment.doctorId),
+      PatientProfile.findById(appointment.patientId),
+    ]);
+
     const isAuthorized =
-      appointment.doctorId?.toString() === initiatorId ||
-      appointment.patientId?.toString() === initiatorId ||
-      appointment.healthWorkerId?.toString() === initiatorId;
+      doctorProfile?.user?.toString() === initiatorId ||
+      patientProfile?.user?.toString() === initiatorId;
 
     if (!isAuthorized) {
       return res.status(403).json({
@@ -44,7 +50,9 @@ export const createCallSession = async (req, res) => {
       roomId,
       appointmentId,
       initiatorId,
+      initiatorModel: "User",
       participantIds: [...new Set([initiatorId, ...participantIds])], // Remove duplicates
+      participantModel: "User",
       callType,
       status: "waiting",
       createdAt: new Date(),
@@ -63,17 +71,16 @@ export const createCallSession = async (req, res) => {
     // If the doctor started the call, email the patient the meeting ID.
     // Failure to email should never fail call creation.
     try {
-      const doctorProfile = await DoctorProfile.findById(appointment.doctorId);
       const doctorStartedCall = doctorProfile?.user?.toString() === initiatorId;
 
       if (doctorStartedCall) {
-        const patientProfile = await PatientProfile.findById(appointment.patientId).populate(
+        const patientUser = await PatientProfile.findById(appointment.patientId).populate(
           "user",
           "email"
         );
-        if (patientProfile?.user?.email) {
+        if (patientUser?.user?.email) {
           const joinLink = `${process.env.CLIENT_ORIGIN || "http://localhost:5173"}/video-call`;
-          await sendVideoCallInviteEmail(patientProfile.user.email, {
+          await sendVideoCallInviteEmail(patientUser.user.email, {
             doctorName: doctorProfile?.name,
             roomId,
             joinLink,
@@ -260,6 +267,38 @@ export const endCallSession = async (req, res) => {
     }
 
     await callSession.save();
+
+    // Mark the linked appointment as ended and email both sides.
+    // Failure to email should never fail ending the call.
+    try {
+      const appointment = await Appointment.findById(callSession.appointmentId);
+      if (appointment) {
+        appointment.status = "ended";
+        await appointment.save();
+
+        const [doctorProfile, patientProfile] = await Promise.all([
+          DoctorProfile.findById(appointment.doctorId).populate("user", "email"),
+          PatientProfile.findById(appointment.patientId).populate("user", "email"),
+        ]);
+
+        if (doctorProfile?.user?.email) {
+          await sendAppointmentCompletedEmail(doctorProfile.user.email, {
+            recipientRole: "doctor",
+            otherPartyName: patientProfile?.name,
+            scheduledTime: appointment.scheduledTime,
+          });
+        }
+        if (patientProfile?.user?.email) {
+          await sendAppointmentCompletedEmail(patientProfile.user.email, {
+            recipientRole: "patient",
+            otherPartyName: doctorProfile?.name,
+            scheduledTime: appointment.scheduledTime,
+          });
+        }
+      }
+    } catch (emailErr) {
+      console.error("Failed to send appointment completed email:", emailErr);
+    }
 
     res.json({
       success: true,
