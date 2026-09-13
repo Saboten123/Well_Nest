@@ -7,6 +7,7 @@ import {
   LogOut,
   Stethoscope,
 } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar({ onLogout }) {
   const navigate = useNavigate();
@@ -226,10 +227,11 @@ export default function Navbar({ onLogout }) {
 
       {/* Actions */}
       <div className="navbar-actions">
+        <ThemeToggle />
         <div
           className="dropdown-container"
           ref={dropdownRef}
-          style={{ position: "relative" }}
+          style={{ position: "relative", marginLeft: "1.5rem" }}
         >
           <button
             className="dropdown-trigger"

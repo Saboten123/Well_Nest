@@ -648,6 +648,11 @@ body {
   opacity: 0.5;
 }
 
+.section-header {
+  display: flex;
+  flex-direction: column;
+}
+
 .section-title {
   font-size: 3.5rem;
   font-weight: 700;
@@ -662,14 +667,13 @@ body {
   text-shadow: 0 0 30px var(--w-30);
 }
 
-/* Used across every page (page subtitles, and headings like "My Profile")
-   but had no rule at all, so it rendered as thin, low-contrast default text. */
+/* Used across every page (page subtitles, and headings like "My Profile"). */
 .section-subtitle {
   display: block;
-  margin-top: 0.75rem;
-  font-size: 1.1rem;
+  margin-top: 1.1rem;
+  font-size: 2rem;
   font-weight: 500;
-  color: #000000;
+  color: var(--text-soft);
 }
 
 .features-grid {
