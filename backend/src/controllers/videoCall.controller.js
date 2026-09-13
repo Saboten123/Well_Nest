@@ -2,30 +2,20 @@
 import { v4 as uuidv4 } from "uuid";
 import VideoCallSession from "../models/VideoCallSession.model.js";
 import Appointment from "../models/Appointments.js"; // Updated to match your schema file
+import DoctorProfile from "../models/DoctorProfile.js";
+import PatientProfile from "../models/PatientProfile.js";
+import { sendVideoCallInviteEmail } from "../utils/mailer.js";
 
 /**
  * Create a new video call session
  */
 export const createCallSession = async (req, res) => {
   try {
-    const {
-      appointmentId,
-      callType = "video",
-      roomId: requestedRoomId,
-    } = req.body;
+    const { appointmentId, participantIds, callType = "video" } = req.body;
     const initiatorId = req.user.id;
 
-    // Populate doctorId/patientId (DoctorProfile/PatientProfile documents)
-    // so we can get at the underlying User id via `.user`. Appointment
-    // stores DoctorProfile/PatientProfile ids, NOT User ids, but
-    // req.user.id (from the JWT) IS a User id — comparing them directly
-    // (as this used to do) meant the check could never pass for a real
-    // doctor or patient, so every call creation was rejected as "Not
-    // authorized" regardless of who was asking.
-    const appointment = await Appointment.findById(appointmentId)
-      .populate("doctorId", "user")
-      .populate("patientId", "user");
-
+    // Verify appointment exists and user has permission
+    const appointment = await Appointment.findById(appointmentId);
     if (!appointment) {
       return res.status(404).json({
         success: false,
@@ -33,11 +23,11 @@ export const createCallSession = async (req, res) => {
       });
     }
 
-    const doctorUserId = appointment.doctorId?.user?.toString();
-    const patientUserId = appointment.patientId?.user?.toString();
-
+    // Check if user is part of the appointment
     const isAuthorized =
-      initiatorId === doctorUserId || initiatorId === patientUserId;
+      appointment.doctorId?.toString() === initiatorId ||
+      appointment.patientId?.toString() === initiatorId ||
+      appointment.healthWorkerId?.toString() === initiatorId;
 
     if (!isAuthorized) {
       return res.status(403).json({
@@ -46,46 +36,52 @@ export const createCallSession = async (req, res) => {
       });
     }
 
-    // Build the participant list from the appointment's own linked Users
-    // rather than trusting whatever the client sent — the frontend has
-    // been sending a mix of User ids and DoctorProfile/PatientProfile ids,
-    // which would silently break the "is this user allowed to join/end/
-    // view this call" checks later on. Deriving it here guarantees both
-    // participants are real, consistent User ids.
-    const participantIds = [doctorUserId, patientUserId].filter(Boolean);
+    // Generate unique room ID
+    const roomId = `room_${uuidv4().replace(/-/g, "")}`;
 
-    // Reuse the existing session for this appointment if one already
-    // exists (created by whichever side clicked first) instead of creating
-    // a duplicate / colliding on the unique roomId index.
-    let callSession = await VideoCallSession.findOne({ appointmentId });
+    // Create call session
+    const callSession = new VideoCallSession({
+      roomId,
+      appointmentId,
+      initiatorId,
+      participantIds: [...new Set([initiatorId, ...participantIds])], // Remove duplicates
+      callType,
+      status: "waiting",
+      createdAt: new Date(),
+      metadata: {
+        appointmentType: appointment.type,
+        scheduledTime: appointment.scheduledTime,
+      },
+    });
 
-    if (callSession) {
-      callSession.addParticipant(initiatorId);
-      await callSession.save();
-    } else {
-      const roomId = requestedRoomId || `room_${uuidv4().replace(/-/g, "")}`;
+    await callSession.save();
 
-      callSession = new VideoCallSession({
-        roomId,
-        appointmentId,
-        initiatorId,
-        initiatorModel: "User",
-        participantIds,
-        participantModel: "User",
-        callType,
-        status: "waiting",
-        createdAt: new Date(),
-        metadata: {
-          appointmentType: appointment.type,
-          scheduledTime: appointment.scheduledTime,
-        },
-      });
+    // Update appointment with call session
+    appointment.videoCallSessionId = callSession._id;
+    await appointment.save();
 
-      await callSession.save();
+    // If the doctor started the call, email the patient the meeting ID.
+    // Failure to email should never fail call creation.
+    try {
+      const doctorProfile = await DoctorProfile.findById(appointment.doctorId);
+      const doctorStartedCall = doctorProfile?.user?.toString() === initiatorId;
 
-      // Update appointment with call session
-      appointment.videoCallSessionId = callSession._id;
-      await appointment.save();
+      if (doctorStartedCall) {
+        const patientProfile = await PatientProfile.findById(appointment.patientId).populate(
+          "user",
+          "email"
+        );
+        if (patientProfile?.user?.email) {
+          const joinLink = `${process.env.CLIENT_ORIGIN || "http://localhost:5173"}/video-call`;
+          await sendVideoCallInviteEmail(patientProfile.user.email, {
+            doctorName: doctorProfile?.name,
+            roomId,
+            joinLink,
+          });
+        }
+      }
+    } catch (emailErr) {
+      console.error("Failed to send video call invite email:", emailErr);
     }
 
     res.status(201).json({

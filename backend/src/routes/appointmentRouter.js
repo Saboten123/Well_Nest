@@ -1,7 +1,10 @@
 import { Router } from "express";
 import Appointment from "../models/Appointments.js"; // Adjust path as needed
+import DoctorProfile from "../models/DoctorProfile.js";
+import PatientProfile from "../models/PatientProfile.js";
 import { authRequired } from "../middlewares/auth.js";
 import { restrictRole } from "../middlewares/restrict.js";
+import { sendAppointmentRequestEmail, sendAppointmentScheduledEmail } from "../utils/mailer.js";
 
 const router = Router();
 
@@ -9,7 +12,7 @@ router.use(authRequired);
 
 // Book a new appointment
 router.post("/book", async (req, res, next) => {
-    console.log("set is called")
+  console.log("set is called")
   try {
     const { doctorId, patientId, requestedTime, reason } = req.body;
 
@@ -42,6 +45,23 @@ router.post("/book", async (req, res, next) => {
       status: "pending",
     });
 
+    // Notify the doctor by email. Failure to email should never fail the booking.
+    try {
+      const [doctorProfile, patientProfile] = await Promise.all([
+        DoctorProfile.findById(doctorId).populate("user", "email"),
+        PatientProfile.findById(patientId),
+      ]);
+      if (doctorProfile?.user?.email) {
+        await sendAppointmentRequestEmail(doctorProfile.user.email, {
+          patientName: patientProfile?.name,
+          requestedTime: newAppointment.requestedTime,
+          reason,
+        });
+      }
+    } catch (emailErr) {
+      console.error("Failed to send appointment request email:", emailErr);
+    }
+
     res.status(201).json({
       success: true,
       message: "Appointment booked successfully",
@@ -53,7 +73,7 @@ router.post("/book", async (req, res, next) => {
 });
 
 // Accept an appointment
-router.patch("/accept",restrictRole(["doctor"]), async (req, res, next) => {
+router.patch("/accept", restrictRole(["doctor"]), async (req, res, next) => {
   try {
     const { appointmentId, scheduledTime, notes } = req.body;
 
@@ -104,6 +124,22 @@ router.patch("/accept",restrictRole(["doctor"]), async (req, res, next) => {
     if (notes) appointment.notes = notes;
 
     await appointment.save();
+
+    // Notify the patient by email. Failure to email should never fail the update.
+    try {
+      const [patientProfile, doctorProfile] = await Promise.all([
+        PatientProfile.findById(appointment.patientId).populate("user", "email"),
+        DoctorProfile.findById(appointment.doctorId),
+      ]);
+      if (patientProfile?.user?.email) {
+        await sendAppointmentScheduledEmail(patientProfile.user.email, {
+          doctorName: doctorProfile?.name,
+          scheduledTime: appointment.scheduledTime,
+        });
+      }
+    } catch (emailErr) {
+      console.error("Failed to send appointment scheduled email:", emailErr);
+    }
 
     res.json({
       success: true,
