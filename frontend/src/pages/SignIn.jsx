@@ -84,10 +84,15 @@ export default function SignIn() {
               required
               placeholder="Enter your password"
             />
+            <div style={{ textAlign: "right", marginTop: "0.375rem" }}>
+              <Link to="/forgot-password" className="link">
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn btn-primary btn-full"
             disabled={loading}
           >

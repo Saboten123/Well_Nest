@@ -12,6 +12,7 @@ import { wagmiConfig, queryClient } from "./config/wagmi";
 import LandingPage from "./pages/LandingPage";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
+import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 
 import DoctorsPage from "./pages/DoctorsPage";
@@ -41,8 +42,6 @@ import ParticipantRegistration from "./pages/events/ParticipantRegistration";
 
 import AIChatPage from "./pages/AiChatPage";
 
-import AdminDashboard from "./pages/AdminDashboard";
-
 import "./styles/main.css";
 
 function App() {
@@ -55,6 +54,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/signin" element={<SignIn />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/video-call" element={<WebRTCVideoCall />} />
 
@@ -81,8 +81,6 @@ function App() {
               <Route path="/blogs" element={<BlogsPage />} />
 
               <Route path="/assistant" element={<AIChatPage />} />
-
-              <Route path="/admin" element={<AdminDashboard />} />
 
               {/* Events Routes */}
               <Route path="/events" element={<EventsMainPage />} />

@@ -37,6 +37,21 @@ export async function sendOtpEmail(toEmail, code) {
     });
 }
 
+export async function sendPasswordResetOtpEmail(toEmail, code) {
+    await send({
+        to: toEmail,
+        subject: "Reset your WellNest password",
+        text: `Your WellNest password reset code is ${code}. It expires in 10 minutes. If you didn't request this, you can ignore this email.`,
+        html: `
+      <div style="font-family: sans-serif; font-size: 15px; color: #1a202c;">
+        <p>Your WellNest password reset code is:</p>
+        <p style="font-size: 28px; font-weight: 700; letter-spacing: 4px;">${code}</p>
+        <p>This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
+      </div>
+    `,
+    });
+}
+
 function formatDateTime(date) {
     if (!date) return "a time to be confirmed";
     return new Date(date).toLocaleString("en-US", {
