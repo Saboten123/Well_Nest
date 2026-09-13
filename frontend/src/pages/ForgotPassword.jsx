@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../utils/api.js";
+import ThemeToggle from "../components/ThemeToggle";
 import "../styles/auth.css";
 
 export default function ForgotPassword() {
@@ -110,6 +111,7 @@ export default function ForgotPassword() {
 
     return (
         <div className="auth-container">
+            <ThemeToggle className="auth-theme-toggle" />
             <div className="auth-card">
                 <div className="auth-header">
                     <h1>Reset Password</h1>

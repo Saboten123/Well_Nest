@@ -1,22 +1,33 @@
-/* Authentication Pages Styles */
+/* Authentication Pages Styles — glass card on the shared theme-aware
+   gradient background, so Sign In / Sign Up / Forgot Password follow the
+   light/dark toggle along with the rest of the app. */
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-body);
   padding: 2rem;
+  position: relative;
+}
+
+.auth-theme-toggle {
+  position: absolute;
+  top: 1.75rem;
+  right: 1.75rem;
 }
 
 .auth-card {
-  background: #161b22;
-  border: 1px solid #262c36;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  background: var(--w-08);
+  backdrop-filter: blur(25px);
+  border: 1px solid var(--nav-border);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px var(--b-30), inset 0 1px 0 var(--w-10);
   padding: 3rem;
   width: 100%;
   max-width: 450px;
   animation: slideUp 0.5s ease-out;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 @keyframes slideUp {
@@ -37,14 +48,14 @@
 }
 
 .auth-header h1 {
-  color: #f5f7fa;
+  color: var(--text-strong);
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
 .auth-header p {
-  color: #9aa4b2;
+  color: var(--text-soft);
   font-size: 1rem;
 }
 
@@ -62,10 +73,12 @@
 
 .form-group label {
   font-weight: 600;
-  color: #e6edf3;
+  color: var(--text-strong);
   font-size: 0.9rem;
 }
 
+/* Inputs intentionally stay a light surface with dark text in both themes
+   — always legible, and matches native autofill styling below. */
 .form-group input,
 .form-group select {
   padding: 0.75rem 1rem;
@@ -109,19 +122,21 @@
 }
 
 .btn-primary {
-  background: #4CAF50;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
   color: white;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #45a049;
   transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(102, 126, 234, 0.45);
 }
 
 .btn-primary:disabled {
-  background: #ccc;
+  background: #9ca3af;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .btn-full {
@@ -132,16 +147,16 @@
   text-align: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #262c36;
+  border-top: 1px solid var(--nav-border);
 }
 
 .auth-footer p {
-  color: #9aa4b2;
+  color: var(--text-soft);
   margin: 0;
 }
 
 .link {
-  color: #7dd3fc;
+  color: var(--accent-1);
   text-decoration: none;
   font-weight: 600;
 }
@@ -151,21 +166,21 @@
 }
 
 .error-message {
-  background: #3a1518;
+  background: rgba(239, 68, 68, 0.12);
   color: #fca5a5;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  border: 1px solid #7f1d1d;
+  border: 1px solid rgba(239, 68, 68, 0.35);
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
 
 .success-message {
-  background: #16332a;
+  background: rgba(16, 185, 129, 0.12);
   color: #6ee7b7;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  border: 1px solid #14532d;
+  border: 1px solid rgba(16, 185, 129, 0.35);
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }

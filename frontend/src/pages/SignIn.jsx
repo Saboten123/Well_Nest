@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import api from "../utils/api.js";
 import { setToken } from "../utils/auth.js";
+import ThemeToggle from "../components/ThemeToggle";
 import "../styles/auth.css";
 
 export default function SignIn() {
@@ -50,6 +51,7 @@ export default function SignIn() {
 
   return (
     <div className="auth-container">
+      <ThemeToggle className="auth-theme-toggle" />
       <div className="auth-card">
         <div className="auth-header">
           <h1>Welcome Back</h1>

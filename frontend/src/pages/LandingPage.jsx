@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { HeartPulse } from "lucide-react";
 import { aiApi } from "../utils/api";
+import ThemeToggle from "../components/ThemeToggle";
 import "./LandingPage.css";
 
 export default function LandingPage() {
@@ -56,6 +58,31 @@ export default function LandingPage() {
 
   return (
     <div className="landing-page">
+      {/* Slim public header: brand + theme toggle + auth actions */}
+      <header className="landing-nav">
+        <div className="landing-nav-brand" onClick={() => navigate("/")}>
+          <span className="landing-nav-logo">
+            <HeartPulse size={18} />
+          </span>
+          <span>WellNest</span>
+        </div>
+        <div className="landing-nav-actions">
+          <ThemeToggle />
+          <button
+            className="btn btn-outline landing-nav-btn"
+            onClick={() => navigate("/signin")}
+          >
+            Sign In
+          </button>
+          <button
+            className="btn btn-primary landing-nav-btn"
+            onClick={() => navigate("/signup")}
+          >
+            Get Started
+          </button>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">

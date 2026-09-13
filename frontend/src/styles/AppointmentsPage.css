@@ -3,7 +3,7 @@
 /* Page Layout */
 .page {
     min-height: 100vh;
-    background: #f8fafc;
+    background: var(--bg-body);
 }
 
 .page-content {
@@ -553,156 +553,157 @@
 }
 
 /* ============================================================
-   Dark theme override
-   Appended (rather than editing every rule above) so the cascade
-   naturally wins on same-specificity selectors — keeps the diff
-   readable and avoids touching layout/spacing rules that were fine.
-   Palette matches the Admin Panel for a consistent app-wide look.
+   Dark theme overrides — only apply when data-theme="dark" is set on
+   <html> by the theme toggle (src/context/ThemeContext.jsx). Kept as a
+   scoped block appended after the light-mode rules above so the cascade
+   naturally wins, without touching the layout/spacing rules, which are
+   theme-independent. Palette matches the Admin Panel for a consistent
+   app-wide look.
    ============================================================ */
 
-.page {
+[data-theme="dark"] .page {
     background: #0d1117;
 }
 
-.section-title {
+[data-theme="dark"] .section-title {
     color: #f5f7fa;
 }
 
-.section-subtitle {
+[data-theme="dark"] .section-subtitle {
     color: #9aa4b2;
 }
 
-.appointment-card-large {
+[data-theme="dark"] .appointment-card-large {
     background: #161b22;
     border: 1px solid #262c36;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
 }
 
-.appointment-header {
+[data-theme="dark"] .appointment-header {
     border-bottom: 2px solid #262c36;
 }
 
-.appointment-header h3 {
+[data-theme="dark"] .appointment-header h3 {
     color: #f5f7fa;
 }
 
-.status-pending {
+[data-theme="dark"] .status-pending {
     background: #3a2e14;
     color: #fcd34d;
 }
 
-.status-accepted {
+[data-theme="dark"] .status-accepted {
     background: #16332a;
     color: #6ee7b7;
 }
 
-.status-scheduled {
+[data-theme="dark"] .status-scheduled {
     background: #14324a;
     color: #7dd3fc;
 }
 
-.status-cancelled {
+[data-theme="dark"] .status-cancelled {
     background: #3a1518;
     color: #fca5a5;
 }
 
-.status-completed {
+[data-theme="dark"] .status-completed {
     background: #2e1f3a;
     color: #d8b4fe;
 }
 
-.detail-row {
+[data-theme="dark"] .detail-row {
     border-bottom: 1px solid #1c222b;
 }
 
-.detail-row strong {
+[data-theme="dark"] .detail-row strong {
     color: #e6edf3;
 }
 
-.detail-row span {
+[data-theme="dark"] .detail-row span {
     color: #9aa4b2;
 }
 
-.past-time {
+[data-theme="dark"] .past-time {
     color: #f87171 !important;
 }
 
-.future-time {
+[data-theme="dark"] .future-time {
     color: #34d399 !important;
 }
 
-.appointment-actions-large {
+[data-theme="dark"] .appointment-actions-large {
     border-top: 2px solid #262c36;
 }
 
-.appointment-filters {
+[data-theme="dark"] .appointment-filters {
     background: #161b22;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
 }
 
-.btn-outline {
+[data-theme="dark"] .btn-outline {
     background: #1c222b;
     color: #e6edf3;
     border: 1px solid #2d333d;
 }
 
-.btn-outline:hover:not(:disabled) {
+[data-theme="dark"] .btn-outline:hover:not(:disabled) {
     background: #262c36;
     border-color: #3d4552;
 }
 
-.empty-state {
+[data-theme="dark"] .empty-state {
     background: #161b22;
     border: 2px dashed #2d333d;
 }
 
-.empty-state h3 {
+[data-theme="dark"] .empty-state h3 {
     color: #e6edf3;
 }
 
-.empty-state p {
+[data-theme="dark"] .empty-state p {
     color: #9aa4b2;
 }
 
-.error-message {
+[data-theme="dark"] .error-message {
     background: #3a1518;
     border: 1px solid #7f1d1d;
     color: #fca5a5;
 }
 
-.modal-content {
+[data-theme="dark"] .modal-content {
     background: #161b22;
     color: #e6edf3;
 }
 
-.modal-header {
+[data-theme="dark"] .modal-header {
     border-bottom: 1px solid #262c36;
 }
 
-.modal-header h3 {
+[data-theme="dark"] .modal-header h3 {
     color: #f5f7fa;
 }
 
-.modal-close {
+[data-theme="dark"] .modal-close {
     color: #9aa4b2;
 }
 
-.modal-close:hover {
+[data-theme="dark"] .modal-close:hover {
     color: #e6edf3;
 }
 
-.form-group label {
+[data-theme="dark"] .form-group label {
     color: #e6edf3;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select {
     background: #0d1117;
     color: #e6edf3;
     border: 1px solid #2d333d;
 }
 
-.form-group small {
+[data-theme="dark"] .form-group small {
     color: #9aa4b2;
 }
