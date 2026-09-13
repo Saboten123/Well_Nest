@@ -16,30 +16,24 @@ export default function ThemeToggle({ className = "" }) {
         <button
             type="button"
             className={`theme-toggle ${className}`}
-            data-mode={theme}
             onClick={toggleTheme}
             role="switch"
             aria-checked={isLight}
             aria-label={`Switch to ${isLight ? "dark" : "light"} mode`}
             title={`Switch to ${isLight ? "dark" : "light"} mode`}
         >
-            <span className="theme-toggle-thumb">
-                <Sun
-                    className="theme-toggle-icon theme-toggle-icon--sun"
-                    size={13}
-                    strokeWidth={2.4}
-                />
-                <Moon
-                    className="theme-toggle-icon theme-toggle-icon--moon"
-                    size={13}
-                    strokeWidth={2.4}
-                />
+            <span className="theme-toggle-icon theme-toggle-icon--sun">
+                <Sun size={14} strokeWidth={2.4} />
             </span>
-            <span className="theme-toggle-label">
-                <span className="theme-toggle-label-line">
-                    {isLight ? "Light" : "Dark"}
-                </span>
-                <span className="theme-toggle-label-line">Mode</span>
+            <span className="theme-toggle-icon theme-toggle-icon--moon">
+                <Moon size={14} strokeWidth={2.4} />
+            </span>
+            <span className="theme-toggle-thumb">
+                {isLight ? (
+                    <Sun size={14} strokeWidth={2.4} />
+                ) : (
+                    <Moon size={14} strokeWidth={2.4} />
+                )}
             </span>
         </button>
     );
