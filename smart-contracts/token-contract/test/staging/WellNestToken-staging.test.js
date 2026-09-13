@@ -1,4 +1,5 @@
-// test/staging/WellNestToken.staging.test.js - Integration tests (testnet only)
+cd D:\Well-Nest\blockchain_backend
+npm run dev// test/staging/WellNestToken.staging.test.js - Integration tests (testnet only)
 const { assert, expect } = require("chai");
 const { network, ethers, getNamedAccounts, deployments } = require("hardhat"); // Added missing imports
 const {
