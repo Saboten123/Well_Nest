@@ -1,27 +1,43 @@
-import mongoose from "mongoose";
+import { DataTypes, Model } from "sequelize";
+import { sequelize } from "../config/db.js";
 
-const NGOProfileSchema = new mongoose.Schema(
+export class NGOProfile extends Model { }
+
+NGOProfile.init(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true, required: true },
-    orgName: { type: String, default: null },
-    registrationNumber: { type: String, default: null },
-    mission: { type: String, default: null },
-    website: { type: String, default: null },
-    email: { type: String, default: null },
-    services: { type: [String], default: null }, // Array of services provided by the NGO
-    blogs: {
-      type: [
-        {
-          title: String,
-          body: String,
-          createdAt: { type: Date, default: Date.now }
-        }
-      ],
-      default: []
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    isProfileComplete: { type: Boolean, default: false }
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      unique: true,
+      field: "user_id",
+      references: { model: "users", key: "id" },
+    },
+    orgName: { type: DataTypes.STRING, allowNull: true },
+    registrationNumber: { type: DataTypes.STRING, allowNull: true },
+    mission: { type: DataTypes.TEXT, allowNull: true },
+    website: { type: DataTypes.STRING, allowNull: true },
+    email: { type: DataTypes.STRING, allowNull: true },
+    services: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
+    // Array of { title, body, createdAt } — kept as JSONB, same reasoning
+    // as HealthWorkerProfile.blogs.
+    blogs: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
+    isProfileComplete: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
-  { timestamps: true }
+  {
+    sequelize,
+    modelName: "NGOProfile",
+    tableName: "ngo_profiles",
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("NGOProfile", NGOProfileSchema);
+export default NGOProfile;

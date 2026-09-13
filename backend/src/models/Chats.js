@@ -1,49 +1,45 @@
-import mongoose from "mongoose";
+import { DataTypes, Model } from "sequelize";
+import { sequelize } from "../config/db.js";
 
-const messageSchema = new mongoose.Schema(
-  {
-    senderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
-    message: {
-      type: String,
-      required: true,
-    },
-    timestamp: {
-      type: Date,
-      default: Date.now,
-    },
-  },
-  { _id: false } // don't create a separate _id for each embedded message
-);
+export class Chat extends Model { }
 
-const chatSchema = new mongoose.Schema(
+Chat.init(
   {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     appointmentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Appointment",
-      required: true,
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: "appointment_id",
+      references: { model: "appointments", key: "id" },
     },
     doctorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Doctor",
-      required: true,
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: "doctor_id",
+      references: { model: "doctor_profiles", key: "id" },
     },
     patientId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Patient",
-      required: true,
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: "patient_id",
+      references: { model: "patient_profiles", key: "id" },
     },
-    messages: [messageSchema], // embedded messages array
-    lastUpdated: {
-      type: Date,
-      default: Date.now,
-    },
+    // Array of { senderId, message, timestamp } — kept as JSONB (was an
+    // embedded Mongo sub-document array); split into its own table later
+    // if messages need to be queried/paginated individually.
+    messages: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
+    lastUpdated: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   },
-  { timestamps: true } // adds createdAt, updatedAt automatically
+  {
+    sequelize,
+    modelName: "Chat",
+    tableName: "chats",
+    timestamps: true,
+  }
 );
-
-const Chat = mongoose.model("Chat", chatSchema);
 
 export default Chat;

@@ -1,400 +1,176 @@
-// models/VideoCallSession.model.js
-import mongoose from "mongoose";
+import { DataTypes, Model, Op } from "sequelize";
+import { sequelize } from "../config/db.js";
 
-const videoCallSessionSchema = new mongoose.Schema(
-  {
-    // Unique room identifier for WebRTC connection
-    roomId: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
-    },
-
-    // Associated appointment
-    appointmentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Appointment",
-      required: true,
-    },
-
-    // User who initiated the call
-    initiatorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: "initiatorModel",
-      required: true,
-    },
-
-    // Dynamic reference model for initiator (Doctor, Patient, HealthWorker)
-    initiatorModel: {
-      type: String,
-      required: true,
-      enum: ["Doctor", "Patient", "HealthWorker", "User"], // Adjust based on your user models
-    },
-
-    // All authorized participants
-    participantIds: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        refPath: "participantModel",
-      },
-    ],
-
-    // Dynamic reference for participants
-    participantModel: {
-      type: String,
-      default: "User",
-      enum: ["Doctor", "Patient", "HealthWorker", "User"],
-    },
-
-    // Participants who actually joined the call
-    joinedParticipants: [
-      {
-        userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          refPath: "participantModel",
-        },
-        joinedAt: {
-          type: Date,
-          default: Date.now,
-        },
-        leftAt: Date,
-        duration: Number, // Time spent in call (seconds)
-      },
-    ],
-
-    // Call configuration
-    callType: {
-      type: String,
-      enum: ["video", "audio"],
-      default: "video",
-    },
-
-    // Call status tracking
-    status: {
-      type: String,
-      enum: ["waiting", "active", "ended", "failed", "cancelled"],
-      default: "waiting",
-    },
-
-    // Status change history
-    statusHistory: [
-      {
-        status: String,
-        changedBy: {
-          type: mongoose.Schema.Types.ObjectId,
-          refPath: "participantModel",
-        },
-        changedAt: {
-          type: Date,
-          default: Date.now,
-        },
-        previousStatus: String,
-        reason: String,
-      },
-    ],
-
-    // Call timing
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-
-    startedAt: Date,
-
-    endedAt: Date,
-
-    // Who ended the call
-    endedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: "participantModel",
-    },
-
-    // Call duration in seconds
-    duration: {
-      type: Number,
-      default: 0,
-    },
-
-    // Call quality metrics
-    qualityMetrics: {
-      averageLatency: Number, // ms
-      packetsLost: Number,
-      maxParticipants: Number,
-      connectionIssues: [
-        {
-          participantId: {
-            type: mongoose.Schema.Types.ObjectId,
-            refPath: "participantModel",
-          },
-          issue: String,
-          timestamp: Date,
-          resolved: Boolean,
-        },
-      ],
-    },
-
-    // Call features used
-    featuresUsed: {
-      screenShare: {
-        used: { type: Boolean, default: false },
-        participants: [
-          {
-            userId: {
-              type: mongoose.Schema.Types.ObjectId,
-              refPath: "participantModel",
-            },
-            startTime: Date,
-            endTime: Date,
-          },
-        ],
-      },
-      recording: {
-        enabled: { type: Boolean, default: false },
-        startTime: Date,
-        endTime: Date,
-        fileUrl: String,
-        fileSize: Number,
-      },
-      chat: {
-        used: { type: Boolean, default: false },
-        messageCount: { type: Number, default: 0 },
-      },
-    },
-
-    // Technical metadata
-    metadata: {
-      appointmentType: String,
-      scheduledTime: Date,
-      platform: {
-        type: String,
-        enum: ["web", "mobile", "desktop"],
-        default: "web",
-      },
-      clientVersions: [
-        {
-          participantId: {
-            type: mongoose.Schema.Types.ObjectId,
-            refPath: "participantModel",
-          },
-          userAgent: String,
-          sdkVersion: String,
-        },
-      ],
-      serverRegion: String,
-      iceServers: [String],
-    },
-
-    // Error tracking
-    errors: [
-      {
-        errorCode: String,
-        errorMessage: String,
-        participantId: {
-          type: mongoose.Schema.Types.ObjectId,
-          refPath: "participantModel",
-        },
-        timestamp: {
-          type: Date,
-          default: Date.now,
-        },
-        resolved: {
-          type: Boolean,
-          default: false,
-        },
-      },
-    ],
-
-    // Call rating and feedback
-    feedback: [
-      {
-        participantId: {
-          type: mongoose.Schema.Types.ObjectId,
-          refPath: "participantModel",
-        },
-        rating: {
-          type: Number,
-          min: 1,
-          max: 5,
-        },
-        audioQuality: {
-          type: Number,
-          min: 1,
-          max: 5,
-        },
-        videoQuality: {
-          type: Number,
-          min: 1,
-          max: 5,
-        },
-        connectionStability: {
-          type: Number,
-          min: 1,
-          max: 5,
-        },
-        overallExperience: {
-          type: Number,
-          min: 1,
-          max: 5,
-        },
-        comments: String,
-        submittedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-  },
-  {
-    timestamps: true, // Adds createdAt and updatedAt automatically
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
-);
-
-// Indexes for better query performance
-videoCallSessionSchema.index({ appointmentId: 1 });
-videoCallSessionSchema.index({ participantIds: 1 });
-videoCallSessionSchema.index({ status: 1 });
-videoCallSessionSchema.index({ createdAt: -1 });
-videoCallSessionSchema.index({ "joinedParticipants.userId": 1 });
-
-// Virtual for active participants count
-videoCallSessionSchema.virtual("activeParticipantsCount").get(function () {
-  return this.joinedParticipants.filter((p) => !p.leftAt).length;
-});
-
-// Virtual for total participants count
-videoCallSessionSchema.virtual("totalParticipantsCount").get(function () {
-  return this.participantIds.length;
-});
-
-// Virtual for call duration in minutes
-videoCallSessionSchema.virtual("durationInMinutes").get(function () {
-  return this.duration ? Math.round(this.duration / 60) : 0;
-});
-
-// Virtual for call success status
-videoCallSessionSchema.virtual("isSuccessful").get(function () {
-  return this.status === "ended" && this.duration > 0;
-});
-
-// Pre-save middleware to update duration
-videoCallSessionSchema.pre("save", function (next) {
-  // Auto-calculate duration if ending call
-  if (
-    this.status === "ended" &&
-    this.startedAt &&
-    this.endedAt &&
-    !this.duration
-  ) {
-    this.duration = Math.round((this.endedAt - this.startedAt) / 1000);
-  }
-
-  // Set initiator model based on existing user models
-  if (this.isNew && !this.initiatorModel) {
-    this.initiatorModel = "User"; // Default, adjust based on your setup
-  }
-
-  next();
-});
-
-// Instance method to add participant
-videoCallSessionSchema.methods.addParticipant = function (userId) {
-  if (!this.participantIds.includes(userId)) {
-    this.participantIds.push(userId);
-  }
-  return this;
-};
-
-// Instance method to join call
-videoCallSessionSchema.methods.joinCall = function (userId) {
-  const existing = this.joinedParticipants.find(
-    (p) => p.userId.toString() === userId.toString() && !p.leftAt
-  );
-
-  if (!existing) {
-    this.joinedParticipants.push({
-      userId,
-      joinedAt: new Date(),
-    });
-
-    // Update to active if first participant joins
-    if (this.status === "waiting") {
-      this.status = "active";
-      this.startedAt = new Date();
+// Nested, variable-shaped pieces (statusHistory, qualityMetrics,
+// featuresUsed, metadata, errors, feedback, joinedParticipants) are kept as
+// JSONB rather than normalized into their own tables — they're only ever
+// read/written as a whole blob per call, same as they were as embedded
+// Mongo sub-documents.
+export class VideoCallSession extends Model {
+  addParticipant(userId) {
+    if (!this.participantIds.includes(userId)) {
+      this.participantIds = [...this.participantIds, userId];
     }
+    return this;
   }
 
-  return this;
-};
+  joinCall(userId) {
+    const joined = this.joinedParticipants || [];
+    const existing = joined.find((p) => p.userId === userId && !p.leftAt);
 
-// Instance method to leave call
-videoCallSessionSchema.methods.leaveCall = function (userId) {
-  const participant = this.joinedParticipants.find(
-    (p) => p.userId.toString() === userId.toString() && !p.leftAt
-  );
+    if (!existing) {
+      this.joinedParticipants = [
+        ...joined,
+        { userId, joinedAt: new Date() },
+      ];
 
-  if (participant) {
-    participant.leftAt = new Date();
-    participant.duration = Math.round(
-      (participant.leftAt - participant.joinedAt) / 1000
-    );
+      if (this.status === "waiting") {
+        this.status = "active";
+        this.startedAt = new Date();
+      }
+    }
+
+    return this;
   }
 
-  return this;
-};
+  leaveCall(userId) {
+    const joined = this.joinedParticipants || [];
+    const idx = joined.findIndex((p) => p.userId === userId && !p.leftAt);
 
-// Static method to find active calls for user
-videoCallSessionSchema.statics.findActiveCallsForUser = function (userId) {
-  return this.find({
-    participantIds: userId,
-    status: { $in: ["waiting", "active"] },
-  });
-};
+    if (idx !== -1) {
+      const leftAt = new Date();
+      const participant = {
+        ...joined[idx],
+        leftAt,
+        duration: Math.round((leftAt - new Date(joined[idx].joinedAt)) / 1000),
+      };
+      const updated = [...joined];
+      updated[idx] = participant;
+      this.joinedParticipants = updated;
+    }
 
-// Static method to get call statistics
-videoCallSessionSchema.statics.getCallStats = function (
-  userId,
-  startDate,
-  endDate
-) {
-  const matchStage = {
-    participantIds: mongoose.Types.ObjectId(userId),
-  };
+    return this;
+  }
 
-  if (startDate && endDate) {
-    matchStage.createdAt = {
-      $gte: new Date(startDate),
-      $lte: new Date(endDate),
+  get activeParticipantsCount() {
+    return (this.joinedParticipants || []).filter((p) => !p.leftAt).length;
+  }
+
+  get totalParticipantsCount() {
+    return (this.participantIds || []).length;
+  }
+
+  get durationInMinutes() {
+    return this.duration ? Math.round(this.duration / 60) : 0;
+  }
+
+  get isSuccessful() {
+    return this.status === "ended" && this.duration > 0;
+  }
+
+  static findActiveCallsForUser(userId) {
+    return VideoCallSession.findAll({
+      where: {
+        participantIds: { [Op.contains]: [userId] },
+        status: { [Op.in]: ["waiting", "active"] },
+      },
+    });
+  }
+
+  static async getCallStats(userId, startDate, endDate) {
+    const where = { participantIds: { [Op.contains]: [userId] } };
+    if (startDate && endDate) {
+      where.createdAt = { [Op.gte]: new Date(startDate), [Op.lte]: new Date(endDate) };
+    }
+    const sessions = await VideoCallSession.findAll({ where });
+
+    return {
+      totalCalls: sessions.length,
+      completedCalls: sessions.filter((s) => s.status === "ended").length,
+      totalDuration: sessions.reduce((sum, s) => sum + (s.duration || 0), 0),
+      averageDuration:
+        sessions.length > 0
+          ? sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / sessions.length
+          : 0,
+      callsByType: sessions.map((s) => ({ type: s.callType, status: s.status })),
     };
   }
+}
 
-  return this.aggregate([
-    { $match: matchStage },
-    {
-      $group: {
-        _id: null,
-        totalCalls: { $sum: 1 },
-        completedCalls: {
-          $sum: { $cond: [{ $eq: ["$status", "ended"] }, 1, 0] },
-        },
-        totalDuration: { $sum: "$duration" },
-        averageDuration: { $avg: "$duration" },
-        callsByType: {
-          $push: {
-            type: "$callType",
-            status: "$status",
-          },
-        },
+VideoCallSession.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    roomId: { type: DataTypes.STRING, allowNull: false, unique: true },
+    appointmentId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: "appointment_id",
+      references: { model: "appointments", key: "id" },
+    },
+    initiatorId: { type: DataTypes.UUID, allowNull: false, field: "initiator_id" },
+    initiatorModel: {
+      type: DataTypes.ENUM("Doctor", "Patient", "HealthWorker", "User"),
+      allowNull: false,
+    },
+    participantIds: {
+      type: DataTypes.ARRAY(DataTypes.UUID),
+      allowNull: false,
+      defaultValue: [],
+    },
+    participantModel: {
+      type: DataTypes.ENUM("Doctor", "Patient", "HealthWorker", "User"),
+      allowNull: false,
+      defaultValue: "User",
+    },
+    joinedParticipants: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
+    callType: {
+      type: DataTypes.ENUM("video", "audio"),
+      allowNull: false,
+      defaultValue: "video",
+    },
+    status: {
+      type: DataTypes.ENUM("waiting", "active", "ended", "failed", "cancelled"),
+      allowNull: false,
+      defaultValue: "waiting",
+    },
+    statusHistory: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
+    startedAt: { type: DataTypes.DATE, allowNull: true },
+    endedAt: { type: DataTypes.DATE, allowNull: true },
+    endedBy: { type: DataTypes.UUID, allowNull: true },
+    duration: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    qualityMetrics: { type: DataTypes.JSONB, allowNull: true },
+    featuresUsed: { type: DataTypes.JSONB, allowNull: true },
+    metadata: { type: DataTypes.JSONB, allowNull: true },
+    errors: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
+    feedback: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
+  },
+  {
+    sequelize,
+    modelName: "VideoCallSession",
+    tableName: "video_call_sessions",
+    timestamps: true,
+    hooks: {
+      beforeSave(session) {
+        if (
+          session.status === "ended" &&
+          session.startedAt &&
+          session.endedAt &&
+          !session.duration
+        ) {
+          session.duration = Math.round((session.endedAt - session.startedAt) / 1000);
+        }
       },
     },
-  ]);
-};
-
-const VideoCallSession = mongoose.model(
-  "VideoCallSession",
-  videoCallSessionSchema
+    indexes: [
+      { fields: ["appointment_id"] },
+      { fields: ["status"] },
+      { fields: ["createdAt"] },
+    ],
+  }
 );
 
 export default VideoCallSession;

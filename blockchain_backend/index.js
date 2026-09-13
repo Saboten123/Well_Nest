@@ -1,38 +1,57 @@
-const express = require("express");
-const app = express();
-const PORT = 7000;
-const path = require("path");
+// Central place for model associations — the Mongoose `ref`/`populate`
+// setup from each schema now lives here as Sequelize associations, so
+// controllers can do e.g. Appointment.findAll({ include: [DoctorProfile] })
+// where they used to do .populate("doctorId").
+import { sequelize } from "../config/db.js";
+import { User } from "./User.js";
+import { Otp } from "./Otp.js";
+import { DoctorProfile } from "./DoctorProfile.js";
+import { PatientProfile } from "./PatientProfile.js";
+import { HealthWorkerProfile } from "./HealthWorkerProfile.js";
+import { NGOProfile } from "./NGOProfile.js";
+import { Appointment } from "./Appointments.js";
+import { Chat } from "./Chats.js";
+import { VideoCallSession } from "./videoCallSession.model.js";
 
-const cors = require("cors");
-app.use(cors());
+User.hasOne(DoctorProfile, { foreignKey: "userId" });
+DoctorProfile.belongsTo(User, { foreignKey: "userId" });
 
-const { connect } = require("./connect");
-connect("mongodb://localhost:27017/wellnest")
-  .then(() => console.log("mongo started"))
-  .catch((err) => console.log(err));
+User.hasOne(PatientProfile, { foreignKey: "userId" });
+PatientProfile.belongsTo(User, { foreignKey: "userId" });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+User.hasOne(HealthWorkerProfile, { foreignKey: "userId" });
+HealthWorkerProfile.belongsTo(User, { foreignKey: "userId" });
 
-// Serve static files from uploads directory
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+User.hasOne(NGOProfile, { foreignKey: "userId" });
+NGOProfile.belongsTo(User, { foreignKey: "userId" });
 
-// const { authMiddleware } = require("./middlewares/auth.js");
-// app.use(authMiddleware);
+DoctorProfile.hasMany(Appointment, { foreignKey: "doctorId" });
+Appointment.belongsTo(DoctorProfile, { foreignKey: "doctorId" });
 
-const staticRoute = require("./routes/moneyRouter.js");
-app.use("/pay", staticRoute);
+PatientProfile.hasMany(Appointment, { foreignKey: "patientId" });
+Appointment.belongsTo(PatientProfile, { foreignKey: "patientId" });
 
-const setwalletRoute = require("./routes/setWalletRouter.js");
-app.use("/reward", setwalletRoute);
+Appointment.hasOne(Chat, { foreignKey: "appointmentId" });
+Chat.belongsTo(Appointment, { foreignKey: "appointmentId" });
 
-const organiseRoute = require("./routes/organiseRouter.js");
-app.use("/organise", organiseRoute);
+DoctorProfile.hasMany(Chat, { foreignKey: "doctorId" });
+Chat.belongsTo(DoctorProfile, { foreignKey: "doctorId" });
 
-const participateRoute = require("./routes/participantsRouter.js");
-app.use("/part", participateRoute);
+PatientProfile.hasMany(Chat, { foreignKey: "patientId" });
+Chat.belongsTo(PatientProfile, { foreignKey: "patientId" });
 
-const outbreakRoute = require("./routes/outbreakRouter.js");
-app.use("/outbreak", outbreakRoute);
+Appointment.hasMany(VideoCallSession, { foreignKey: "appointmentId" });
+VideoCallSession.belongsTo(Appointment, { foreignKey: "appointmentId" });
 
-app.listen(PORT, () => console.log(`Server started at ${PORT}`));
+export {
+  sequelize,
+  User,
+  Otp,
+  DoctorProfile,
+  PatientProfile,
+  HealthWorkerProfile,
+  NGOProfile,
+  Appointment,
+  Chat,
+  VideoCallSession,
+};

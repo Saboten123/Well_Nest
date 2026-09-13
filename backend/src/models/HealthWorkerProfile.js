@@ -1,21 +1,41 @@
-import mongoose from "mongoose";
+import { DataTypes, Model } from "sequelize";
+import { sequelize } from "../config/db.js";
 
-const HealthWorkerProfileSchema = new mongoose.Schema(
+export class HealthWorkerProfile extends Model { }
+
+HealthWorkerProfile.init(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true, required: true },
-    name: { type: String, default: null },
-    employer: { type: String, default: null },
-    certId: { type: String, default: null },
-    region: { type: String, default: null },
-    blogs: {
-      type: [
-        { title: String, body: String, createdAt: { type: Date, default: Date.now } }
-      ],
-      default: []
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    isProfileComplete: { type: Boolean, default: false }
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      unique: true,
+      field: "user_id",
+      references: { model: "users", key: "id" },
+    },
+    name: { type: DataTypes.STRING, allowNull: true },
+    employer: { type: DataTypes.STRING, allowNull: true },
+    certId: { type: DataTypes.STRING, allowNull: true },
+    region: { type: DataTypes.STRING, allowNull: true },
+    // Array of { title, body, createdAt } — kept as JSONB rather than a
+    // separate table since blogs are only ever read/written as a whole list.
+    blogs: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
+    isProfileComplete: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
-  { timestamps: true }
+  {
+    sequelize,
+    modelName: "HealthWorkerProfile",
+    tableName: "health_worker_profiles",
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("HealthWorkerProfile", HealthWorkerProfileSchema);
+export default HealthWorkerProfile;

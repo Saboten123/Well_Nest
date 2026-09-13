@@ -1,12 +1,35 @@
-import mongoose from "mongoose";
+import { DataTypes, Model } from "sequelize";
+import { sequelize } from "../config/db.js";
 
-const PatientProfileSchema = new mongoose.Schema(
+export class PatientProfile extends Model { }
+
+PatientProfile.init(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true, required: true },
-    name: { type: String, default: null },
-    isProfileComplete: { type: Boolean, default: false }
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      unique: true,
+      field: "user_id",
+      references: { model: "users", key: "id" },
+    },
+    name: { type: DataTypes.STRING, allowNull: true },
+    isProfileComplete: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
-  { timestamps: true }
+  {
+    sequelize,
+    modelName: "PatientProfile",
+    tableName: "patient_profiles",
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("PatientProfile", PatientProfileSchema);
+export default PatientProfile;

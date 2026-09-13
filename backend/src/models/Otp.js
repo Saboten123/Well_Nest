@@ -1,16 +1,41 @@
-import mongoose from "mongoose";
+import { DataTypes, Model } from "sequelize";
+import { sequelize } from "../config/db.js";
 
-const OtpSchema = new mongoose.Schema(
+export class Otp extends Model { }
+
+Otp.init(
     {
-        email: { type: String, required: true, lowercase: true, trim: true },
-        codeHash: { type: String, required: true },
-        purpose: { type: String, default: "signup" },
-        attempts: { type: Number, default: 0 },
-        expiresAt: { type: Date, required: true },
+        id: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            primaryKey: true,
+        },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            set(value) {
+                this.setDataValue("email", value?.toLowerCase().trim());
+            },
+        },
+        codeHash: { type: DataTypes.STRING, allowNull: false },
+        purpose: { type: DataTypes.STRING, allowNull: false, defaultValue: "signup" },
+        attempts: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+        expiresAt: { type: DataTypes.DATE, allowNull: false },
     },
-    { timestamps: true }
+    {
+        sequelize,
+        modelName: "Otp",
+        tableName: "otps",
+        timestamps: true,
+        indexes: [{ fields: ["expiresAt"] }],
+    }
 );
 
-OtpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// Postgres has no Mongo-style TTL index (expireAfterSeconds) to auto-delete
+// expired docs — run this periodically (a cron/scheduled job) instead.
+export async function purgeExpiredOtps() {
+    const { Op } = await import("sequelize");
+    return Otp.destroy({ where: { expiresAt: { [Op.lt]: new Date() } } });
+}
 
-export default mongoose.model("Otp", OtpSchema);
+export default Otp;
