@@ -1,9 +1,14 @@
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import Otp from "../models/Otp.js";
 import NGOProfile from "../models/NGOProfile.js";
 import DoctorProfile from "../models/DoctorProfile.js";
 import HealthWorkerProfile from "../models/HealthWorkerProfile.js";
 import PatientProfile from "../models/PatientProfile.js";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.js";
+import { sendOtpEmail } from "../utils/mailer.js";
 
 function ok(res, message, data = {}) {
   return res.json({ success: true, message, data });
@@ -12,20 +17,115 @@ function fail(res, status, message) {
   return res.status(status).json({ success: false, message });
 }
 
+const OTP_EXPIRES_MINUTES = 10;
+const MAX_OTP_ATTEMPTS = 5;
+const SIGNUP_TOKEN_EXPIRES = "15m";
+
+function generateOtpCode() {
+  return crypto.randomInt(100000, 1000000).toString();
+}
+
+export async function sendSignupOtp(req, res, next) {
+  try {
+    const { email } = req.body;
+    if (!email) return fail(res, 400, "Email is required");
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) return fail(res, 409, "Email already registered");
+
+    const code = generateOtpCode();
+    const codeHash = await bcrypt.hash(code, 10);
+    const expiresAt = new Date(Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000);
+
+    await Otp.findOneAndDelete({ email: normalizedEmail, purpose: "signup" });
+    await Otp.create({ email: normalizedEmail, codeHash, purpose: "signup", expiresAt });
+
+    await sendOtpEmail(normalizedEmail, code);
+
+    return ok(res, "OTP sent to your email");
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function verifySignupOtp(req, res, next) {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) return fail(res, 400, "Email and OTP are required");
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const record = await Otp.findOne({ email: normalizedEmail, purpose: "signup" });
+    if (!record) return fail(res, 400, "No OTP requested for this email, or it already expired");
+
+    if (record.expiresAt < new Date()) {
+      await record.deleteOne();
+      return fail(res, 400, "OTP expired, please request a new one");
+    }
+
+    if (record.attempts >= MAX_OTP_ATTEMPTS) {
+      await record.deleteOne();
+      return fail(res, 429, "Too many incorrect attempts, please request a new OTP");
+    }
+
+    const matches = await bcrypt.compare(String(otp), record.codeHash);
+    if (!matches) {
+      record.attempts += 1;
+      await record.save();
+      return fail(res, 400, "Incorrect OTP");
+    }
+
+    await record.deleteOne();
+
+    const signupToken = jwt.sign(
+      { email: normalizedEmail, purpose: "signup" },
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: SIGNUP_TOKEN_EXPIRES }
+    );
+
+    return ok(res, "Email verified", { signupToken });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function signup(req, res, next) {
   try {
-    const { email, password, firstName, lastName, role, phone, location } = req.body;
+    const { email, password, firstName, lastName, role, phone, location, signupToken } = req.body;
 
     if (!email || !password || !firstName || !lastName || !role) {
       return fail(res, 400, "Missing required fields");
     }
+    if (!signupToken) {
+      return fail(res, 400, "Please verify your email with the OTP before signing up");
+    }
 
-    const exists = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    let payload;
+    try {
+      payload = jwt.verify(signupToken, process.env.JWT_ACCESS_SECRET);
+    } catch (e) {
+      return fail(res, 400, "Email verification expired, please verify your email again");
+    }
+    if (payload.purpose !== "signup" || payload.email !== normalizedEmail) {
+      return fail(res, 400, "Email verification does not match this email");
+    }
+
+    const exists = await User.findOne({ email: normalizedEmail });
     if (exists) return fail(res, 409, "Email already registered");
 
-    const user = await User.create({ email, password, firstName, lastName, role, phone, location });
+    const user = await User.create({
+      email: normalizedEmail,
+      password,
+      firstName,
+      lastName,
+      role,
+      phone,
+      location,
+    });
 
-    // Create empty role profile NOW (fields remain null)
     const link = { user: user._id };
     if (role === "ngo") await NGOProfile.create(link);
     if (role === "doctor") await DoctorProfile.create(link);

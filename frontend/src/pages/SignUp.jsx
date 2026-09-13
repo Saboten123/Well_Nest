@@ -5,6 +5,11 @@ import "../styles/auth.css";
 
 export default function SignUp() {
   const navigate = useNavigate();
+
+  // step: "email" -> "otp" -> "details"
+  const [step, setStep] = useState("email");
+  const [signupToken, setSignupToken] = useState("");
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -12,8 +17,11 @@ export default function SignUp() {
     password: "",
     role: "",
   });
+  const [otp, setOtp] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
   // Validation functions
@@ -66,10 +74,10 @@ export default function SignUp() {
     }
   };
 
-  // Validate all fields
+  // Validate all fields (excluding email, which is locked after step 1)
   const validateForm = () => {
     const errors = {};
-    Object.keys(form).forEach((field) => {
+    ["firstName", "lastName", "password", "role"].forEach((field) => {
       const error = validateField(field, form[field]);
       if (error) errors[field] = error;
     });
@@ -79,9 +87,8 @@ export default function SignUp() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-    setError(""); // Clear general error when user types
+    setError("");
 
-    // Real-time validation
     const fieldError = validateField(name, value);
     setFieldErrors((prev) => ({
       ...prev,
@@ -98,12 +105,81 @@ export default function SignUp() {
     }));
   };
 
+  // Step 1: send OTP to the entered email
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setInfo("");
+
+    const emailError = validateEmail(form.email);
+    if (emailError) {
+      setFieldErrors((prev) => ({ ...prev, email: emailError }));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const normalizedEmail = form.email.trim().toLowerCase();
+      await api.post("/auth/otp/send", { email: normalizedEmail });
+      setForm((prev) => ({ ...prev, email: normalizedEmail }));
+      setInfo(`A 6-digit code was sent to ${normalizedEmail}`);
+      setStep("otp");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to send OTP. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: verify OTP
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setInfo("");
+
+    if (!/^\d{6}$/.test(otp)) {
+      setError("Enter the 6-digit code sent to your email");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.post("/auth/otp/verify", {
+        email: form.email,
+        otp,
+      });
+      setSignupToken(response.data.data.signupToken);
+      setInfo("Email verified. Complete your details to finish signing up.");
+      setStep("details");
+    } catch (err) {
+      setError(err.response?.data?.message || "Incorrect or expired OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setError("");
+    setInfo("");
+    setLoading(true);
+    try {
+      await api.post("/auth/otp/send", { email: form.email });
+      setInfo(`A new code was sent to ${form.email}`);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to resend OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 3: finish signup with verified email + signupToken
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Validate all fields before submission
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -113,12 +189,11 @@ export default function SignUp() {
     }
 
     try {
-      // Trim whitespace from names
       const submitData = {
         ...form,
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
-        email: form.email.trim().toLowerCase(),
+        signupToken,
       };
 
       await api.post("/auth/signup", submitData);
@@ -126,7 +201,7 @@ export default function SignUp() {
         state: { message: "Account created successfully! Please sign in." },
       });
     } catch (err) {
-      setError(err.message || "Failed to create account");
+      setError(err.response?.data?.message || "Failed to create account");
     } finally {
       setLoading(false);
     }
@@ -141,120 +216,185 @@ export default function SignUp() {
         </div>
 
         {error && <div className="error-message">{error}</div>}
+        {info && !error && <div className="success-message">{info}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="firstName">First Name *</label>
-            <input
-              id="firstName"
-              name="firstName"
-              type="text"
-              value={form.firstName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              placeholder="Enter your first name"
-              className={fieldErrors.firstName ? "error" : ""}
-              maxLength="50"
-            />
-            {fieldErrors.firstName && (
-              <div className="field-error">{fieldErrors.firstName}</div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="lastName">Last Name *</label>
-            <input
-              id="lastName"
-              name="lastName"
-              type="text"
-              value={form.lastName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              placeholder="Enter your last name"
-              className={fieldErrors.lastName ? "error" : ""}
-              maxLength="50"
-            />
-            {fieldErrors.lastName && (
-              <div className="field-error">{fieldErrors.lastName}</div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email Address *</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              placeholder="Enter your email address"
-              className={fieldErrors.email ? "error" : ""}
-              maxLength="254"
-            />
-            {fieldErrors.email && (
-              <div className="field-error">{fieldErrors.email}</div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password *</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              placeholder="Create a password"
-              className={fieldErrors.password ? "error" : ""}
-              maxLength="128"
-            />
-            {fieldErrors.password && (
-              <div className="field-error">{fieldErrors.password}</div>
-            )}
-            <div className="password-requirements">
-              <small>Password must be at least 6 characters long</small>
+        {step === "email" && (
+          <form onSubmit={handleSendOtp} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email">Email Address *</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                placeholder="Enter your email address"
+                className={fieldErrors.email ? "error" : ""}
+                maxLength="254"
+              />
+              {fieldErrors.email && (
+                <div className="field-error">{fieldErrors.email}</div>
+              )}
             </div>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="role">I am a... *</label>
-            <select
-              id="role"
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              className={fieldErrors.role ? "error" : ""}
+            <button
+              type="submit"
+              className="btn btn-primary btn-full"
+              disabled={loading}
             >
-              <option value="">Select your role</option>
-              <option value="patient">Patient</option>
-              <option value="doctor">Doctor</option>
-              <option value="health_worker">Health Worker</option>
-              <option value="ngo">NGO</option>
-            </select>
-            {fieldErrors.role && (
-              <div className="field-error">{fieldErrors.role}</div>
-            )}
-          </div>
+              {loading ? "Sending Code..." : "Send Verification Code"}
+            </button>
+          </form>
+        )}
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-full"
-            disabled={
-              loading ||
-              Object.keys(fieldErrors).some((key) => fieldErrors[key])
-            }
-          >
-            {loading ? "Creating Account..." : "Create Account"}
-          </button>
-        </form>
+        {step === "otp" && (
+          <form onSubmit={handleVerifyOtp} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="otp">Verification Code *</label>
+              <input
+                id="otp"
+                name="otp"
+                type="text"
+                inputMode="numeric"
+                value={otp}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                required
+                placeholder="Enter the 6-digit code"
+                maxLength="6"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-full"
+              disabled={loading}
+            >
+              {loading ? "Verifying..." : "Verify Code"}
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-secondary btn-full"
+              onClick={handleResendOtp}
+              disabled={loading}
+              style={{ marginTop: "0.75rem" }}
+            >
+              Resend Code
+            </button>
+          </form>
+        )}
+
+        {step === "details" && (
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="firstName">First Name *</label>
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={form.firstName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                placeholder="Enter your first name"
+                className={fieldErrors.firstName ? "error" : ""}
+                maxLength="50"
+              />
+              {fieldErrors.firstName && (
+                <div className="field-error">{fieldErrors.firstName}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="lastName">Last Name *</label>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={form.lastName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                placeholder="Enter your last name"
+                className={fieldErrors.lastName ? "error" : ""}
+                maxLength="50"
+              />
+              {fieldErrors.lastName && (
+                <div className="field-error">{fieldErrors.lastName}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={form.email}
+                disabled
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password *</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                placeholder="Create a password"
+                className={fieldErrors.password ? "error" : ""}
+                maxLength="128"
+              />
+              {fieldErrors.password && (
+                <div className="field-error">{fieldErrors.password}</div>
+              )}
+              <div className="password-requirements">
+                <small>Password must be at least 6 characters long</small>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="role">I am a... *</label>
+              <select
+                id="role"
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                className={fieldErrors.role ? "error" : ""}
+              >
+                <option value="">Select your role</option>
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+                <option value="health_worker">Health Worker</option>
+                <option value="ngo">NGO</option>
+              </select>
+              {fieldErrors.role && (
+                <div className="field-error">{fieldErrors.role}</div>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-full"
+              disabled={
+                loading ||
+                Object.keys(fieldErrors).some((key) => fieldErrors[key])
+              }
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+            </button>
+          </form>
+        )}
 
         <div className="auth-footer">
           <p>
