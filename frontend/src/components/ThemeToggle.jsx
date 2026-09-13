@@ -8,7 +8,7 @@ import "../styles/theme-toggle.css";
  * "dark" and "light" values of the CSS variables defined in main.css.
  * Drop it anywhere (navbar, landing page header, settings page, ...).
  */
-export default function ThemeToggle({ className = "" }) {
+export default function ThemeToggle({ className = "", style }) {
     const { theme, toggleTheme } = useTheme();
     const isLight = theme === "light";
 
@@ -16,6 +16,7 @@ export default function ThemeToggle({ className = "" }) {
         <button
             type="button"
             className={`theme-toggle ${className}`}
+            style={style}
             onClick={toggleTheme}
             role="switch"
             aria-checked={isLight}
@@ -29,11 +30,16 @@ export default function ThemeToggle({ className = "" }) {
                 <Moon size={14} strokeWidth={2.4} />
             </span>
             <span className="theme-toggle-thumb">
-                {isLight ? (
-                    <Sun size={14} strokeWidth={2.4} />
-                ) : (
-                    <Moon size={14} strokeWidth={2.4} />
-                )}
+                <Sun
+                    size={14}
+                    strokeWidth={2.4}
+                    className="theme-toggle-thumb-icon theme-toggle-thumb-icon--sun"
+                />
+                <Moon
+                    size={14}
+                    strokeWidth={2.4}
+                    className="theme-toggle-thumb-icon theme-toggle-thumb-icon--moon"
+                />
             </span>
         </button>
     );

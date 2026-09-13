@@ -37,6 +37,18 @@
     color: var(--text-soft);
     position: relative;
     z-index: 1;
+    opacity: 0.45;
+    transition: opacity 0.35s ease;
+}
+
+/* Sun (left) is the "active" background icon in light mode,
+   Moon (right) is the "active" background icon in dark mode. */
+[data-theme="light"] .theme-toggle-icon--sun {
+    opacity: 1;
+}
+
+[data-theme="dark"] .theme-toggle-icon--moon {
+    opacity: 1;
 }
 
 .theme-toggle-thumb {
@@ -52,12 +64,39 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+    transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1), background 0.35s ease;
     z-index: 2;
 }
 
-[data-theme="light"] .theme-toggle-thumb {
+/* Light = sun = left (default position, no translate needed).
+   Dark = moon = right. */
+[data-theme="dark"] .theme-toggle-thumb {
     transform: translateX(26px);
+}
+
+.theme-toggle-thumb-icon {
+    position: absolute;
+    transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.theme-toggle-thumb-icon--sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+.theme-toggle-thumb-icon--moon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.4);
+}
+
+[data-theme="dark"] .theme-toggle-thumb-icon--sun {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.4);
+}
+
+[data-theme="dark"] .theme-toggle-thumb-icon--moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
 }
 
 @media (max-width: 480px) {
@@ -71,7 +110,7 @@
         height: 20px;
     }
 
-    [data-theme="light"] .theme-toggle-thumb {
+    [data-theme="dark"] .theme-toggle-thumb {
         transform: translateX(22px);
     }
 }

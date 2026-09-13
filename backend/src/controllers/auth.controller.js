@@ -158,7 +158,8 @@ export async function signup(req, res, next) {
 export async function login(req, res, next) {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) return fail(res, 401, "Invalid credentials");
 
     const okPw = await user.comparePassword(password);

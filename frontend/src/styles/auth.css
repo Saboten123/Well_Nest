@@ -78,22 +78,26 @@
 }
 
 /* Inputs intentionally stay a light surface with dark text in both themes
-   — always legible, and matches native autofill styling below. */
+   — always legible, and matches native autofill styling below.
+   !important on background/border too: main.css has its own generic
+   .form-group input rule (glassy translucent background) that otherwise
+   wins the cascade and leaves this rule's dark text unreadable on top
+   of it. */
 .form-group input,
 .form-group select {
   padding: 0.75rem 1rem;
-  border: 2px solid #e1e5e9;
+  border: 2px solid #e1e5e9 !important;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
-  background: #eef1f5;
+  background: #eef1f5 !important;
   color: #111827 !important;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #667eea !important;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
 }
 

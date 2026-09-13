@@ -8,6 +8,7 @@ import {
 import { WagmiProvider } from "wagmi";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { wagmiConfig, queryClient } from "./config/wagmi";
+import { ThemeProvider } from "./context/ThemeContext";
 
 import LandingPage from "./pages/LandingPage";
 import SignUp from "./pages/SignUp";
@@ -46,64 +47,66 @@ import "./styles/main.css";
 
 function App() {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <div className="App">
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/video-call" element={<WebRTCVideoCall />} />
+    <ThemeProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <div className="App">
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/video-call" element={<WebRTCVideoCall />} />
 
-              <Route path="/doctors" element={<DoctorsPage />} />
-              {/* Appointment Routes */}
-              <Route
-                path="/pending-appointments"
-                element={<PendingAppointmentsPage />}
-              />
-              <Route
-                path="/scheduled-appointments"
-                element={<ScheduledAppointmentsPage />}
-              />
-              <Route
-                path="/my-appointments"
-                element={<PatientAppointmentsPage />}
-              />
+                <Route path="/doctors" element={<DoctorsPage />} />
+                {/* Appointment Routes */}
+                <Route
+                  path="/pending-appointments"
+                  element={<PendingAppointmentsPage />}
+                />
+                <Route
+                  path="/scheduled-appointments"
+                  element={<ScheduledAppointmentsPage />}
+                />
+                <Route
+                  path="/my-appointments"
+                  element={<PatientAppointmentsPage />}
+                />
 
-              <Route path="/ngos" element={<NGOsPage />} />
-              <Route path="/healthworkers" element={<HealthWorkersPage />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/outbreak" element={<OutbreakPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/blogs" element={<BlogsPage />} />
+                <Route path="/ngos" element={<NGOsPage />} />
+                <Route path="/healthworkers" element={<HealthWorkersPage />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/outbreak" element={<OutbreakPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/blogs" element={<BlogsPage />} />
 
-              <Route path="/assistant" element={<AIChatPage />} />
+                <Route path="/assistant" element={<AIChatPage />} />
 
-              {/* Events Routes */}
-              <Route path="/events" element={<EventsMainPage />} />
-              <Route path="/events/:eventType" element={<EventsListPage />} />
-              <Route
-                path="/events/organize/:eventType"
-                element={<OrganizeEventForm />}
-              />
-              <Route
-                path="/events/participants/:eventId"
-                element={<EventParticipantsPage />}
-              />
-              <Route
-                path="/events/register/:eventId"
-                element={<ParticipantRegistration />}
-              />
+                {/* Events Routes */}
+                <Route path="/events" element={<EventsMainPage />} />
+                <Route path="/events/:eventType" element={<EventsListPage />} />
+                <Route
+                  path="/events/organize/:eventType"
+                  element={<OrganizeEventForm />}
+                />
+                <Route
+                  path="/events/participants/:eventId"
+                  element={<EventParticipantsPage />}
+                />
+                <Route
+                  path="/events/register/:eventId"
+                  element={<ParticipantRegistration />}
+                />
 
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-        </Router>
-      </QueryClientProvider>
-    </WagmiProvider>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
+          </Router>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </ThemeProvider>
   );
 }
 

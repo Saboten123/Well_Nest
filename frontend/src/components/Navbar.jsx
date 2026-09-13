@@ -7,6 +7,7 @@ import {
   LogOut,
   Stethoscope,
 } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar({ onLogout }) {
   const navigate = useNavigate();
@@ -163,64 +164,71 @@ export default function Navbar({ onLogout }) {
         }}
       >
         {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.75rem 1.25rem",
-              borderRadius: "12px",
-              cursor: "pointer",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              color: isActive(item.path) ? "white" : "#1E40AF",
-              textDecoration: "none",
-              fontWeight: "600",
-              fontSize: "0.9rem",
-              background: isActive(item.path)
-                ? "linear-gradient(135deg, #3B82F6, #1D4ED8)"
-                : "transparent",
-              boxShadow: isActive(item.path)
-                ? "0 4px 12px rgba(59, 130, 246, 0.4)"
-                : "none",
-              transform: isActive(item.path)
-                ? "translateY(-1px)"
-                : "translateY(0)",
-              position: "relative",
-              overflow: "hidden",
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive(item.path)) {
-                e.target.style.background =
-                  "linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(29, 78, 216, 0.1))";
-                e.target.style.color = "#1D4ED8";
-                e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 4px 8px rgba(59, 130, 246, 0.2)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive(item.path)) {
-                e.target.style.background = "transparent";
-                e.target.style.color = "#1E40AF";
-                e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "none";
-              }
-            }}
-          >
-            {item.icon && (
-              <span
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  transition: "transform 0.3s ease",
-                }}
-              >
-                {item.icon}
-              </span>
+          <React.Fragment key={item.path}>
+            <Link
+              to={item.path}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.75rem 1.25rem",
+                borderRadius: "12px",
+                cursor: "pointer",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                color: isActive(item.path) ? "white" : "#1E40AF",
+                textDecoration: "none",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                background: isActive(item.path)
+                  ? "linear-gradient(135deg, #3B82F6, #1D4ED8)"
+                  : "transparent",
+                boxShadow: isActive(item.path)
+                  ? "0 4px 12px rgba(59, 130, 246, 0.4)"
+                  : "none",
+                transform: isActive(item.path)
+                  ? "translateY(-1px)"
+                  : "translateY(0)",
+                position: "relative",
+                overflow: "hidden",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive(item.path)) {
+                  e.target.style.background =
+                    "linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(29, 78, 216, 0.1))";
+                  e.target.style.color = "#1D4ED8";
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow = "0 4px 8px rgba(59, 130, 246, 0.2)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive(item.path)) {
+                  e.target.style.background = "transparent";
+                  e.target.style.color = "#1E40AF";
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "none";
+                }
+              }}
+            >
+              {item.icon && (
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  {item.icon}
+                </span>
+              )}
+              {item.label}
+            </Link>
+            {item.path === "/video-call" && (
+              <ThemeToggle
+                className="navbar-theme-toggle"
+                style={{ margin: "0 0.5rem" }}
+              />
             )}
-            {item.label}
-          </Link>
+          </React.Fragment>
         ))}
       </div>
 
