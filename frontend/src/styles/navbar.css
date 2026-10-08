@@ -1,75 +1,55 @@
-/* ==========================================================================
-   App Navbar (logged-in area) — modern glass navbar, fully theme-aware.
-   Reads the --nav-* tokens defined in main.css so it flips correctly
-   between dark and light without any inline JS color juggling.
-   ========================================================================== */
-
+/* App navbar (signed-in area) — slim bar, hairline bottom border, mono-weight
+   labels, accent underline for the active page. */
 .navbar {
-  background: var(--nav-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--nav-border);
-  padding: 0.9rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  box-shadow: 0 2px 20px var(--b-20);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 0 2rem;
+  min-height: 60px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--nav-border);
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.6rem;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .navbar-logo {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
-  color: #fff;
-  flex-shrink: 0;
+  background: var(--accent-1);
+  color: var(--accent-ink);
 }
 
 .navbar-title {
-  font-size: 1.5rem;
-  font-weight: 800;
   margin: 0;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  transition: transform 0.25s ease;
-}
-
-.navbar-brand:hover .navbar-title {
-  transform: scale(1.04);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
 }
 
 .navbar-menu {
   display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  align-items: stretch;
+  gap: 0.15rem;
   flex: 1;
-  justify-content: center;
-  margin: 0 1rem;
-  padding: 0.35rem;
-  background: var(--w-05);
-  border: 1px solid var(--nav-border);
-  border-radius: 16px;
-  box-shadow: inset 0 1px 2px var(--b-20);
+  justify-content: flex-start;
+  align-self: stretch;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -81,34 +61,33 @@
 .navbar-item {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 11px;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 0.4rem;
+  padding: 0 0.85rem;
+  position: relative;
   color: var(--nav-text-muted);
   text-decoration: none;
-  font-weight: 600;
   font-size: 0.88rem;
+  font-weight: 500;
   white-space: nowrap;
-  background: transparent;
-}
-
-.navbar-item svg {
-  flex-shrink: 0;
+  transition: color 0.15s ease;
 }
 
 .navbar-item:hover {
-  background: var(--w-10);
   color: var(--nav-text);
-  transform: translateY(-2px);
 }
 
 .navbar-item.active {
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+  color: var(--nav-text);
+}
+
+.navbar-item.active::after {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent-1);
 }
 
 .navbar-actions {
@@ -118,115 +97,80 @@
   flex-shrink: 0;
 }
 
-/* Dropdown */
 .dropdown-container {
   position: relative;
 }
 
 .dropdown-trigger {
-  background: var(--w-08);
-  border: 1px solid var(--nav-border);
-  border-radius: 12px;
-  padding: 0.6rem;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.45rem;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   color: var(--nav-text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .dropdown-trigger:hover,
 .dropdown-trigger.open {
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
-  transform: scale(1.05);
+  background: var(--w-08);
+  border-color: var(--line-strong);
 }
 
 .dropdown-menu {
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 0.75rem;
-  background: var(--bg-body-solid);
-  border: 1px solid var(--nav-border);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px var(--b-30);
+  margin-top: 0.6rem;
   min-width: 190px;
   overflow: hidden;
+  background: var(--surface-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
   z-index: 1001;
-  animation: dropdownSlideIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: top right;
-}
-
-@keyframes dropdownSlideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.94) translateY(-8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
 }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.9rem 1.1rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   border: none;
   background: transparent;
   color: var(--nav-text);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: 0.9rem;
   text-align: left;
+  transition: background 0.15s ease;
 }
 
 .dropdown-item:hover {
-  background: var(--w-10);
-  transform: translateX(3px);
+  background: var(--w-08);
 }
 
 .dropdown-item.danger {
-  color: #ef4444;
+  color: #f87171;
 }
 
 .dropdown-item.danger:hover {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
+  background: rgba(248, 113, 113, 0.10);
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
+@media (max-width: 900px) {
   .navbar {
     flex-wrap: wrap;
-    padding: 1rem;
+    padding: 0.6rem 1rem;
+    gap: 0.5rem;
   }
 
   .navbar-menu {
     order: 3;
     width: 100%;
-    margin: 0;
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 640px) {
-  .navbar-title {
-    font-size: 1.2rem;
-  }
-
-  .navbar-item span.navbar-item-label {
-    display: none;
-  }
-
-  .navbar-item {
-    padding: 0.6rem;
+    flex: none;
+    min-height: 44px;
   }
 }

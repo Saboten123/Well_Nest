@@ -1,6 +1,6 @@
 .page-container {
     min-height: 100vh;
-    background: linear-gradient(to bottom right, #ebf8ff, #f5f3ff);
+    background: var(--surface-0);
     padding: 1.5rem;
 }
 
@@ -10,7 +10,7 @@
 }
 
 .card {
-    background: #fff;
+    background: var(--surface-1);
     border-radius: 1rem;
     padding: 2rem;
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
@@ -22,7 +22,7 @@
 }
 
 .header-icon {
-    background: #dbeafe;
+    background: var(--accent-soft);
     border-radius: 50%;
     width: 64px;
     height: 64px;
@@ -33,7 +33,7 @@
 }
 
 .section {
-    background: #f9fafb;
+    background: var(--surface-0);
     padding: 1.5rem;
     border-radius: 1rem;
 }
@@ -46,7 +46,7 @@
 }
 
 .section-icon {
-    background: #d1fae5;
+    background: rgba(74, 222, 128, 0.12);
     padding: 0.5rem;
     border-radius: 0.5rem;
 }
@@ -60,13 +60,13 @@
 .amount-input input {
     flex: 1;
     padding: 0.75rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--line);
     border-radius: 0.5rem;
     font-size: 1.25rem;
 }
 
 .note {
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 0.875rem;
 }
 
@@ -77,16 +77,16 @@
 }
 
 .method-card {
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--line);
     border-radius: 0.5rem;
     padding: 1rem;
     cursor: pointer;
-    background: white;
+    background: var(--surface-1);
 }
 
 .method-card.active {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: var(--accent-1);
+    background: var(--surface-0);
 }
 
 .method-content {
@@ -98,21 +98,21 @@
 
 .method-icon {
     padding: 0.5rem;
-    background: #f3f4f6;
+    background: var(--surface-0);
     border-radius: 0.5rem;
 }
 
 .instructions {
-    background: #fefce8;
+    background: rgba(251, 191, 36, 0.12);
     padding: 1rem;
-    border: 1px solid #fef08a;
+    border: 1px solid #f59e0b;
     border-radius: 0.5rem;
 }
 
 .summary {
-    background: linear-gradient(to bottom right, #2563eb, #7c3aed);
+    background: var(--accent-1);
     border-radius: 1rem;
-    color: white;
+    color: #0c0d10;
     padding: 1.5rem;
 }
 
@@ -139,8 +139,8 @@
 }
 
 .pay-button {
-    background: linear-gradient(to right, #2563eb, #7c3aed);
-    color: white;
+    background: var(--accent-1);
+    color: #0c0d10;
     padding: 1rem;
     border-radius: 0.75rem;
     font-weight: bold;
@@ -156,7 +156,7 @@
 }
 
 .status-card {
-    background: #f9fafb;
+    background: var(--surface-0);
     border-radius: 1rem;
     padding: 1.5rem;
     margin-top: 1rem;
@@ -169,19 +169,19 @@
 }
 
 .status-message.success {
-    color: #16a34a;
+    color: #4ade80;
 }
 
 .status-message.failed {
-    color: #dc2626;
+    color: #f87171;
 }
 
 .status-message.cancelled {
-    color: #facc15;
+    color: #fbbf24;
 }
 
 .response-data {
-    background: #f3f4f6;
+    background: var(--surface-0);
     padding: 1rem;
     border-radius: 0.5rem;
     max-height: 150px;
@@ -189,8 +189,9 @@
 }
 
 .test-details {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background: var(--surface-0);
+    border: 1px solid var(--accent-line);
     padding: 1rem;
     border-radius: 0.5rem;
-    margin-top: 1rem; }
+    margin-top: 1rem;
+}

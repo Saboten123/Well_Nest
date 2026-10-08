@@ -882,7 +882,7 @@ export default function ProfilePage() {
               <div className="card-content">
                 {isCheckingWallet && (
                   <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-                    <p style={{ color: "#666" }}>
+                    <p style={{ color: "var(--text-muted)" }}>
                       Checking for saved wallet...
                     </p>
                   </div>
@@ -890,7 +890,7 @@ export default function ProfilePage() {
 
                 {isAutoConnecting && (
                   <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-                    <p style={{ color: "#666" }}>
+                    <p style={{ color: "var(--text-muted)" }}>
                       Auto-connecting wallet...
                     </p>
                   </div>
@@ -899,11 +899,11 @@ export default function ProfilePage() {
                 {!isConnected || walletDisconnected ? (
                   <div style={{ textAlign: "center" }}>
                     <div style={{ marginBottom: "1rem" }}>
-                      <span style={{ fontSize: "2rem", color: "#ccc" }}>
+                      <span style={{ fontSize: "2rem", color: "var(--text-muted)" }}>
                         🔗
                       </span>
                     </div>
-                    <p style={{ color: "#666", marginBottom: "1rem" }}>
+                    <p style={{ color: "var(--text-muted)", marginBottom: "1rem" }}>
                       {walletDisconnected
                         ? "Wallet was disconnected for security"
                         : userWalletAddress && !preventAutoConnect
@@ -988,7 +988,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div style={{ textAlign: "center" }}>
-                      <p style={{ color: "#666", fontSize: "0.9rem" }}>
+                      <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
                         Wallet connected
                         {tokenBalance &&
                           " You can now interact with smart contracts."}

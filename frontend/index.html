@@ -1,27 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="src/assets/health.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0c0d10" />
   <title>WellNest - Your Safe Space for Health & Healing</title>
-  <script>
-    // Apply the saved/preferred theme before React mounts so there's no
-    // flash of the wrong theme on load.
-    (function () {
-      try {
-        var saved = localStorage.getItem('wellnest-theme');
-        var theme =
-          saved === 'light' || saved === 'dark'
-            ? saved
-            : window.matchMedia('(prefers-color-scheme: light)').matches
-              ? 'light'
-              : 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
-      } catch (e) { }
-    })();
-  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    html,
+    body {
+      background: #0c0d10;
+    }
+  </style>
 </head>
 
 <body>

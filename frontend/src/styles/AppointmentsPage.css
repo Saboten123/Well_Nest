@@ -20,13 +20,13 @@
 .section-title {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #111827;
+    color: var(--accent-1);
     margin: 0 0 0.5rem 0;
 }
 
 .section-subtitle {
     font-size: 1.125rem;
-    color: #6b7280;
+    color: var(--text-muted);
     margin: 0 0 1rem 0;
 }
 
@@ -46,9 +46,9 @@
 
 /* Large Appointment Card */
 .appointment-card-large {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    background: var(--surface-1);
+    border: 1px solid var(--line);
+    border-radius: 8px;
     padding: 2rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
@@ -65,14 +65,14 @@
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid #f3f4f6;
+    border-bottom: 2px solid var(--line);
 }
 
 .appointment-header h3 {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--accent-1);
 }
 
 .status-badge {
@@ -85,28 +85,28 @@
 }
 
 .status-pending {
-    background: #fef3c7;
-    color: #92400e;
+    background: rgba(251, 191, 36, 0.12);
+    color: #fb923c;
 }
 
 .status-accepted {
-    background: #d1fae5;
-    color: #065f46;
+    background: rgba(74, 222, 128, 0.12);
+    color: #4ade80;
 }
 
 .status-scheduled {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--accent-soft);
+    color: var(--accent-1);
 }
 
 .status-cancelled {
-    background: #fee2e2;
-    color: #991b1b;
+    background: rgba(248, 113, 113, 0.12);
+    color: #f87171;
 }
 
 .status-completed {
-    background: #f3e8ff;
-    color: #7c3aed;
+    background: var(--accent-soft);
+    color: var(--accent-1);
 }
 
 /* Appointment Details */
@@ -120,7 +120,7 @@
     align-items: flex-start;
     margin-bottom: 0.75rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #f9fafb;
+    border-bottom: 1px solid var(--line);
 }
 
 .detail-row:last-child {
@@ -129,26 +129,26 @@
 }
 
 .detail-row strong {
-    color: #374151;
+    color: var(--accent-1);
     font-weight: 600;
     min-width: 140px;
     margin-right: 1rem;
 }
 
 .detail-row span {
-    color: #6b7280;
+    color: var(--text-muted);
     flex: 1;
     text-align: right;
     word-break: break-word;
 }
 
 .past-time {
-    color: #dc2626 !important;
+    color: #f87171 !important;
     font-weight: 500;
 }
 
 .future-time {
-    color: #059669 !important;
+    color: #4ade80 !important;
     font-weight: 500;
 }
 
@@ -159,7 +159,7 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     padding-top: 1rem;
-    border-top: 2px solid #f3f4f6;
+    border-top: 2px solid var(--line);
 }
 
 /* Filter Buttons */
@@ -168,7 +168,7 @@
     gap: 0.5rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: white;
+    background: var(--surface-1);
     border-radius: 8px;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     flex-wrap: wrap;
@@ -204,48 +204,48 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
+    background: var(--accent-1);
+    color: #0c0d10;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: var(--accent-1);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .btn-outline {
-    background: white;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: var(--surface-1);
+    color: var(--accent-1);
+    border: 1px solid var(--line);
 }
 
 .btn-outline:hover:not(:disabled) {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    background: var(--surface-0);
+    border-color: var(--line);
     transform: translateY(-1px);
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: #ef4444;
     color: white;
 }
 
 .btn-danger:hover:not(:disabled) {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: #ef4444;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
+    background: #22c55e;
+    color: #0c0d10;
 }
 
 .btn-success:hover:not(:disabled) {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: #22c55e;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .btn-small {
@@ -257,9 +257,9 @@
 .empty-state {
     text-align: center;
     padding: 3rem 2rem;
-    background: white;
-    border-radius: 12px;
-    border: 2px dashed #d1d5db;
+    background: var(--surface-1);
+    border-radius: 8px;
+    border: 2px dashed var(--line);
 }
 
 .empty-icon {
@@ -270,20 +270,20 @@
 .empty-state h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.5rem;
-    color: #374151;
+    color: var(--accent-1);
 }
 
 .empty-state p {
     margin: 0;
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 /* Loading State */
 .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid #f3f4f6;
-    border-top: 4px solid #3b82f6;
+    border: 4px solid var(--line);
+    border-top: 4px solid var(--accent-1);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 1rem;
@@ -301,9 +301,9 @@
 
 /* Error Message */
 .error-message {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
+    background: var(--surface-0);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    color: #f87171;
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1rem;
@@ -326,8 +326,8 @@
 }
 
 .modal-content {
-    background: white;
-    border-radius: 12px;
+    background: var(--surface-1);
+    border-radius: 8px;
     width: 100%;
     max-width: 500px;
     max-height: 90vh;
@@ -341,14 +341,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 2rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--line);
 }
 
 .modal-header h3 {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--accent-1);
 }
 
 .modal-close {
@@ -356,13 +356,13 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #6b7280;
+    color: var(--text-muted);
     padding: 0.25rem;
     line-height: 1;
 }
 
 .modal-close:hover {
-    color: #374151;
+    color: var(--accent-1);
 }
 
 .modal-body {
@@ -386,7 +386,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--accent-1);
 }
 
 .form-group input,
@@ -394,7 +394,7 @@
 .form-group select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--line);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: border-color 0.2s;
@@ -404,14 +404,14 @@
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--accent-1);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.35);
 }
 
 .form-group small {
     display: block;
     margin-top: 0.25rem;
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 0.75rem;
 }
 
@@ -494,18 +494,18 @@
 /* Add this to your AppointmentsPage.css file */
 
 .video-call-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--accent-1);
     border: none;
-    color: white;
+    color: #0c0d10;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .video-call-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    background: var(--accent-1);
 }
 
 .video-call-btn:active {
@@ -530,12 +530,12 @@
 
 /* Status indicators for past appointments */
 .past-time {
-    color: #9CA3AF;
+    color: var(--text-muted);
     font-style: italic;
 }
 
 .future-time {
-    color: #059669;
+    color: #4ade80;
     font-weight: 500;
 }
 
@@ -562,7 +562,7 @@
    ============================================================ */
 
 [data-theme="dark"] .page {
-    background: #0d1117;
+    background: var(--accent-1);
 }
 
 [data-theme="dark"] .section-title {
@@ -570,17 +570,17 @@
 }
 
 [data-theme="dark"] .section-subtitle {
-    color: #9aa4b2;
+    color: var(--text-muted);
 }
 
 [data-theme="dark"] .appointment-card-large {
-    background: #161b22;
-    border: 1px solid #262c36;
+    background: var(--accent-1);
+    border: 1px solid var(--line);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="dark"] .appointment-header {
-    border-bottom: 2px solid #262c36;
+    border-bottom: 2px solid var(--line);
 }
 
 [data-theme="dark"] .appointment-header h3 {
@@ -588,32 +588,32 @@
 }
 
 [data-theme="dark"] .status-pending {
-    background: #3a2e14;
-    color: #fcd34d;
+    background: #f97316;
+    color: #fbbf24;
 }
 
 [data-theme="dark"] .status-accepted {
-    background: #16332a;
-    color: #6ee7b7;
+    background: #22c55e;
+    color: #0c0d10;
 }
 
 [data-theme="dark"] .status-scheduled {
-    background: #14324a;
-    color: #7dd3fc;
+    background: var(--accent-1);
+    color: var(--accent-1);
 }
 
 [data-theme="dark"] .status-cancelled {
-    background: #3a1518;
-    color: #fca5a5;
+    background: #ef4444;
+    color: #fff;
 }
 
 [data-theme="dark"] .status-completed {
-    background: #2e1f3a;
+    background: var(--accent-1);
     color: #d8b4fe;
 }
 
 [data-theme="dark"] .detail-row {
-    border-bottom: 1px solid #1c222b;
+    border-bottom: 1px solid var(--accent-1);
 }
 
 [data-theme="dark"] .detail-row strong {
@@ -621,7 +621,7 @@
 }
 
 [data-theme="dark"] .detail-row span {
-    color: #9aa4b2;
+    color: var(--text-muted);
 }
 
 [data-theme="dark"] .past-time {
@@ -629,32 +629,32 @@
 }
 
 [data-theme="dark"] .future-time {
-    color: #34d399 !important;
+    color: #4ade80 !important;
 }
 
 [data-theme="dark"] .appointment-actions-large {
-    border-top: 2px solid #262c36;
+    border-top: 2px solid var(--line);
 }
 
 [data-theme="dark"] .appointment-filters {
-    background: #161b22;
+    background: var(--accent-1);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="dark"] .btn-outline {
-    background: #1c222b;
+    background: var(--accent-1);
     color: #e6edf3;
-    border: 1px solid #2d333d;
+    border: 1px solid var(--line);
 }
 
 [data-theme="dark"] .btn-outline:hover:not(:disabled) {
-    background: #262c36;
-    border-color: #3d4552;
+    background: var(--surface-2);
+    border-color: var(--line);
 }
 
 [data-theme="dark"] .empty-state {
-    background: #161b22;
-    border: 2px dashed #2d333d;
+    background: var(--accent-1);
+    border: 2px dashed var(--line);
 }
 
 [data-theme="dark"] .empty-state h3 {
@@ -662,22 +662,22 @@
 }
 
 [data-theme="dark"] .empty-state p {
-    color: #9aa4b2;
+    color: var(--text-muted);
 }
 
 [data-theme="dark"] .error-message {
-    background: #3a1518;
-    border: 1px solid #7f1d1d;
-    color: #fca5a5;
+    background: #ef4444;
+    border: 1px solid #ef4444;
+    color: #fff;
 }
 
 [data-theme="dark"] .modal-content {
-    background: #161b22;
+    background: var(--accent-1);
     color: #e6edf3;
 }
 
 [data-theme="dark"] .modal-header {
-    border-bottom: 1px solid #262c36;
+    border-bottom: 1px solid var(--line);
 }
 
 [data-theme="dark"] .modal-header h3 {
@@ -685,7 +685,7 @@
 }
 
 [data-theme="dark"] .modal-close {
-    color: #9aa4b2;
+    color: var(--text-muted);
 }
 
 [data-theme="dark"] .modal-close:hover {
@@ -699,11 +699,11 @@
 [data-theme="dark"] .form-group input,
 [data-theme="dark"] .form-group textarea,
 [data-theme="dark"] .form-group select {
-    background: #0d1117;
+    background: var(--accent-1);
     color: #e6edf3;
-    border: 1px solid #2d333d;
+    border: 1px solid var(--line);
 }
 
 [data-theme="dark"] .form-group small {
-    color: #9aa4b2;
+    color: var(--text-muted);
 }

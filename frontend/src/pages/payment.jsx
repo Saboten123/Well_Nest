@@ -204,7 +204,7 @@ export default function Payment() {
               <h1>Donate for those in need</h1>
               {user && (
                 <p
-                  style={{ color: "#666", fontSize: "14px", marginTop: "8px" }}
+                  style={{ color: "var(--text-muted)", fontSize: "14px", marginTop: "8px" }}
                 >
                   Donating as: {user.firstName} {user.lastName} ({user.email})
                 </p>
@@ -232,7 +232,7 @@ export default function Payment() {
                 <p className="note">Can Donate any amount</p>
                 <p
                   className="note"
-                  style={{ color: "#4caf50", fontSize: "12px" }}
+                  style={{ color: "#22c55e", fontSize: "12px" }}
                 >
                   💰 You'll receive{" "}
                   {amount > 0 ? (amount / 10).toFixed(1) : "0"} reward tokens
@@ -249,9 +249,8 @@ export default function Payment() {
                       <div
                         key={method.key}
                         onClick={() => handleMethodToggle(method.key)}
-                        className={`method-card ${
-                          selectedMethods[method.key] ? "active" : ""
-                        }`}
+                        className={`method-card ${selectedMethods[method.key] ? "active" : ""
+                          }`}
                       >
                         <div className="method-content">
                           <div className="method-icon">
@@ -334,7 +333,7 @@ export default function Payment() {
                     top: "20px",
                     right: "20px",
                     background:
-                      paymentStatus === "success" ? "#4caf50" : "#f44336",
+                      paymentStatus === "success" ? "#22c55e" : "#ef4444",
                     color: "white",
                     padding: "12px 20px",
                     borderRadius: "8px",

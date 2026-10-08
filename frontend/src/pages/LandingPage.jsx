@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HeartPulse } from "lucide-react";
 import { aiApi } from "../utils/api";
-import ThemeToggle from "../components/ThemeToggle";
 import "./LandingPage.css";
 
 export default function LandingPage() {
@@ -56,184 +55,168 @@ export default function LandingPage() {
     }
   };
 
+  const capabilities = [
+    ["01", "Expert healthcare", "Connect with qualified doctors and healthcare professionals in your area, from first consultation to follow-up."],
+    ["02", "NGO network", "Access healthcare services and support from trusted non-governmental organisations, with donations handled on-chain."],
+    ["03", "Community health", "Reach local health workers for community-based care, outbreak reporting and public-health response."],
+    ["04", "Health education", "Informative blogs and articles from healthcare experts, plus an AI assistant for everyday questions."],
+  ];
+
   return (
     <div className="landing-page">
-      {/* Slim public header: brand + theme toggle + auth actions */}
+      {/* Header */}
       <header className="landing-nav">
         <div className="landing-nav-brand" onClick={() => navigate("/")}>
           <span className="landing-nav-logo">
-            <HeartPulse size={18} />
+            <HeartPulse size={16} />
           </span>
           <span>WellNest</span>
+          <small>Healthcare</small>
         </div>
+        <nav className="landing-nav-links">
+          <a href="#capabilities">Capabilities</a>
+          <a href="#ai-assistant">AI assistant</a>
+          <a href="#about">About</a>
+        </nav>
         <div className="landing-nav-actions">
-          <ThemeToggle />
           <button
             className="btn btn-outline landing-nav-btn"
             onClick={() => navigate("/signin")}
           >
-            Sign In
+            Sign in
           </button>
           <button
             className="btn btn-primary landing-nav-btn"
             onClick={() => navigate("/signup")}
           >
-            Get Started
+            Get started
           </button>
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="hero-section">
         <div className="hero-content">
           <div className="hero-text">
+            <span className="eyebrow">Healthcare platform · community-first</span>
             <h1 className="hero-title">
-              <span className="brand-highlight">WellNest</span>
-              <br />
-              Healthcare Platform
+              Care that reaches everyone. <em>Built for the moments that can&rsquo;t wait.</em>
             </h1>
             <p className="hero-subtitle">
-              A comprehensive healthcare ecosystem connecting patients,
-              healthcare professionals, and organizations for better community
-              health outcomes.
+              WellNest connects patients, doctors, health workers and NGOs on
+              one platform, so communities get better health outcomes with
+              fewer hand-offs.
             </p>
             <div className="hero-actions">
               <button
                 className="btn btn-primary btn-large"
                 onClick={() => navigate("/signup")}
               >
-                Get Started
+                Create an account &rarr;
               </button>
               <button
                 className="btn btn-outline btn-large"
                 onClick={() => navigate("/signin")}
               >
-                Sign In
+                Sign in
               </button>
             </div>
           </div>
-          <div className="hero-visual">
-            <div className="hero-icon">🏥</div>
-          </div>
+
+          <aside className="readout" aria-label="Platform overview">
+            <div className="readout-head">
+              <span>platform_readout</span>
+              <span className="readout-live">online</span>
+            </div>
+            <dl>
+              <div className="readout-row"><dt>doctors</dt><dd>1000+</dd></div>
+              <div className="readout-row"><dt>ngos</dt><dd>50+</dd></div>
+              <div className="readout-row"><dt>health workers</dt><dd>100+</dd></div>
+              <div className="readout-row"><dt>ai assistant</dt><dd>24 / 7</dd></div>
+              <div className="readout-row"><dt>donations</dt><dd>on-chain</dd></div>
+            </dl>
+          </aside>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="features-section">
+      {/* Network strip */}
+      <section className="strip">
         <div className="container">
-          <h2 className="section-title">Why Choose WellNest?</h2>
+          <span className="eyebrow eyebrow--plain">Connected network</span>
+          <ul className="strip-list">
+            <li>Doctors</li>
+            <li>NGOs</li>
+            <li>Health workers</li>
+            <li>Outbreak tracking</li>
+            <li>Health events</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* Capabilities */}
+      <section className="features-section" id="capabilities">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Capabilities</span>
+              <h2 className="section-title">
+                Four things done properly, so nobody falls between systems.
+              </h2>
+            </div>
+            <p className="section-subtitle">
+              Every part of WellNest exists to shorten the distance between a
+              person who needs care and the people who can give it.
+            </p>
+          </div>
           <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">👨‍⚕️</div>
-              <h3>Expert Healthcare</h3>
-              <p>
-                Connect with qualified doctors and healthcare professionals in
-                your area
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🏛️</div>
-              <h3>NGO Network</h3>
-              <p>
-                Access healthcare services and support from trusted
-                non-governmental organizations
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🏥</div>
-              <h3>Community Health</h3>
-              <p>
-                Connect with local health workers for community-based healthcare
-                support
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">📰</div>
-              <h3>Health Education</h3>
-              <p>
-                Access informative blogs and articles from healthcare experts
-              </p>
-            </div>
+            {capabilities.map(([num, title, text]) => (
+              <div className="feature-card" key={num}>
+                <span className="feature-num">{num}</span>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* AI Assistant Section */}
+      {/* AI assistant */}
       <section className="ai-section" id="ai-assistant">
         <div className="container">
-          <h2 className="section-title">AI Health Assistant</h2>
-          <p style={{ marginBottom: "12px" }}>
-            Ask health-related questions. If you're signed in, your conversation
-            persists securely; otherwise, a guest session is used.
-          </p>
-          <div
-            className="ai-chat"
-            style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}
-          >
-            <div
-              className="ai-messages"
-              style={{
-                flex: 1,
-                minHeight: "220px",
-                maxHeight: "360px",
-                overflowY: "auto",
-                border: "1px solid #eee",
-                borderRadius: "8px",
-                padding: "12px",
-              }}
-            >
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">AI health assistant</span>
+              <h2 className="section-title">Ask first. Then decide what to do next.</h2>
+            </div>
+            <p className="section-subtitle">
+              Ask health-related questions. If you&rsquo;re signed in, your
+              conversation persists securely; otherwise a guest session is used.
+            </p>
+          </div>
+          <div className="ai-chat">
+            <div className="ai-messages">
               {chatMessages.length === 0 ? (
-                <div style={{ color: "#666" }}>
-                  Start the conversation by asking a question…
+                <div className="ai-empty">
+                  &gt; start the conversation by asking a question&hellip;
                 </div>
               ) : (
                 chatMessages.map((m, idx) => (
                   <div
                     key={idx}
-                    style={{
-                      margin: "8px 0",
-                      display: "flex",
-                      justifyContent:
-                        m.role === "user" ? "flex-end" : "flex-start",
-                    }}
+                    className={`ai-row ${m.role === "user" ? "ai-row--user" : ""}`}
                   >
-                    <div
-                      style={{
-                        background: m.role === "user" ? "#4f46e5" : "#f3f4f6",
-                        color: m.role === "user" ? "#fff" : "#111",
-                        padding: "8px 12px",
-                        borderRadius: "12px",
-                        maxWidth: "80%",
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {m.content}
-                    </div>
+                    <div className="ai-bubble">{m.content}</div>
                   </div>
                 ))
               )}
               <div ref={chatEndRef} />
             </div>
-            <div
-              className="ai-input"
-              style={{
-                width: "320px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-              }}
-            >
+            <div className="ai-input">
               <textarea
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder="Type your question here…"
                 rows={5}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                }}
               />
               <button
                 className="btn btn-primary"
@@ -247,31 +230,29 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="about-section">
+      {/* About */}
+      <section className="about-section" id="about">
         <div className="container">
           <div className="about-content">
             <div className="about-text">
-              <h2>About WellNest</h2>
+              <span className="eyebrow">About WellNest</span>
+              <h2>A unified platform for healthcare services and support.</h2>
               <p>
-                WellNest is a comprehensive healthcare platform designed to
-                bridge the gap between healthcare providers and patients. Our
-                mission is to make quality healthcare accessible to everyone by
-                providing a unified platform for healthcare services,
-                information, and support.
+                WellNest bridges the gap between healthcare providers and
+                patients. Our mission is to make quality healthcare accessible
+                to everyone with one place for services, information and
+                support.
               </p>
               <p>
-                We connect patients with qualified doctors, health workers, and
-                NGOs, while providing a platform for healthcare education and
-                community engagement. Whether you're seeking medical
-                consultation, community health support, or health-related
-                information, WellNest is your trusted healthcare companion.
+                We connect patients with qualified doctors, health workers and
+                NGOs, and give communities a platform for health education and
+                engagement.
               </p>
             </div>
             <div className="about-stats">
               <div className="stat-item">
                 <div className="stat-number">1000+</div>
-                <div className="stat-label">Healthcare Professionals</div>
+                <div className="stat-label">Healthcare professionals</div>
               </div>
               <div className="stat-item">
                 <div className="stat-number">50+</div>
@@ -279,27 +260,29 @@ export default function LandingPage() {
               </div>
               <div className="stat-item">
                 <div className="stat-number">100+</div>
-                <div className="stat-label">Health Workers</div>
+                <div className="stat-label">Health workers</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="cta-section">
         <div className="container">
-          <h2>Ready to Get Started?</h2>
-          <p>
-            Join thousands of users who trust WellNest for their healthcare
-            needs
-          </p>
-          <button
-            className="btn btn-primary btn-large"
-            onClick={() => navigate("/signup")}
-          >
-            Create Your Account
-          </button>
+          <div className="cta-box">
+            <div>
+              <span className="eyebrow">Next step</span>
+              <h2>Ready to get started?</h2>
+              <p>Join the people who trust WellNest for their healthcare needs.</p>
+            </div>
+            <button
+              className="btn btn-primary btn-large"
+              onClick={() => navigate("/signup")}
+            >
+              Create your account &rarr;
+            </button>
+          </div>
         </div>
       </section>
 
@@ -315,41 +298,24 @@ export default function LandingPage() {
               <div className="footer-section">
                 <h4>Platform</h4>
                 <ul>
-                  <li>
-                    <button onClick={() => navigate("/doctors")}>
-                      Find Doctors
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={() => navigate("/ngos")}>NGOs</button>
-                  </li>
-                  <li>
-                    <button onClick={() => navigate("/healthworkers")}>
-                      Health Workers
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={() => navigate("/blogs")}>
-                      Health Blogs
-                    </button>
-                  </li>
+                  <li><button onClick={() => navigate("/doctors")}>Find Doctors</button></li>
+                  <li><button onClick={() => navigate("/ngos")}>NGOs</button></li>
+                  <li><button onClick={() => navigate("/healthworkers")}>Health Workers</button></li>
+                  <li><button onClick={() => navigate("/blogs")}>Health Blogs</button></li>
                 </ul>
               </div>
               <div className="footer-section">
                 <h4>Account</h4>
                 <ul>
-                  <li>
-                    <button onClick={() => navigate("/signup")}>Sign Up</button>
-                  </li>
-                  <li>
-                    <button onClick={() => navigate("/signin")}>Sign In</button>
-                  </li>
+                  <li><button onClick={() => navigate("/signup")}>Sign Up</button></li>
+                  <li><button onClick={() => navigate("/signin")}>Sign In</button></li>
                 </ul>
               </div>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2024 WellNest. All rights reserved.</p>
+            <span>&copy; {new Date().getFullYear()} WellNest. All rights reserved.</span>
+            <span>est. 2024</span>
           </div>
         </div>
       </footer>

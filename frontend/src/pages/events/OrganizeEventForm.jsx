@@ -478,7 +478,7 @@ const OrganizeEventForm = () => {
                 position: "fixed",
                 top: "20px",
                 right: "20px",
-                background: status === "success" ? "#4caf50" : "#f44336",
+                background: status === "success" ? "#22c55e" : "#ef4444",
                 color: "white",
                 padding: "12px 20px",
                 borderRadius: "8px",

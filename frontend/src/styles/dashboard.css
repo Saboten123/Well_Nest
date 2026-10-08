@@ -1,7 +1,7 @@
 /* Dashboard Styles */
 .dashboard-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-1);
 }
 
 .dashboard-main {
@@ -28,16 +28,21 @@
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  border: 4px solid var(--line);
+  border-top: 4px solid var(--accent-1);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Section Headers */
@@ -60,8 +65,8 @@
 
 /* Cards */
 .card {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface-1);
+  border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -73,8 +78,8 @@
 }
 
 .card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--accent-1);
+  color: #0c0d10;
   padding: 1.5rem;
   display: flex;
   align-items: center;
@@ -122,7 +127,7 @@
   align-items: flex-start;
   margin-bottom: 0.75rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--line);
 }
 
 .info-item:last-child {
@@ -131,13 +136,13 @@
 }
 
 .info-item strong {
-  color: #333;
+  color: var(--text-strong);
   font-weight: 600;
   min-width: 120px;
 }
 
 .info-item span {
-  color: #666;
+  color: var(--text-muted);
   text-align: right;
   flex: 1;
 }
@@ -156,33 +161,33 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--accent-1);
+  color: #0c0d10;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .btn-outline {
   background: transparent;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: var(--accent-1);
+  border: 2px solid var(--accent-1);
 }
 
 .btn-outline:hover {
-  background: #667eea;
-  color: white;
+  background: var(--accent-1);
+  color: #0c0d10;
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: var(--surface-3);
   color: white;
 }
 
 .btn-secondary:hover {
-  background: #5a6268;
+  background: var(--surface-3);
 }
 
 .btn-small {
@@ -204,7 +209,7 @@
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .empty-icon {
@@ -214,26 +219,26 @@
 
 .empty-state h3 {
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--text-strong);
 }
 
 /* Error and Success Messages */
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
-  border: 1px solid #f5c6cb;
+  border: 1px solid rgba(248, 113, 113, 0.35);
 }
 
 .success-message {
-  background: #d4edda;
-  color: #155724;
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
-  border: 1px solid #c3e6cb;
+  border: 1px solid #22c55e;
 }
 
 /* Form Styles */
@@ -251,12 +256,12 @@
 
 .form-group label {
   font-weight: 600;
-  color: #333;
+  color: var(--text-strong);
   margin-bottom: 0.5rem;
 }
 
 .form-group .required {
-  color: #dc3545;
+  color: #f87171;
   margin-left: 0.25rem;
 }
 
@@ -264,7 +269,7 @@
 .form-group select,
 .form-group textarea {
   padding: 0.75rem;
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--line);
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s ease;
@@ -274,7 +279,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent-1);
 }
 
 .form-group textarea {
@@ -292,20 +297,20 @@
 /* Badges */
 .badge {
   padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  border-radius: 10px;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .badge-info {
-  background: #d1ecf1;
-  color: #0c5460;
+  background: rgba(94, 234, 212, 0.12);
+  color: #5eead4;
 }
 
 /* Links */
 .link {
-  color: #667eea;
+  color: var(--accent-1);
   text-decoration: none;
 }
 
@@ -322,7 +327,7 @@
 
 .service-list li {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--line);
   position: relative;
   padding-left: 1.5rem;
 }
@@ -331,7 +336,7 @@
   content: "✓";
   position: absolute;
   left: 0;
-  color: #667eea;
+  color: var(--accent-1);
   font-weight: bold;
 }
 
@@ -345,17 +350,17 @@
 }
 
 .blogs-list h4 {
-  color: #333;
+  color: var(--text-strong);
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
 
 .blog-item {
-  background: #f8f9fa;
+  background: var(--surface-0);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--accent-1);
 }
 
 .blog-item:last-child {
@@ -363,20 +368,20 @@
 }
 
 .blog-item h5 {
-  color: #333;
+  color: var(--text-strong);
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
   font-weight: 600;
 }
 
 .blog-item p {
-  color: #666;
+  color: var(--text-muted);
   margin: 0 0 0.5rem 0;
   line-height: 1.5;
 }
 
 .blog-item small {
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
@@ -396,8 +401,8 @@
 }
 
 .modal-content {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface-1);
+  border-radius: 8px;
   max-width: 600px;
   width: 100%;
   max-height: 80vh;
@@ -406,8 +411,8 @@
 }
 
 .modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--accent-1);
+  color: #0c0d10;
   padding: 1.5rem;
   display: flex;
   align-items: center;
@@ -451,44 +456,44 @@
   .dashboard-content {
     padding: 1rem;
   }
-  
+
   .section-title {
     font-size: 2rem;
   }
-  
+
   .grid-2,
   .grid-3,
   .grid-4 {
     grid-template-columns: 1fr;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .form-actions {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .info-item {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .info-item strong {
     margin-bottom: 0.25rem;
   }
-  
+
   .info-item span {
     text-align: left;
   }
-  
+
   .modal-content {
     margin: 1rem;
     max-height: 90vh;
   }
-  
+
   .modal-body {
     max-height: 70vh;
   }

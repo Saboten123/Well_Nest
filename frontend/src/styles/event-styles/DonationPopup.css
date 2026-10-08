@@ -6,7 +6,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--surface-0);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -14,8 +14,8 @@
 }
 
 .popup-content {
-    background: white;
-    border-radius: 12px;
+    background: var(--surface-1);
+    border-radius: 8px;
     max-width: 500px;
     width: 90%;
     max-height: 90vh;
@@ -28,7 +28,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--line);
 }
 
 .popup-header h2 {
@@ -37,7 +37,7 @@
     gap: 8px;
     margin: 0;
     font-size: 1.5rem;
-    color: #333;
+    color: var(--text-strong);
 }
 
 .close-btn {
@@ -52,7 +52,7 @@
 }
 
 .close-btn:hover {
-    background: #f5f5f5;
+    background: var(--surface-0);
 }
 
 .popup-body {
@@ -60,7 +60,7 @@
 }
 
 .event-info {
-    background: #f8f9fa;
+    background: var(--surface-0);
     padding: 16px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -68,12 +68,12 @@
 
 .event-info h3 {
     margin: 0 0 8px 0;
-    color: #333;
+    color: var(--text-strong);
 }
 
 .event-info p {
     margin: 4px 0;
-    color: #666;
+    color: var(--text-muted);
     font-size: 0.9rem;
 }
 
@@ -85,13 +85,13 @@
     display: block;
     margin-bottom: 6px;
     font-weight: 500;
-    color: #333;
+    color: var(--text-strong);
 }
 
 .form-field input {
     width: 100%;
     padding: 12px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--line);
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s;
@@ -100,15 +100,15 @@
 
 .form-field input:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--accent-1);
 }
 
 .form-field input.error {
-    border-color: #dc3545;
+    border-color: #ef4444;
 }
 
 .error-text {
-    color: #dc3545;
+    color: #f87171;
     font-size: 0.8rem;
     margin-top: 4px;
     margin-bottom: 0;
@@ -118,11 +118,11 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #e7f3ff;
+    background: var(--accent-soft);
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 16px;
-    color: #0066cc;
+    color: var(--accent-1);
     font-size: 0.9rem;
 }
 
@@ -141,12 +141,12 @@
 .qr-code {
     max-width: 200px;
     height: auto;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--line);
     border-radius: 8px;
 }
 
 .qr-instructions {
-    background: #f8f9fa;
+    background: var(--surface-0);
     padding: 16px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -155,13 +155,13 @@
 .qr-instructions h4 {
     margin: 0 0 12px 0;
     text-align: center;
-    color: #333;
+    color: var(--text-strong);
 }
 
 .qr-instructions p {
     margin: 6px 0;
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-muted);
 }
 
 .donation-popup .btn {
@@ -178,23 +178,23 @@
 }
 
 .donation-popup .btn-primary {
-    background: #007bff;
-    color: white;
+    background: var(--accent-1);
+    color: #0c0d10;
 }
 
 .donation-popup .btn-primary:hover:not(:disabled) {
-    background: #0056b3;
+    background: var(--accent-1);
 }
 
 .donation-popup .btn-outline {
-    background: white;
-    border: 2px solid #007bff;
-    color: #007bff;
+    background: var(--surface-1);
+    border: 2px solid var(--accent-1);
+    color: var(--accent-1);
 }
 
 .donation-popup .btn-outline:hover:not(:disabled) {
-    background: #007bff;
-    color: white;
+    background: var(--accent-1);
+    color: #0c0d10;
 }
 
 .donation-popup .btn:disabled {
@@ -211,16 +211,17 @@
     width: 16px;
     height: 16px;
 }
+
 .event-badges {
     display: flex;
     gap: 8px;
 }
 
 .donation-badge {
-    background: #28a745;
-    color: white;
+    background: #22c55e;
+    color: #0c0d10;
     padding: 4px 8px;
-    border-radius: 12px;
+    border-radius: 8px;
     font-size: 0.7rem;
     font-weight: 500;
 }
@@ -229,17 +230,17 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #e8f5e8;
+    background: rgba(74, 222, 128, 0.12);
     padding: 8px 12px;
     border-radius: 8px;
     margin: 12px 0;
-    color: #28a745;
+    color: #4ade80;
     font-size: 0.9rem;
     font-weight: 500;
 }
 
 .donation-info .icon {
-    color: #28a745;
+    color: #4ade80;
 }
 
 /* Update existing styles for better layout */
@@ -257,10 +258,10 @@
 }
 
 .rewards-badge {
-    background: #ffc107;
-    color: #333;
+    background: #f59e0b;
+    color: var(--text-strong);
     padding: 4px 8px;
-    border-radius: 12px;
+    border-radius: 8px;
     font-size: 0.7rem;
     font-weight: 500;
 }

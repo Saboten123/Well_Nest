@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import api, { blockchainApi } from "../utils/api.js";
 import { getToken, removeToken } from "../utils/auth.js";
-import "../styles/OutbreakDashboard.css";
+import "../styles/OutBreakDashboard.css";
 
 // Leaflet Map Component
 const LeafletMap = ({
@@ -168,7 +168,7 @@ const LeafletMap = ({
         height,
         width: "100%",
         borderRadius: "8px",
-        border: "1px solid #ddd",
+        border: "1px solid var(--line)",
       }}
       className="leaflet-map"
     />
@@ -403,9 +403,8 @@ const ReportCard = ({
             )}
             <button
               onClick={() => onToggleStatus(report.id)}
-              className={`toggle-btn ${
-                report.isActive ? "deactivate" : "activate"
-              }`}
+              className={`toggle-btn ${report.isActive ? "deactivate" : "activate"
+                }`}
             >
               {report.isActive ? (
                 <XCircle className="btn-icon" />
@@ -1081,8 +1080,7 @@ const OutbreakDashboard = () => {
     setFormData({
       submittedBy: {
         name: currentUser
-          ? `${currentUser.firstName || ""} ${
-              currentUser.lastName || ""
+          ? `${currentUser.firstName || ""} ${currentUser.lastName || ""
             }`.trim() || ""
           : "",
         email: currentUser?.email || "",
@@ -1210,9 +1208,8 @@ const OutbreakDashboard = () => {
             <div className="nav-tabs">
               <button
                 onClick={() => setActiveTab("reports")}
-                className={`tab-button ${
-                  activeTab === "reports" ? "active" : ""
-                }`}
+                className={`tab-button ${activeTab === "reports" ? "active" : ""
+                  }`}
               >
                 <Eye className="tab-icon" />
                 View Reports
@@ -1222,9 +1219,8 @@ const OutbreakDashboard = () => {
                   setActiveTab("submit");
                   setShowForm(true);
                 }}
-                className={`tab-button ${
-                  activeTab === "submit" ? "active" : ""
-                }`}
+                className={`tab-button ${activeTab === "submit" ? "active" : ""
+                  }`}
               >
                 <Plus className="tab-icon" />
                 Submit Report
