@@ -1,6 +1,6 @@
 .admin-page {
     min-height: 100vh;
-    background: var(--accent-1);
+    background: var(--bg-body);
     /* dark, but not pure black — easier on the eyes and
                            still contrasts cleanly with light text below */
 }

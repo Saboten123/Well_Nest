@@ -562,7 +562,7 @@
    ============================================================ */
 
 [data-theme="dark"] .page {
-    background: var(--accent-1);
+    background: var(--bg-body);
 }
 
 [data-theme="dark"] .section-title {

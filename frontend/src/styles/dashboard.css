@@ -1,7 +1,7 @@
 /* Dashboard Styles */
 .dashboard-container {
   min-height: 100vh;
-  background: var(--accent-1);
+  background: var(--bg-body);
 }
 
 .dashboard-main {

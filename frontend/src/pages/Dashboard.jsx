@@ -3,7 +3,23 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/api.js";
 import Navbar from "../components/Navbar.jsx";
 
+function getGreeting(date = new Date()) {
+  const h = date.getHours();
+  if (h >= 5 && h < 12) return "Good morning";
+  if (h >= 12 && h < 17) return "Good afternoon";
+  if (h >= 17 && h < 21) return "Good evening";
+  return "Good night";
+}
+
 export default function Dashboard() {
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  // keep the greeting in sync with the clock while the page stays open
+  useEffect(() => {
+    const id = setInterval(() => setGreeting(getGreeting()), 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -51,23 +67,20 @@ export default function Dashboard() {
     <div className="page">
       <Navbar onLogout={handleLogout} />
       <div className="page-content">
+        <div className="welcome-section">
+          <div className="welcome-card">
+            <h2>{greeting}, {user?.firstName}.</h2>
+            <div className="user-role">
+              <span className="badge badge-primary">{user?.role}</span>
+            </div>
+          </div>
+        </div>
+
         <div className="section-header">
           <h1 className="section-title">Dashboard</h1>
-          <p className="section-subtitle">Welcome back, {user?.firstName}. Here's your healthcare overview.</p>
         </div>
 
         <div className="section-content">
-          <div className="welcome-section">
-            <div className="welcome-card">
-              {/* <div className="welcome-icon"></div> */}
-              <h2>Hello, {user?.firstName}!</h2>
-              <p>Welcome to your WellNest dashboard. Access healthcare services and manage your profile.</p>
-              <div className="user-role">
-                <span className="badge badge-primary">{user?.role}</span>
-              </div>
-            </div>
-          </div>
-
           <div className="grid-2">
             <div className="card">
               <div className="card-header">
@@ -76,7 +89,7 @@ export default function Dashboard() {
               </div>
               <div className="card-content">
                 <p>Connect with qualified healthcare professionals in your area.</p>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => navigate("/doctors")}
                 >
@@ -92,7 +105,7 @@ export default function Dashboard() {
               </div>
               <div className="card-content">
                 <p>Discover non-governmental organizations working for community health.</p>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => navigate("/ngos")}
                 >
@@ -108,7 +121,7 @@ export default function Dashboard() {
               </div>
               <div className="card-content">
                 <p>Access community health workers for local healthcare support.</p>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => navigate("/healthworkers")}
                 >
@@ -124,7 +137,7 @@ export default function Dashboard() {
               </div>
               <div className="card-content">
                 <p>Stay informed with healthcare insights and updates from experts.</p>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => navigate("/blogs")}
                 >
@@ -142,25 +155,25 @@ export default function Dashboard() {
               </div>
               <div className="card-content">
                 <div className="quick-actions-grid">
-                  <button 
+                  <button
                     className="btn btn-outline"
                     onClick={() => navigate("/profile")}
                   >
                     Edit Profile
                   </button>
-                  <button 
+                  <button
                     className="btn btn-outline"
                     onClick={() => navigate("/blogs")}
                   >
                     View All Blogs
                   </button>
-                  <button 
+                  <button
                     className="btn btn-outline"
                     onClick={() => navigate("/doctors")}
                   >
                     Find Doctor
                   </button>
-                  <button 
+                  <button
                     className="btn btn-outline"
                     onClick={() => navigate("/ngos")}
                   >

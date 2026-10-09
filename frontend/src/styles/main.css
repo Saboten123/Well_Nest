@@ -11,6 +11,7 @@
   color-scheme: dark;
 
   --font-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Newsreader', 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* canvas + surfaces */
@@ -33,12 +34,12 @@
   --text-soft: #858a96;
 
   /* accent — change these three lines to re-colour the whole app */
-  --accent-1: #6ee7b7;
-  --accent-2: #34d399;
-  --accent-3: #a7f3d0;
+  --accent-1: #2fbf8a;
+  --accent-2: #1f9d71;
+  --accent-3: #4fd3a3;
   --accent-ink: #0c0d10;
-  --accent-soft: rgba(110, 231, 183, 0.10);
-  --accent-line: rgba(110, 231, 183, 0.35);
+  --accent-soft: rgba(47, 191, 138, 0.12);
+  --accent-line: rgba(47, 191, 138, 0.38);
 
   /* legacy translucency scale (kept so every stylesheet keeps resolving) */
   --w-03: rgba(255, 255, 255, 0.025);
@@ -619,7 +620,7 @@ textarea:focus-visible {
 .ai-row--user .ai-bubble {
   background: var(--accent-soft);
   border-color: var(--accent-line);
-  color: var(--accent-3);
+  color: #8be8c4;
 }
 
 .ai-input {
@@ -931,32 +932,23 @@ textarea:focus-visible {
 }
 
 .welcome-section {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 
+/* Greeting — large serif line on the dark canvas, no card */
 .welcome-card {
-  background: var(--accent-1);
-  color: #0c0d10;
-  padding: 4rem;
-  border-radius: 10px;
+  background: transparent;
+  color: var(--text-body);
+  padding: 0.5rem 0 0;
+  border-radius: 0;
   text-align: center;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 25px 60px var(--b-30);
+  box-shadow: none;
+  backdrop-filter: none;
   position: relative;
-  overflow: hidden;
 }
 
 .welcome-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 30% 30%, var(--w-10) 0%, transparent 50%),
-    radial-gradient(circle at 70% 70%, var(--w-05) 0%, transparent 50%);
-  animation: pulse 4s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes pulse {
@@ -1004,19 +996,25 @@ textarea:focus-visible {
 }
 
 .welcome-card h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  font-weight: 800;
-  position: relative;
-  z-index: 1;
+  font-family: var(--font-serif);
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 1.1rem;
+  color: #ffffff;
+  text-align: center;
 }
 
-.welcome-card p {
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.9;
-  position: relative;
-  z-index: 1;
+.welcome-card .user-role {
+  display: flex;
+  justify-content: center;
+}
+
+.welcome-card .user-role .badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
 }
 
 /* Grid layouts with enhanced spacing */

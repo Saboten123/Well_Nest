@@ -16,7 +16,7 @@ body {
 
 .page {
     min-height: 100vh;
-    background: var(--accent-1);
+    background: var(--bg-body);
 }
 
 /* Container */
@@ -195,7 +195,7 @@ body {
 .checkbox {
     width: 18px;
     height: 18px;
-    accent-color: #6ee7b7;
+    accent-color: #2fbf8a;
 }
 
 /* Reports List */

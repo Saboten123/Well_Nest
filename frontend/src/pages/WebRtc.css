@@ -3,7 +3,7 @@
 /* Landing Page Styles */
 .webrtc-container {
     min-height: 100vh;
-    background: var(--accent-1);
+    background: var(--bg-body);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -215,7 +215,7 @@
 /* Video Call Interface Styles */
 .webrtc-call-container {
     min-height: 100vh;
-    background: var(--accent-1);
+    background: var(--bg-body);
     display: flex;
     flex-direction: column;
     font-family: var(--font-sans);
@@ -353,7 +353,7 @@
 }
 
 .webrtc-remote-video-container {
-    background: var(--accent-1);
+    background: var(--bg-body);
     border-radius: 0.5rem;
     overflow: hidden;
 }
@@ -394,7 +394,7 @@
     right: 1rem;
     width: 12rem;
     height: 9rem;
-    background: var(--accent-1);
+    background: var(--bg-body);
     border-radius: 0.5rem;
     overflow: hidden;
     border: 2px solid var(--line);
