@@ -38,7 +38,7 @@
 .title {
     font-size: 1.875rem;
     font-weight: 700;
-    color: var(--accent-1);
+    color: var(--text-strong);
     margin-left: 0.75rem;
 }
 
@@ -100,7 +100,7 @@
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    color: var(--accent-1);
+    color: var(--text-strong);
 }
 
 .form-grid {

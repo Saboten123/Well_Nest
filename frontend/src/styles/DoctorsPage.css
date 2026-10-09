@@ -122,7 +122,7 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent-1);
+    color: var(--text-strong);
 }
 
 .modal-close {
@@ -284,7 +284,7 @@
 
 .appointment-info h4 {
     margin: 0 0 0.75rem 0;
-    color: var(--accent-1);
+    color: var(--text-strong);
     font-size: 1.125rem;
     font-weight: 700;
 }
@@ -381,19 +381,6 @@
 
 .btn-primary:hover {
     background: var(--accent-1);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
-}
-
-.btn-outline {
-    background: transparent;
-    color: var(--accent-1);
-    border: 2px solid var(--accent-1);
-}
-
-.btn-outline:hover {
-    background: var(--accent-1);
-    color: #0c0d10;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
 }
@@ -543,7 +530,7 @@
     margin: 0;
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--accent-1);
+    color: var(--text-strong);
 }
 
 .card-content {
@@ -620,7 +607,7 @@
 
 .profile-name h2 {
     margin: 0 0 0.5rem 0;
-    color: var(--accent-1);
+    color: var(--text-strong);
     font-size: 2rem;
     font-weight: 800;
 }
@@ -650,7 +637,7 @@
 
 .detail-section h4 {
     margin: 0 0 1.5rem 0;
-    color: var(--accent-1);
+    color: var(--text-strong);
     font-size: 1.25rem;
     font-weight: 700;
     position: relative;
@@ -717,7 +704,7 @@
 
 .availability-day.available {
     background: rgba(74, 222, 128, 0.12);
-    color: #4ade80;
+    color: var(--text-body);
     border: 2px solid #22c55e;
 }
 

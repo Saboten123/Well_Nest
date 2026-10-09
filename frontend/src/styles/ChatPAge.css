@@ -26,7 +26,7 @@
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    color: var(--accent-1);
+    color: var(--text-strong);
 }
 
 .auth-required-text {
@@ -139,7 +139,7 @@
 .sidebar-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--accent-1);
+    color: var(--text-strong);
 }
 
 .refresh-button {
@@ -244,7 +244,7 @@
 .user-name {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--accent-1);
+    color: var(--text-strong);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -329,7 +329,7 @@
 
 .chat-header-name {
     font-weight: 600;
-    color: var(--accent-1);
+    color: var(--text-strong);
 }
 
 .chat-header-appointment {
@@ -429,7 +429,7 @@
 
 .message-bubble.other {
     background-color: var(--surface-1);
-    color: var(--accent-1);
+    color: var(--text-strong);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     border: 1px solid var(--line);
 }
@@ -627,7 +627,7 @@
 .no-chat-title {
     font-size: 1.125rem;
     font-weight: 500;
-    color: var(--accent-1);
+    color: var(--text-strong);
     margin-bottom: 0.25rem;
 }
 

@@ -47,7 +47,7 @@
 .page-title {
     font-size: 28px;
     font-weight: bold;
-    color: var(--accent-1);
+    color: var(--text-strong);
     margin-left: 12px;
 }
 
@@ -172,11 +172,6 @@
 
 .btn-primary:hover {
     background: var(--accent-1);
-}
-
-.btn-outline {
-    background: var(--surface-0);
-    border: 1px solid transparent;
 }
 
 .btn-outline.blue {

@@ -1,7 +1,7 @@
 /* Dashboard Styles */
 .dashboard-container {
   min-height: 100vh;
-  background: var(--bg-body);
+  background: var(--accent-1);
 }
 
 .dashboard-main {
@@ -78,7 +78,7 @@
 }
 
 .card-header {
-  background: var(--accent-1);
+  background: var(--surface-0);
   color: #0c0d10;
   padding: 1.5rem;
   display: flex;
@@ -170,17 +170,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
-.btn-outline {
-  background: transparent;
-  color: var(--accent-1);
-  border: 2px solid var(--accent-1);
-}
-
-.btn-outline:hover {
-  background: var(--accent-1);
-  color: #0c0d10;
-}
-
 .btn-secondary {
   background: var(--surface-3);
   color: white;
@@ -234,7 +223,7 @@
 
 .success-message {
   background: rgba(74, 222, 128, 0.12);
-  color: #4ade80;
+  color: var(--text-strong);
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -305,7 +294,7 @@
 
 .badge-info {
   background: rgba(94, 234, 212, 0.12);
-  color: #5eead4;
+  color: var(--text-strong);
 }
 
 /* Links */
@@ -411,7 +400,7 @@
 }
 
 .modal-header {
-  background: var(--accent-1);
+  background: var(--surface-0);
   color: #0c0d10;
   padding: 1.5rem;
   display: flex;

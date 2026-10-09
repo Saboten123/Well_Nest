@@ -1,0 +1,198 @@
+/* ==========================================================================
+   Galaxy hover effect — applied to every action button in the app
+   Adapted from the "galaxy button" component, re-built with pseudo-elements so
+   it works on existing <button> markup with no extra HTML or JavaScript.
+
+   - Colour: --galaxy-hue (156 = the app's mint accent). Change it to re-tint.
+   - Opt out of the effect on any button with  className="... no-galaxy".
+   - Opt in on any other element with           className="... galaxy-btn".
+   - Everything is sized in em, so it scales with the button on any screen.
+   - Touch screens get the effect while pressed; reduced-motion users get the
+     static glow without the moving stars and spark.
+   ========================================================================== */
+@property --galaxy-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+:root {
+    --galaxy-hue: 156;
+    --galaxy-spark: 1.8s;
+    --galaxy-t: 0.25s;
+}
+
+.btn-danger {
+    --galaxy-hue: 0;
+}
+
+/* ---- resting state: layers exist but are invisible ---- */
+:is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition: box-shadow var(--galaxy-t) ease, scale var(--galaxy-t) ease,
+        color var(--galaxy-t) ease, border-color var(--galaxy-t) ease;
+}
+
+/* spark: a bright arc travelling around the button's edge */
+:is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy)::before {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.09em;
+    border-radius: inherit;
+    background: conic-gradient(from var(--galaxy-angle), transparent 0 300deg, #fff 360deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    box-shadow: none;
+    filter: none;
+    transform: none;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity var(--galaxy-t) ease;
+    animation: galaxy-spin calc(var(--galaxy-spark)) linear infinite;
+}
+
+/* stars: three drifting layers (parallax), fading out towards the top-left */
+:is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy)::after {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border-radius: inherit;
+    background-color: transparent;
+    background-image:
+        radial-gradient(circle at 46% 27%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.55) 0.075em, transparent 0.135em),
+        radial-gradient(circle at 14% 76%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0.85) 0.035em, transparent 0.095em),
+        radial-gradient(circle at 79% 15%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.55) 0.045em, transparent 0.105em),
+        radial-gradient(circle at 16% 63%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.55) 0.075em, transparent 0.135em),
+        radial-gradient(circle at 35% 19%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.55) 0.075em, transparent 0.135em),
+        radial-gradient(circle at 77% 23%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.55) 0.045em, transparent 0.105em),
+        radial-gradient(circle at 78% 82%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.55) 0.075em, transparent 0.135em),
+        radial-gradient(circle at 33% 13%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0.85) 0.045em, transparent 0.105em),
+        radial-gradient(circle at 58% 26%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0.85) 0.035em, transparent 0.095em),
+        radial-gradient(circle at 76% 31%, rgba(255, 255, 255, 0.7) 0, rgba(255, 255, 255, 0.7) 0.035em, transparent 0.095em),
+        radial-gradient(circle at 52% 20%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.55) 0.035em, transparent 0.095em),
+        radial-gradient(circle at 84% 34%, rgba(255, 255, 255, 1) 0, rgba(255, 255, 255, 1) 0.075em, transparent 0.135em),
+        radial-gradient(circle at 45% 67%, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0.85) 0.075em, transparent 0.135em);
+    background-size: 7em 2.8em, 7em 2.8em, 7em 2.8em, 7em 2.8em, 10em 3.4em, 10em 3.4em, 10em 3.4em, 10em 3.4em, 5em 2.2em, 5em 2.2em, 5em 2.2em, 5em 2.2em, 5em 2.2em;
+    background-repeat: repeat;
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+    -webkit-mask: radial-gradient(ellipse 120% 160% at 75% 110%, #000 15%, transparent 75%);
+    mask: radial-gradient(ellipse 120% 160% at 75% 110%, #000 15%, transparent 75%);
+    filter: brightness(3);
+    box-shadow: none;
+    transform: none;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity var(--galaxy-t) ease;
+    animation: galaxy-drift 9s linear infinite;
+}
+
+/* ---- active state (shared by hover, keyboard focus, and touch press) ---- */
+:is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):is(:focus-visible):not(:disabled),
+:is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):is(:active):not(:disabled) {
+    scale: 1.04;
+}
+
+@media (hover: hover) {
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):hover:not(:disabled) {
+        scale: 1.04;
+    }
+}
+
+@media (hover: hover) {
+
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):hover:not(:disabled),
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):focus-visible:not(:disabled) {
+        background:
+            radial-gradient(120% 120% at 126% 126%, hsl(var(--galaxy-hue) 97% 98% / 0.9) 40%, transparent 50%) 0 0 / 100% 100% no-repeat,
+            radial-gradient(120% 120% at 120% 120%, hsl(var(--galaxy-hue) 97% 70%) 30%, transparent 70%) 0 0 / 100% 100% no-repeat,
+            hsl(var(--galaxy-hue) 100% 4%) !important;
+        color: hsl(0 0% 92%) !important;
+        border-color: transparent !important;
+        box-shadow:
+            0 0 2.6em 0.7em hsl(var(--galaxy-hue) 97% 61% / 0.38),
+            0 0.05em 0 0 hsl(var(--galaxy-hue) 97% 80%) inset,
+            0 -0.05em 0 0 hsl(var(--galaxy-hue) 97% 10%) inset !important;
+        transform: none;
+    }
+
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):hover:not(:disabled)::before,
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):focus-visible:not(:disabled)::before,
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):hover:not(:disabled)::after,
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):focus-visible:not(:disabled)::after {
+        opacity: 1;
+    }
+}
+
+/* touch devices: show it while the button is pressed */
+@media (hover: none) {
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):active:not(:disabled) {
+        background:
+            radial-gradient(120% 120% at 126% 126%, hsl(var(--galaxy-hue) 97% 98% / 0.9) 40%, transparent 50%) 0 0 / 100% 100% no-repeat,
+            radial-gradient(120% 120% at 120% 120%, hsl(var(--galaxy-hue) 97% 70%) 30%, transparent 70%) 0 0 / 100% 100% no-repeat,
+            hsl(var(--galaxy-hue) 100% 4%) !important;
+        color: hsl(0 0% 92%) !important;
+        border-color: transparent !important;
+        box-shadow: 0 0 1.8em 0.4em hsl(var(--galaxy-hue) 97% 61% / 0.35) !important;
+    }
+
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):active:not(:disabled)::before,
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):active:not(:disabled)::after {
+        opacity: 1;
+    }
+}
+
+/* pressing the button settles it back to normal size */
+:is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy):active:not(:disabled) {
+    scale: 1;
+}
+
+@keyframes galaxy-spin {
+    to {
+        --galaxy-angle: 360deg;
+    }
+}
+
+@keyframes galaxy-drift {
+    from {
+        background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+    }
+
+    to {
+        background-position: -7em 0, -7em 0, -7em 0, -7em 0, -10em 0, -10em 0, -10em 0, -10em 0, -5em 0, -5em 0, -5em 0, -5em 0, -5em 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy)::before,
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy)::after {
+        animation: none;
+    }
+
+    :is(.btn:not(.btn-icon), .submit-btn, .submit-button, .pay-button, .verify-btn, .verify-button, .video-call-btn, .filter-btn, .wallet-connector-button, .webrtc-btn-primary, .webrtc-btn, .location-toggle-btn, .galaxy-btn):not(.no-galaxy):not(#galaxy) {
+        transition: none;
+    }
+}

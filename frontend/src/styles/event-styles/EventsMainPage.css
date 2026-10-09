@@ -201,7 +201,7 @@
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 2rem;
-    color: var(--accent-1);
+    color: var(--text-strong);
     position: relative;
     display: inline-block;
 }
@@ -321,7 +321,7 @@
     font-size: 1.375rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
-    color: var(--accent-1);
+    color: var(--text-strong);
     line-height: 1.3;
 }
 
@@ -476,7 +476,7 @@
 
 .organize-text {
     font-weight: 600;
-    color: var(--accent-1);
+    color: var(--text-strong);
     flex: 1;
     font-size: 1.05rem;
 }
@@ -524,7 +524,7 @@
     font-size: 1.375rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
-    color: var(--accent-1);
+    color: var(--text-strong);
     position: relative;
 }
 

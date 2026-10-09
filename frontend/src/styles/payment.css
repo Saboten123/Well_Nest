@@ -110,7 +110,7 @@
 }
 
 .summary {
-    background: var(--accent-1);
+    background: var(--surface-1);
     border-radius: 1rem;
     color: #0c0d10;
     padding: 1.5rem;

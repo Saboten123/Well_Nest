@@ -857,30 +857,37 @@ textarea:focus-visible {
 }
 
 .card-header {
-  background: var(--surface-0);
-  padding: 2rem;
+  background: transparent;
+  padding: 1.75rem 2rem 1.25rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--w-30);
-  backdrop-filter: blur(10px);
+  justify-content: flex-start;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--line);
   position: relative;
   z-index: 1;
 }
 
+.card-header .card-icon,
 .card-icon {
-  font-size: 2rem;
-  margin-right: 1rem;
-  background: var(--accent-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.5rem;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  -webkit-text-fill-color: initial;
+  color: var(--accent-1);
+  display: inline-flex;
+  align-items: center;
 }
 
+.card-header .card-title,
 .card-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--accent-1);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
   margin: 0;
   position: relative;
   z-index: 1;
@@ -917,14 +924,14 @@ textarea:focus-visible {
 }
 
 .info-item strong {
-  color: var(--accent-1);
+  color: var(--text-strong);
   font-weight: 600;
   font-size: 1.05rem;
   min-width: 120px;
 }
 
 .info-item span {
-  color: var(--accent-1);
+  color: var(--text-strong);
   font-size: 1.05rem;
   text-align: right;
   flex: 1 1 200px;
@@ -1263,7 +1270,7 @@ textarea:focus-visible {
 .filter-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
-  color: var(--accent-1);
+  color: var(--text-strong);
 }
 
 .filter-btn:hover::before {
@@ -1342,7 +1349,7 @@ textarea:focus-visible {
 
 .source-name {
   font-weight: 700;
-  color: var(--accent-1);
+  color: var(--text-strong);
   font-size: 1.1rem;
 }
 
@@ -1371,7 +1378,7 @@ textarea:focus-visible {
 .blog-title {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--accent-1);
+  color: var(--text-strong);
   margin-bottom: 1rem;
   line-height: 1.4;
 }
@@ -1448,7 +1455,7 @@ textarea:focus-visible {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 800;
-  background: var(--accent-1);
+  background: var(--surface-2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1578,7 +1585,7 @@ textarea:focus-visible {
 
 .wallet-connector-name {
   font-weight: 700;
-  color: var(--accent-1);
+  color: var(--text-strong);
   font-size: 1.1rem;
 }
 
@@ -1758,6 +1765,17 @@ textarea:focus-visible {
 .loading-spinner {
   border-color: var(--line-strong);
   border-top-color: var(--accent-1);
+}
+
+/* Quick actions: evenly spaced buttons */
+.quick-actions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.quick-actions-grid .btn {
+  margin: 0;
 }
 
 /* Responsive */

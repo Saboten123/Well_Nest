@@ -41,7 +41,7 @@
 .event-title {
     font-size: 1.875rem;
     font-weight: bold;
-    color: var(--accent-1);
+    color: var(--text-strong);
     /* gray-900 */
     margin-bottom: 1rem;
 }
