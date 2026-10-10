@@ -7,7 +7,7 @@ const cors = require("cors");
 app.use(cors());
 
 const { connect } = require("./connect");
-connect("mongodb://localhost:27017/wellnest")
+connect(process.env.MONGODB_URI || "mongodb://localhost:27017/wellnest")
   .then(() => console.log("mongo started"))
   .catch((err) => console.log(err));
 

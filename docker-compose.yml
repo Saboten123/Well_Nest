@@ -1,0 +1,80 @@
+# WellNest — runs the app in Docker while using the MongoDB installed on your PC.
+#   docker compose up --build
+# Then open http://localhost:5173
+#
+# Database: "host.docker.internal" is how a container reaches your PC. MongoDB on
+# the PC must accept it (bindIp: 127.0.0.1,0.0.0.0 in mongod.cfg — see README notes).
+x-host-gateway: &host-gateway
+  - "host.docker.internal:host-gateway"   # needed on Linux, harmless on Windows/Mac
+
+services:
+  backend:
+    build: ./backend
+    container_name: wellnest-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - path: ./backend/.env        # JWT secrets, SMTP, etc. (optional file)
+        required: false
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://host.docker.internal:27017/wellnest   # overrides .env
+      CLIENT_ORIGIN: http://localhost:5173
+    extra_hosts: *host-gateway
+
+  blockchain_backend:
+    build: ./blockchain_backend
+    container_name: wellnest-blockchain
+    restart: unless-stopped
+    ports:
+      - "7000:7000"
+    env_file:
+      - path: ./blockchain_backend/.env   # JWT_SECRET, PRIVATE_KEY, SEPOLIA_RPC_URL
+        required: false
+    environment:
+      MONGODB_URI: mongodb://host.docker.internal:27017/wellnest
+    volumes:
+      - blockchain_uploads:/app/uploads
+    extra_hosts: *host-gateway
+
+  ai_backend:
+    build: ./ai_backend
+    container_name: wellnest-ai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: ./ai_backend/.env        # GEMINI_API_KEY, TAVILY_API_KEY
+        required: false
+    environment:
+      MONGO_URI: mongodb://host.docker.internal:27017
+    extra_hosts: *host-gateway
+
+  frontend:
+    build: ./frontend
+    container_name: wellnest-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+      - blockchain_backend
+      - ai_backend
+
+  # Public link: run with   docker compose --profile share up -d
+  # then read the https://xxxx.trycloudflare.com address with:
+  #   docker compose logs tunnel
+  # (free Cloudflare quick tunnel — no account needed; the address changes on every start)
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: wellnest-tunnel
+    profiles: ["share"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://frontend:80
+    depends_on:
+      - frontend
+
+volumes:
+  blockchain_uploads:

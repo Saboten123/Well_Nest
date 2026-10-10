@@ -469,7 +469,7 @@ const ReportCard = ({
             {report.images.map((image, idx) => (
               <img
                 key={idx}
-                src={`http://localhost:8000${image}`}
+                src={`/chain${image}`}
                 alt={`Evidence ${idx + 1}`}
                 className="evidence-image"
               />

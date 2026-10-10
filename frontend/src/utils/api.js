@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Main API for authentication, user data, profiles, etc.
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "/api", // proxied to the main backend (Vite in dev, nginx in Docker)
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,7 +11,7 @@ const api = axios.create({
 
 // Blockchain API for payments, donations, token rewards, etc.
 const blockchainApi = axios.create({
-  baseURL: "http://localhost:7000",
+  baseURL: "/chain", // proxied to the blockchain backend
   headers: {
     "Content-Type": "application/json",
   },

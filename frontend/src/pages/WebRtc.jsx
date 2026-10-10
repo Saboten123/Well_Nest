@@ -100,7 +100,8 @@ const WebRTCVideoCall = () => {
     // Derive the host from wherever this page was loaded from (see the
     // same fix/reasoning in utils/api.js) so this also works when testing
     // from a second device on the LAN instead of just localhost.
-    socketRef.current = io(`http://${window.location.hostname}:5000`, {
+    socketRef.current = io({
+      path: "/socket.io", // same origin; proxied to the backend (Vite in dev, nginx in Docker)
       auth: { token },
       transports: ["websocket", "polling"], // Add fallback transport
     });
