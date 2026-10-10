@@ -2,7 +2,7 @@
 #
 #   docker compose -f docker-compose.yml -f docker-compose.mongo.yml up -d --build
 #
-# Data is kept in the "mongo_data" volume, so it survives restarts.
+# Data is kept in the "mongo_data" volume, so it survives restarts. :)
 services:
   mongo:
     image: mongo:7
