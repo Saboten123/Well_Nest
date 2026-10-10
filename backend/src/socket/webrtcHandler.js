@@ -89,15 +89,16 @@ export const initializeWebRTCSocket = (io) => {
 
     // Handle WebRTC Offer (Step 1 of connection)
     socket.on("offer", (data) => {
-      const { roomId, offer, targetUserId } = data;
+      const { roomId, offer, targetUserId, targetSocketId: wantedSocket } = data;
 
       console.log(
         `📤 Offer from ${socket.userId} to ${targetUserId} in room ${roomId}`
       );
 
       // Send offer to specific user or broadcast to room
-      if (targetUserId) {
-        const targetSocketId = userSockets.get(targetUserId);
+      if (targetUserId || wantedSocket) {
+        // prefer the exact socket; fall back to the user's latest socket
+        const targetSocketId = wantedSocket || userSockets.get(targetUserId);
         if (targetSocketId) {
           io.to(targetSocketId).emit("offer", {
             offer,
@@ -118,15 +119,16 @@ export const initializeWebRTCSocket = (io) => {
 
     // Handle WebRTC Answer (Step 2 of connection)
     socket.on("answer", (data) => {
-      const { roomId, answer, targetUserId } = data;
+      const { roomId, answer, targetUserId, targetSocketId: wantedSocket } = data;
 
       console.log(
         `📥 Answer from ${socket.userId} to ${targetUserId} in room ${roomId}`
       );
 
       // Send answer to specific user
-      if (targetUserId) {
-        const targetSocketId = userSockets.get(targetUserId);
+      if (targetUserId || wantedSocket) {
+        // prefer the exact socket; fall back to the user's latest socket
+        const targetSocketId = wantedSocket || userSockets.get(targetUserId);
         if (targetSocketId) {
           io.to(targetSocketId).emit("answer", {
             answer,
@@ -140,13 +142,14 @@ export const initializeWebRTCSocket = (io) => {
 
     // Handle ICE Candidates (Step 3 of connection)
     socket.on("ice-candidate", (data) => {
-      const { roomId, candidate, targetUserId } = data;
+      const { roomId, candidate, targetUserId, targetSocketId: wantedSocket } = data;
 
       console.log(`🧊 ICE candidate from ${socket.userId} in room ${roomId}`);
 
       // Send ICE candidate to specific user or broadcast
-      if (targetUserId) {
-        const targetSocketId = userSockets.get(targetUserId);
+      if (targetUserId || wantedSocket) {
+        // prefer the exact socket; fall back to the user's latest socket
+        const targetSocketId = wantedSocket || userSockets.get(targetUserId);
         if (targetSocketId) {
           io.to(targetSocketId).emit("ice-candidate", {
             candidate,

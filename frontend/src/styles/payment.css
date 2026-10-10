@@ -9,7 +9,7 @@
     margin: 0 auto;
 }
 
-.card {
+.page-container .card {
     background: var(--surface-1);
     border-radius: 1rem;
     padding: 2rem;

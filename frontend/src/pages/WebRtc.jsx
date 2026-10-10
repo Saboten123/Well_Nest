@@ -53,12 +53,51 @@ const WebRTCVideoCall = () => {
   const localStreamRef = useRef(null);
   const roomIdRef = useRef("");
 
-  // WebRTC configuration
+  // WebRTC configuration.
+  // STUN alone only works when both people are on friendly networks. Phones on
+  // mobile data (and many home routers) need a TURN relay, otherwise the two
+  // sides connect to the signalling server but never see each other.
+  // Add your own TURN credentials with VITE_ICE_SERVERS (JSON array) — see the
+  // README notes / docker-compose.yml. The public relay below is best-effort.
+  let extraIceServers = [];
+  try {
+    extraIceServers = JSON.parse(import.meta.env.VITE_ICE_SERVERS || "[]");
+  } catch {
+    extraIceServers = [];
+  }
   const pcConfig = {
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun1.l.google.com:19302" },
+      ...(extraIceServers.length
+        ? extraIceServers
+        : [
+          {
+            urls: [
+              "turn:openrelay.metered.ca:80",
+              "turn:openrelay.metered.ca:443",
+              "turns:openrelay.metered.ca:443?transport=tcp",
+            ],
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+        ]),
     ],
+  };
+
+  // ICE candidates that arrive before the remote description is set must be
+  // queued, otherwise addIceCandidate() fails and the connection never forms.
+  const pendingCandidates = useRef(new Map());
+  const flushPendingCandidates = async (socketId, pc) => {
+    const queued = pendingCandidates.current.get(socketId) || [];
+    pendingCandidates.current.delete(socketId);
+    for (const c of queued) {
+      try {
+        await pc.addIceCandidate(c);
+      } catch (e) {
+        console.warn("addIceCandidate failed", e);
+      }
+    }
   };
 
   // Keep refs in sync with state so socket handlers (registered once, below)
@@ -246,6 +285,7 @@ const WebRTCVideoCall = () => {
         audio: true,
       });
 
+      localStreamRef.current = stream; // available to signalling handlers immediately
       setLocalStream(stream);
       // Actual srcObject attachment now happens in the useEffect above,
       // once the in-call <video> element genuinely exists in the DOM.
@@ -305,6 +345,7 @@ const WebRTCVideoCall = () => {
           roomId: roomIdRef.current,
           candidate: event.candidate,
           targetUserId: userId,
+          targetSocketId: socketId,
         });
       }
     };
@@ -317,6 +358,7 @@ const WebRTCVideoCall = () => {
       roomId: roomIdRef.current,
       offer,
       targetUserId: userId,
+      targetSocketId: socketId,
     });
   };
 
@@ -354,11 +396,13 @@ const WebRTCVideoCall = () => {
           roomId: roomIdRef.current,
           candidate: event.candidate,
           targetUserId: fromUserId,
+          targetSocketId: fromSocketId,
         });
       }
     };
 
     await pc.setRemoteDescription(offer);
+    await flushPendingCandidates(fromSocketId, pc);
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
@@ -366,6 +410,7 @@ const WebRTCVideoCall = () => {
       roomId: roomIdRef.current,
       answer,
       targetUserId: fromUserId,
+      targetSocketId: fromSocketId,
     });
   };
 
@@ -375,15 +420,24 @@ const WebRTCVideoCall = () => {
     const pc = peerConnections.current.get(fromSocketId);
     if (pc) {
       await pc.setRemoteDescription(answer);
+      await flushPendingCandidates(fromSocketId, pc);
     }
   };
 
   // Handle ICE candidates
-  const handleIceCandidate = (data) => {
+  const handleIceCandidate = async (data) => {
     const { candidate, fromSocketId } = data;
     const pc = peerConnections.current.get(fromSocketId);
-    if (pc) {
-      pc.addIceCandidate(new RTCIceCandidate(candidate));
+    if (pc && pc.remoteDescription) {
+      try {
+        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (e) {
+        console.warn("addIceCandidate failed", e);
+      }
+    } else {
+      const queue = pendingCandidates.current.get(fromSocketId) || [];
+      queue.push(new RTCIceCandidate(candidate));
+      pendingCandidates.current.set(fromSocketId, queue);
     }
   };
 

@@ -1,0 +1,33 @@
+# Optional add-on: run MongoDB in Docker too (for machines without a local MongoDB).
+#
+#   docker compose -f docker-compose.yml -f docker-compose.mongo.yml up -d --build
+#
+# Data is kept in the "mongo_data" volume, so it survives restarts.
+services:
+  mongo:
+    image: mongo:7
+    container_name: wellnest-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/wellnest
+
+  blockchain_backend:
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/wellnest
+
+  ai_backend:
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+
+volumes:
+  mongo_data:

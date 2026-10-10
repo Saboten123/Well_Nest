@@ -260,6 +260,19 @@ textarea:focus-visible {
   font-size: 0.98rem;
 }
 
+/* page stylesheets also define .btn { border: none } — these win by specificity */
+.btn.btn-primary {
+  border: 1px solid var(--accent-1);
+}
+
+.btn.btn-outline {
+  border: 1px solid var(--line-strong);
+}
+
+.btn.btn-secondary {
+  border: 1px solid var(--line);
+}
+
 .btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -1027,14 +1040,14 @@ textarea:focus-visible {
 /* Grid layouts with enhanced spacing */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
   gap: 2.5rem;
   margin-bottom: 3rem;
 }
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
   gap: 2.5rem;
   margin-bottom: 2rem;
 }
@@ -1287,7 +1300,7 @@ textarea:focus-visible {
 /* Enhanced Blogs Grid */
 .blogs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
   gap: 2.5rem;
 }
 

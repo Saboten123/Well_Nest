@@ -53,7 +53,12 @@ services:
     extra_hosts: *host-gateway
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        # Optional TURN server for video calls, set in a root .env file, e.g.
+        # VITE_ICE_SERVERS=[{"urls":"turn:HOST:443","username":"USER","credential":"PASS"}]
+        VITE_ICE_SERVERS: ${VITE_ICE_SERVERS:-}
     container_name: wellnest-frontend
     restart: unless-stopped
     ports:

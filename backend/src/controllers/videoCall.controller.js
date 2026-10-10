@@ -1,6 +1,6 @@
 // controllers/videoCall.controller.js
 import { v4 as uuidv4 } from "uuid";
-import VideoCallSession from "../models/VideoCallSession.model.js";
+import VideoCallSession from "../models/videoCallSession.model.js";
 import Appointment from "../models/Appointments.js"; // Updated to match your schema file
 import DoctorProfile from "../models/DoctorProfile.js";
 import PatientProfile from "../models/PatientProfile.js";
