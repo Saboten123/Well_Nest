@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Well-Nest preview</title>
+<style>
+    body {
+        margin: 0;
+        font-family: system-ui;
+        background: #fbfaf7;
+        display: grid;
+        place-items: center;
+        min-height: 100vh
+    }
+
+    button {
+        padding: 10px 18px;
+        border: 0;
+        border-radius: 8px;
+        background: #22B98A;
+        color: #fff;
+        font-size: 1rem;
+        cursor: pointer
+    }
+</style>
+<link rel="stylesheet" href="LogoLoader.css">
+<button onclick="play()">Replay loader</button>
+<div id="slot"></div>
+<script>
+    const D = "M28 100 C50 172 150 172 172 100 C168 106 164 110 156 114 C130 160 70 160 44 114 C50 116 54 122 62 127 C82 149 118 149 138 127 C130 118 116 112 100 108 C62 82 66 44 100 64 C134 44 138 82 100 108";
+    const html = `<div class="wn-loader"><svg viewBox="0 0 200 200" fill="none" stroke-linecap="round" stroke-linejoin="round"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="100" y1="160" x2="100" y2="50"><stop offset="0" stop-color="#22B98A"/><stop offset=".55" stop-color="#5FD3AE"/><stop offset="1" stop-color="#F08A8E"/></linearGradient><filter id="b" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter></defs><path class="wn-glow" pathLength="1" d="${D}" stroke="url(#g)" stroke-width="10" filter="url(#b)"/><path class="wn-pen" pathLength="1" d="${D}" stroke="url(#g)" stroke-width="6"/></svg></div>`;
+    function play() { const s = document.getElementById('slot'); s.innerHTML = html; setTimeout(() => s.innerHTML = '', 2800) }
+    play();
+</script>

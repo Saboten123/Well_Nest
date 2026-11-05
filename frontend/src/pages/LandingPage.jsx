@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { HeartPulse } from "lucide-react";
 import { aiApi } from "../utils/api";
 import "./LandingPage.css";
+import Logo from "../components/Logo";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function LandingPage() {
   }, [location]);
 
   useEffect(() => {
-    if (chatEndRef.current) {
+    if (chatMessages.length > 0 && chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [chatMessages]);
@@ -67,9 +68,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="landing-nav">
         <div className="landing-nav-brand" onClick={() => navigate("/")}>
-          <span className="landing-nav-logo">
-            <HeartPulse size={16} />
-          </span>
+          <Logo size={30} />
           <span>WellNest</span>
           <small>Healthcare</small>
         </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../utils/api.js";
 import "../styles/auth.css";
+import Logo from "../components/Logo";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -211,6 +212,7 @@ export default function SignUp() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
+          <Logo size={52} />
           <h1>Create Account</h1>
           <p>Join the WellNest community</p>
         </div>

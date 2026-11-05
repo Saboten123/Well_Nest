@@ -1,0 +1,64 @@
+/* Apple "hello"-style handwriting reveal, with the Well-Nest logo.
+   Total run = 2.8s: write 0-2.0s, hold, fade-out at the end. */
+.wn-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--wn-loader-bg, #fbfaf7);
+    animation: wn-overlay 2.8s ease forwards;
+}
+
+@media (prefers-color-scheme: dark) {
+    .wn-loader {
+        --wn-loader-bg: #0f1a16;
+    }
+}
+
+.wn-loader svg {
+    width: min(46vw, 240px);
+    height: auto;
+    overflow: visible;
+}
+
+.wn-pen,
+.wn-glow {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    /* slow start, quick middle, soft landing - like a hand writing */
+    animation: wn-write 2s cubic-bezier(.45, .05, .35, 1) 0.15s forwards;
+}
+
+.wn-glow {
+    opacity: .45;
+}
+
+@keyframes wn-write {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes wn-overlay {
+
+    0%,
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .wn-pen,
+    .wn-glow {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+}

@@ -11,7 +11,7 @@ import { wagmiConfig, queryClient } from "./config/wagmi";
 
 import LandingPage from "./pages/LandingPage";
 import SignUp from "./pages/SignUp";
-import SignIn from "./pages/SignIn";
+import SignIn from "./pages/SignInPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 
@@ -43,12 +43,14 @@ import ParticipantRegistration from "./pages/events/ParticipantRegistration";
 import AIChatPage from "./pages/AiChatPage";
 
 import "./styles/main.css";
+import RouteTransition from "./components/RouteTransition";
 
 function App() {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <Router>
+          <RouteTransition />
           <div className="App">
             <Routes>
               <Route path="/" element={<LandingPage />} />

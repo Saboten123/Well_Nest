@@ -1,114 +1,112 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import api from "../utils/api.js";
-import { setToken } from "../utils/auth.js";
-import "../styles/auth.css";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { WagmiProvider } from "wagmi";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { wagmiConfig, queryClient } from "..wagmi/config/wagmi";
 
-export default function SignIn() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+import LandingPage from "./pages/LandingPage";
+import SignUp from "./pages/SignUp";
+import SignIn from "./pages/SignInPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import Dashboard from "./pages/Dashboard";
 
-  useEffect(() => {
-    if (location.state?.message) {
-      setMessage(location.state.message);
-    }
-  }, [location]);
+import DoctorsPage from "./pages/DoctorsPage";
+import PendingAppointmentsPage from "./pages/PendingAppointmentsPage";
+import ScheduledAppointmentsPage from "./pages/ScheduledAppointmentsPage";
+import PatientAppointmentsPage from "./pages/PatientAppointmentsPage";
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError(""); // Clear error when user types
-  };
+import NGOsPage from "./pages/NGOsPage";
+import HealthWorkersPage from "./pages/HealthWorkersPage";
+import Payment from "./pages/payment";
+import ProfilePage from "./pages/ProfilePage";
+import BlogsPage from "./pages/BlogsPage";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+//outbreak components
+import OutbreakPage from "./pages/OutBreakPage";
 
-    try {
-      const res = await api.post("/auth/login", form);
-      const { user, tokens } = res.data.data || {};
-      if (tokens?.accessToken) {
-        setToken(tokens.accessToken);
-      }
-      if (user) {
-        localStorage.setItem("userRole", user.role);
-        localStorage.setItem("userId", user.id);
-        localStorage.setItem("firstName", user.firstName || "");
-        localStorage.setItem("lastName", user.lastName || "");
-      }
-      navigate("/dashboard");
-    } catch (err) {
-      setError(err.message || "Failed to sign in");
-    } finally {
-      setLoading(false);
-    }
-  };
+import WebRTCVideoCall from "./pages/WebRtc";
 
+// Events components
+import EventsMainPage from "./pages/events/EventsMainPage";
+import EventsListPage from "./pages/events/EventsListPage";
+import OrganizeEventForm from "./pages/events/OrganizeEventForm";
+import EventParticipantsPage from "./pages/events/EventParticipantsPage";
+import ParticipantRegistration from "./pages/events/ParticipantRegistration";
+
+// import ChatPage from "./pages/ChatPage";
+
+import AIChatPage from "./pages/AiChatPage";
+
+import "./styles/main.css";
+import RouteTransition from "./components/RouteTransition";
+
+function App() {
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1>Welcome Back</h1>
-          <p>Sign in to your WellNest account</p>
-        </div>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <RouteTransition />
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/video-call" element={<WebRTCVideoCall />} />
 
-        {message && <div className="success-message">{message}</div>}
-        {error && <div className="error-message">{error}</div>}
+              <Route path="/doctors" element={<DoctorsPage />} />
+              {/* Appointment Routes */}
+              <Route
+                path="/pending-appointments"
+                element={<PendingAppointmentsPage />}
+              />
+              <Route
+                path="/scheduled-appointments"
+                element={<ScheduledAppointmentsPage />}
+              />
+              <Route
+                path="/my-appointments"
+                element={<PatientAppointmentsPage />}
+              />
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              placeholder="Enter your email"
-            />
+              <Route path="/ngos" element={<NGOsPage />} />
+              <Route path="/healthworkers" element={<HealthWorkersPage />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/outbreak" element={<OutbreakPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/blogs" element={<BlogsPage />} />
+
+              <Route path="/assistant" element={<AIChatPage />} />
+
+              {/* Events Routes */}
+              <Route path="/events" element={<EventsMainPage />} />
+              <Route path="/events/:eventType" element={<EventsListPage />} />
+              <Route
+                path="/events/organize/:eventType"
+                element={<OrganizeEventForm />}
+              />
+              <Route
+                path="/events/participants/:eventId"
+                element={<EventParticipantsPage />}
+              />
+              <Route
+                path="/events/register/:eventId"
+                element={<ParticipantRegistration />}
+              />
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              placeholder="Enter your password"
-            />
-            <div style={{ textAlign: "right", marginTop: "0.375rem" }}>
-              <Link to="/forgot-password" className="link">
-                Forgot password?
-              </Link>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary btn-full"
-            disabled={loading}
-          >
-            {loading ? "Signing In..." : "Sign In"}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <p>
-            Don't have an account?{" "}
-            <Link to="/signup" className="link">
-              Sign Up
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
+        </Router>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
+
+export default App;

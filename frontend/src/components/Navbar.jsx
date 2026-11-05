@@ -8,6 +8,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import "../styles/navbar.css";
+import Logo from "./Logo";
 
 export default function Navbar({ onLogout }) {
   const navigate = useNavigate();
@@ -84,9 +85,7 @@ export default function Navbar({ onLogout }) {
     <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
       {/* Brand */}
       <div className="navbar-brand" onClick={() => navigate("/")}>
-        <span className="navbar-logo">
-          <Stethoscope size={16} />
-        </span>
+        <Logo size={30} />
         <h2 className="navbar-title">WellNest</h2>
       </div>
 

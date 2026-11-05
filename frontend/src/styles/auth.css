@@ -164,3 +164,8 @@
     font-size: 1.7rem;
   }
 }
+
+.auth-header img {
+  display: block;
+  margin-bottom: 1rem;
+}
